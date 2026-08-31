@@ -1,0 +1,2210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>대중매체 비판적 시청 활동지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #4F46E5;
+    --primary-light: #EEF2FF;
+    --primary-dark: #3730A3;
+    --secondary: #06B6D4;
+    --bg-page: #F8FAFC;
+    --bg-card: #FFFFFF;
+    --text-main: #0F172A;
+    --text-muted: #64748B;
+    --border: #E2E8F0;
+    
+    /* 퀘스트 단계별 테마 컬러 */
+    --step1-color: #F59E0B;
+    --step1-bg: #FEF3C7;
+    --step2-color: #10B981;
+    --step2-bg: #D1FAE5;
+    --step3-color: #EC4899;
+    --step3-bg: #FCE7F3;
+    --step4-color: #8B5CF6;
+    --step4-bg: #EDE9FE;
+
+    --danger: #EF4444;
+    --danger-bg: #FEE2E2;
+    --success: #10B981;
+    --success-bg: #D1FAE5;
+    --warning: #F59E0B;
+    --info: #3B82F6;
+
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px -2px rgba(0,0,0,0.08), 0 2px 6px -1px rgba(0,0,0,0.04);
+    --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.05);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    background: var(--bg-page);
+    color: var(--text-main);
+    line-height: 1.6;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* 진행 로딩바 애니메이션 */
+  body.busy::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #F59E0B, #10B981, #EC4899, #8B5CF6, #4F46E5);
+    background-size: 300% 100%;
+    animation: loadingAnim 1s ease-in-out infinite;
+    z-index: 9999;
+  }
+  @keyframes loadingAnim {
+    0% { background-position: 0% 0%; }
+    50% { background-position: 100% 0%; }
+    100% { background-position: 0% 0%; }
+  }
+
+  /* 상단 네비게이션 헤더 */
+  .header-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .header-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text-main);
+    font-weight: 800;
+    font-size: 1.15rem;
+    letter-spacing: -0.5px;
+  }
+  .brand-badge {
+    background: linear-gradient(135deg, #4F46E5, #8B5CF6);
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* 진행률 게이지 바 (학생용) */
+  .progress-tracker {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 10px 18px;
+  }
+  .progress-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .progress-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--primary);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .progress-bar-bg {
+    flex: 1;
+    height: 10px;
+    background: #E2E8F0;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #F59E0B, #10B981, #8B5CF6);
+    border-radius: 999px;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .progress-text {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    min-width: 40px;
+    text-align: right;
+  }
+
+  /* 메인 컨테이너 */
+  .main-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 16px 100px;
+  }
+
+  /* 히어로 배너 */
+  .hero-banner {
+    background: linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4338CA 100%);
+    color: white;
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-banner::after {
+    content: '🕵️‍♂️';
+    position: absolute;
+    right: 16px;
+    bottom: -8px;
+    font-size: 5.5rem;
+    opacity: 0.22;
+    transform: rotate(-10deg);
+    pointer-events: none;
+  }
+  .hero-title {
+    font-size: 1.45rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .hero-desc {
+    font-size: 0.92rem;
+    color: #E0E7FF;
+    line-height: 1.5;
+  }
+
+  /* 카드 컴포넌트 */
+  .quest-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .quest-card:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  .card-header-flex {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-main);
+  }
+
+  /* 입력 필드 디자인 */
+  .form-group {
+    margin-bottom: 14px;
+  }
+  .form-group:last-child { margin-bottom: 0; }
+  .form-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .form-label .req {
+    color: var(--danger);
+    margin-left: 2px;
+  }
+  .form-control {
+    width: 100%;
+    padding: 11px 14px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: var(--text-main);
+    background: #FFFFFF;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+  }
+  .form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  }
+  .form-control:disabled {
+    background: #F1F5F9;
+    color: #94A3B8;
+    cursor: not-allowed;
+  }
+
+  /* 인적사항 그리드 */
+  .student-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .student-name-field {
+    grid-column: 1 / -1;
+  }
+
+  /* 유튜브 스마트 자동완성 & 플레이어 카드 */
+  .yt-smart-box {
+    background: linear-gradient(135deg, #FFF1F2 0%, #FFFFFF 100%);
+    border: 2px dashed #FDA4AF;
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-top: 14px;
+  }
+  .yt-input-wrap {
+    position: relative;
+    display: flex;
+    gap: 8px;
+  }
+  .yt-input-wrap .form-control {
+    border-color: #FB7185;
+    padding-left: 38px;
+    font-weight: 500;
+  }
+  .yt-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    color: #E11D48;
+  }
+  .btn-magic {
+    background: #E11D48;
+    color: white;
+    font-weight: 700;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 0 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+  }
+  .btn-magic:hover { background: #BE123C; }
+
+  /* 유튜브 프리뷰 카드 */
+  .yt-preview-card {
+    margin-top: 14px;
+    background: white;
+    border-radius: var(--radius-md);
+    border: 1px solid #FECDD3;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    display: none;
+  }
+  .yt-preview-card.show {
+    display: block;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .yt-preview-media {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 ratio */
+    background: #000;
+  }
+  .yt-preview-media iframe, .yt-preview-media img {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  .yt-play-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.35);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .yt-play-overlay:hover { background: rgba(0,0,0,0.5); }
+  .play-btn-circle {
+    width: 60px; height: 60px;
+    background: #E11D48;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 15px rgba(225, 29, 72, 0.5);
+    transform: scale(1);
+    transition: transform 0.2s ease;
+  }
+  .yt-play-overlay:hover .play-btn-circle { transform: scale(1.1); }
+  .yt-meta-bar {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #FFF5F5;
+  }
+  .yt-title-text {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 75%;
+  }
+  .yt-channel-badge {
+    background: #FFE4E6;
+    color: #BE123C;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  /* STEP 섹션 디자인 */
+  .step-card {
+    border-left: 6px solid var(--step-accent);
+    position: relative;
+  }
+  .step-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .step-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    background: var(--step-bg);
+    color: var(--step-accent);
+    font-weight: 800;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+  }
+  .step-title {
+    font-size: 1.18rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 4px;
+  }
+  .step-guide {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+  }
+
+  /* 💡 질문 힌트 도우미 버튼 & 드롭다운 */
+  .hint-toggle-btn {
+    background: #F1F5F9;
+    border: 1px solid var(--border);
+    color: #475569;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+  }
+  .hint-toggle-btn:hover { background: #E2E8F0; color: #1E293B; }
+  .hint-box {
+    display: none;
+    background: #F8FAFC;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    margin: 10px 0 16px;
+    font-size: 0.85rem;
+    color: #334155;
+    animation: fadeIn 0.2s ease;
+  }
+  .hint-box.show { display: block; }
+  .hint-box ul { padding-left: 18px; margin: 4px 0 0; }
+  .hint-box li { margin-bottom: 4px; }
+
+  /* 질문 카드 리스트 */
+  .entry-item {
+    background: #F8FAFC;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    margin-bottom: 12px;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+  .entry-item:hover {
+    border-color: #CBD5E1;
+  }
+  .entry-num-badge {
+    position: absolute;
+    left: -12px;
+    top: 14px;
+    width: 26px;
+    height: 26px;
+    background: var(--step-accent);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.78rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  }
+  .entry-fields-grid {
+    display: grid;
+    gap: 10px;
+    padding-left: 10px;
+  }
+  @media (min-width: 640px) {
+    .entry-fields-grid.two-col {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .entry-item textarea {
+    min-height: 52px;
+    resize: vertical;
+  }
+  .entry-delete-btn {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    background: white;
+    border: 1px solid var(--border);
+    color: #94A3B8;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+  .entry-delete-btn:hover {
+    color: var(--danger);
+    border-color: var(--danger);
+    background: #FEF2F2;
+  }
+
+  .btn-add-entry {
+    width: 100%;
+    padding: 10px;
+    border: 2px dashed var(--step-accent);
+    background: var(--step-bg);
+    color: var(--step-accent);
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    font-size: 0.92rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+  .btn-add-entry:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  /* 상태 알림 배너 */
+  .status-banner {
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    font-size: 0.92rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    animation: fadeIn 0.3s ease;
+  }
+  .status-banner.draft { background: #FEF3C7; border: 1px solid #FDE68A; color: #92400E; }
+  .status-banner.submitted { background: #D1FAE5; border: 1px solid #A7F3D0; color: #065F46; }
+  .status-banner.returned { background: #FEE2E2; border: 1px solid #FECACA; color: #991B1B; }
+  .status-banner.graded { background: #EDE9FE; border: 1px solid #DDD6FE; color: #5B21B6; }
+
+  /* 하단 고정 액션바 */
+  .bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--border);
+    padding: 12px 18px;
+    z-index: 40;
+  }
+  .bottom-bar-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    display: flex;
+    gap: 12px;
+  }
+  .btn {
+    padding: 12px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+  }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-secondary { background: white; border-color: var(--border); color: var(--text-main); }
+  .btn-secondary:hover { background: #F8FAFC; border-color: #CBD5E1; }
+  .btn-success { background: var(--success); color: white; }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-flex-1 { flex: 1; }
+
+  /* 토스트 메시지 */
+  .toast-box {
+    position: fixed;
+    bottom: 84px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1E293B;
+    color: white;
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .toast-box.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast-box.ok { background: #059669; }
+  .toast-box.error { background: #DC2626; }
+
+  /* 교사 대시보드 전용 스타일 */
+  .teacher-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 8px;
+  }
+  .tab-btn {
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    border: none;
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    background: var(--primary-light);
+    color: var(--primary);
+  }
+
+  /* 통계 위젯 카드 */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .stat-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+  .stat-val {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: var(--primary);
+  }
+  .stat-lbl {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  /* 랭킹 리스트 */
+  .rank-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .rank-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #F8FAFC;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+  }
+  .rank-badge {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 800;
+    margin-right: 8px;
+  }
+  .rank-count {
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  /* 학생 리스트 테이블 */
+  .student-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .student-list-item:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+  }
+  .student-tag {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .student-tag.DRAFT { background: #FEF3C7; color: #B45309; }
+  .student-tag.SUBMITTED { background: #D1FAE5; color: #065F46; }
+  .student-tag.RETURNED { background: #FEE2E2; color: #991B1B; }
+  .student-tag.GRADED { background: #EDE9FE; color: #5B21B6; }
+
+  /* 빠른 피드백 프리셋 태그 */
+  .feedback-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0 12px;
+  }
+  .preset-chip {
+    background: #EEF2FF;
+    color: #4338CA;
+    border: 1px solid #C7D2FE;
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .preset-chip:hover {
+    background: #4338CA;
+    color: white;
+  }
+
+  /* 모달 오버레이 */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 120;
+    padding: 16px;
+  }
+  .modal-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    max-width: 520px;
+    width: 100%;
+    padding: 24px;
+    box-shadow: var(--shadow-lg);
+    animation: modalPop 0.2s ease;
+  }
+  @keyframes modalPop { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  /* 반응형 조정 */
+  @media (max-width: 640px) {
+    .hero-banner { padding: 18px; }
+    .hero-banner::after { display: none; }
+    .quest-card { padding: 16px; }
+    .student-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  /* 캔버스 폭죽 효과 */
+  #confettiCanvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 99999;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="confettiCanvas"></canvas>
+<div id="toast" class="toast-box"></div>
+
+<!-- 상단 네비게이션 -->
+<header class="header-nav">
+  <div class="header-inner">
+    <div class="brand">
+      <span>🎬</span>
+      <span id="navAppTitle"><?= activityTitle ?></span>
+      <span class="brand-badge">중1 탐구 퀘스트</span>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="btn btn-secondary" style="padding: 7px 12px; font-size: 0.85rem;" id="teacherToggleBtn">
+        👩‍🏫 선생님 화면
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- 학생 화면: 상단 프로그레스 게이지 바 -->
+<div id="studentProgressTracker" class="progress-tracker">
+  <div class="progress-inner">
+    <div class="progress-label">
+      <span>🎯 퀘스트 완료도</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div id="progressBarFill" class="progress-bar-fill"></div>
+    </div>
+    <div id="progressPercent" class="progress-text">0%</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 1. 학생 메인 뷰 (Student View) -->
+<!-- ============================================================ -->
+<main id="studentView" class="main-wrap">
+  
+  <!-- 히어로 안내 배너 -->
+  <div class="hero-banner">
+    <h1 class="hero-title">🔍 유튜브 미디어 비판적 시청 탐정단</h1>
+    <p class="hero-desc">
+      유튜브 영상을 시청하며 숨겨진 맥락과 다양한 관점을 파헤쳐 보세요!<br>
+      유튜브 영상 링크를 넣으면 영상 정보가 자동으로 채워집니다.
+    </p>
+  </div>
+
+  <!-- 상태 알림 배너 (불러온 활동지 상태에 따라 동적 노출) -->
+  <div id="statusBanner" class="status-banner" style="display: none;"></div>
+
+  <!-- 인적사항 & 유튜브 영상 스마트 연동 카드 -->
+  <div class="quest-card">
+    <div class="card-header-flex">
+      <h2 class="card-title">📝 탐정 기본 정보 & 영상 등록</h2>
+      <span style="font-size: 0.8rem; color: var(--primary); font-weight: 700;">STEP 0</span>
+    </div>
+
+    <!-- 학년/반/번호/이름 -->
+    <div class="student-grid">
+      <div class="form-group">
+        <label class="form-label" for="gradeInput">학년<span class="req">*</span></label>
+        <input type="number" id="gradeInput" class="form-control" min="1" max="6" placeholder="예: 1">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="classInput">반<span class="req">*</span></label>
+        <input type="number" id="classInput" class="form-control" min="1" max="20" placeholder="예: 3">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="numberInput">번호<span class="req">*</span></label>
+        <input type="number" id="numberInput" class="form-control" min="1" max="45" placeholder="예: 12">
+      </div>
+      <div class="form-group student-name-field">
+        <label class="form-label" for="nameInput">이름<span class="req">*</span></label>
+        <input type="text" id="nameInput" class="form-control" maxlength="20" placeholder="학생 이름을 입력하세요">
+      </div>
+    </div>
+
+    <!-- ⚡ 유튜브 스마트 링크 자동완성 박스 -->
+    <div class="yt-smart-box">
+      <label class="form-label" style="color: #BE123C;">
+        ⚡ 유튜브 링크 넣기 (쇼츠 / 일반 영상 모두 지원)
+      </label>
+      <div class="yt-input-wrap">
+        <span class="yt-icon">▶</span>
+        <input type="url" id="ytUrlInput" class="form-control" placeholder="https://youtu.be/... 또는 youtube.com/watch?v=... 붙여넣기">
+        <button type="button" class="btn-magic" id="btnAutoFetchYt">
+          <span>자동 채우기</span> ✨
+        </button>
+      </div>
+
+      <!-- 유튜브 미니 플레이어 & 프리뷰 -->
+      <div id="ytPreviewCard" class="yt-preview-card">
+        <div class="yt-preview-media" id="ytMediaContainer">
+          <img id="ytThumbImg" src="" alt="유튜브 썸네일">
+          <div class="yt-play-overlay" id="ytPlayOverlay">
+            <div class="play-btn-circle">▶</div>
+          </div>
+        </div>
+        <div class="yt-meta-bar">
+          <span id="ytMetaTitle" class="yt-title-text">영상 제목</span>
+          <span id="ytMetaAuthor" class="yt-channel-badge">채널명</span>
+        </div>
+      </div>
+
+      <!-- 자동 채워지는 채널명 및 영상 제목 (수동 수정 가능) -->
+      <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 10px; margin-top: 12px;">
+        <div class="form-group">
+          <label class="form-label" for="channelInput">채널명</label>
+          <input type="text" id="channelInput" class="form-control" placeholder="채널 이름">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="videoInput">영상 제목</label>
+          <input type="text" id="videoInput" class="form-control" placeholder="영상 제목">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== STEP 1 ==================== -->
+  <section class="quest-card step-card" id="secStep1" style="--step-accent: var(--step1-color); --step-bg: var(--step1-bg);">
+    <div class="step-header">
+      <div>
+        <div class="step-badge">🚀 STEP 1</div>
+        <h2 class="step-title">훑어보기 질문으로 호기심 깨우기</h2>
+        <p class="step-guide" id="guideStep1">영상을 본격적으로 보기 전, 제목·썸네일·첫 장면만 보고 궁금한 점을 질문으로 던져보세요.</p>
+      </div>
+      <button type="button" class="hint-toggle-btn" onclick="toggleHint('hint1')">💡 질문 힌트</button>
+    </div>
+    
+    <div id="hint1" class="hint-box">
+      <strong>💡 이런 질문을 던져볼 수 있어요!</strong>
+      <ul>
+        <li>"썸네일에 쓰인 자극적인 단어는 본 영상 내용과 정말 관련이 있을까?"</li>
+        <li>"이 영상은 시청자에게 어떤 호기심을 유발하려고 제목을 이렇게 지었을까?"</li>
+      </ul>
+    </div>
+
+    <div id="step1List"></div>
+    <button type="button" class="btn-add-entry" id="addStep1Btn">+ 질문 추가하기</button>
+  </section>
+
+  <!-- ==================== STEP 2 ==================== -->
+  <section class="quest-card step-card" id="secStep2" style="--step-accent: var(--step2-color); --step-bg: var(--step2-bg);">
+    <div class="step-header">
+      <div>
+        <div class="step-badge">💡 STEP 2</div>
+        <h2 class="step-title">나만의 질문 파일링</h2>
+        <p class="step-guide" id="guideStep2">영상을 보며 이해되지 않거나 의문이 드는 점, 친구들의 생각이 궁금한 점을 질문으로 모아보세요.</p>
+      </div>
+      <button type="button" class="hint-toggle-btn" onclick="toggleHint('hint2')">💡 질문 힌트</button>
+    </div>
+
+    <div id="hint2" class="hint-box">
+      <strong>💡 질문 분류 팁</strong>
+      <ul>
+        <li><strong>이해가 안 되는 부분:</strong> 설명이 부족하거나 용어가 어려운 부분</li>
+        <li><strong>궁금한 점(의문):</strong> 사실 확인이 더 필요하거나 뒷이야기가 궁금한 부분</li>
+        <li><strong>다른 사람 의견:</strong> 찬반이 나뉠 수 있는 이슈나 가치관 문제</li>
+      </ul>
+    </div>
+
+    <div id="step2List"></div>
+    <button type="button" class="btn-add-entry" id="addStep2Btn">+ 질문 추가하기</button>
+  </section>
+
+  <!-- ==================== STEP 3 ==================== -->
+  <section class="quest-card step-card" id="secStep3" style="--step-accent: var(--step3-color); --step-bg: var(--step3-bg);">
+    <div class="step-header">
+      <div>
+        <div class="step-badge">🕵️ STEP 3</div>
+        <h2 class="step-title">댓글 속마음 탐정 (댓글 질문 파일링)</h2>
+        <p class="step-guide" id="guideStep3">댓글 작성자의 숨겨진 의도나 관점을 추론해보세요. 비판적이거나 편향된 댓글을 살펴보면 좋아요.</p>
+      </div>
+      <button type="button" class="hint-toggle-btn" onclick="toggleHint('hint3')">💡 질문 힌트</button>
+    </div>
+
+    <div id="hint3" class="hint-box">
+      <strong>💡 댓글 분석 팁</strong>
+      <ul>
+        <li>댓글 작성자가 특정 입장에 치우쳐 있거나 감정적으로 쓴 이유는 무엇일까?</li>
+        <li>작성자가 겪은 개인적 경험이나 이해관계는 무엇일까?</li>
+      </ul>
+    </div>
+
+    <div id="step3List"></div>
+    <button type="button" class="btn-add-entry" id="addStep3Btn">+ 댓글 분석 추가하기</button>
+  </section>
+
+  <!-- ==================== STEP 4 ==================== -->
+  <section class="quest-card step-card" id="secStep4" style="--step-accent: var(--step4-color); --step-bg: var(--step4-bg);">
+    <div class="step-header">
+      <div>
+        <div class="step-badge">⚖️ STEP 4</div>
+        <h2 class="step-title">미디어 팩트체커 (비판적 질문 던지기)</h2>
+        <p class="step-guide" id="guideStep4">댓글의 맥락과 가치관을 깊이 분석하고, 미디어가 다루지 않은 현실의 한계를 짚어보세요.</p>
+      </div>
+      <button type="button" class="hint-toggle-btn" onclick="toggleHint('hint4')">💡 질문 힌트</button>
+    </div>
+
+    <div id="hint4" class="hint-box">
+      <strong>💡 예시를 참고해보세요!</strong>
+      <ul>
+        <li><strong>댓글 인용:</strong> "축제 때문에 주민들은 교통체증으로 지옥인데 뉴스는 겉만 번지르르하네요."</li>
+        <li><strong>작성자 배경 추론:</strong> 이 주민은 평소 지역 행정이나 대중교통에 어떤 불편을 겪었을까?</li>
+        <li><strong>미디어 한계 파악:</strong> 왜 이 영상/뉴스는 축제의 화려함 뒤에 숨은 주민 불편을 조명하지 않았을까?</li>
+      </ul>
+    </div>
+
+    <div id="step4List"></div>
+    <button type="button" class="btn-add-entry" id="addStep4Btn">+ 비판적 질문 추가하기</button>
+  </section>
+
+  <!-- 하단 고정 저장/제출 바 -->
+  <div class="bottom-bar" id="studentActionBar">
+    <div class="bottom-bar-inner">
+      <button type="button" class="btn btn-secondary btn-flex-1" id="btnSaveDraft">
+        <span>💾</span> 임시저장
+      </button>
+      <button type="button" class="btn btn-primary btn-flex-1" id="btnSubmitForm">
+        <span>🚀</span> 활동지 제출하기
+      </button>
+    </div>
+  </div>
+</main>
+
+
+<!-- ============================================================ -->
+<!-- 2. 교사 관리자 뷰 (Teacher View) -->
+<!-- ============================================================ -->
+<main id="teacherView" class="main-wrap" style="display: none;">
+  
+  <!-- 로그인 전 화면 -->
+  <section id="teacherLoginCard" class="quest-card" style="max-width: 440px; margin: 40px auto;">
+    <div style="text-align: center; margin-bottom: 18px;">
+      <div style="font-size: 2.5rem; margin-bottom: 8px;">👩‍🏫</div>
+      <h2 style="font-size: 1.35rem; font-weight: 800;">교사 관리자 인증</h2>
+      <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 4px;">비밀번호를 입력하여 대시보드에 접속하세요.</p>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label" for="teacherPwInput">관리자 비밀번호</label>
+      <input type="password" id="teacherPwInput" class="form-control" placeholder="비밀번호 입력 (기본: 1234)">
+    </div>
+
+    <!-- GitHub/외부 배포용 Apps Script URL 브릿지 설정 -->
+    <div style="margin: 14px 0;">
+      <details style="font-size: 0.8rem; color: var(--text-muted);">
+        <summary style="cursor: pointer; font-weight: 600;">⚙️ 깃허브 배포용 웹앱 URL 설정 (선택)</summary>
+        <div style="margin-top: 8px;">
+          <input type="url" id="customGasUrlInput" class="form-control" style="font-size: 0.8rem;" placeholder="https://script.google.com/macros/s/.../exec">
+          <p style="font-size: 0.75rem; margin-top: 4px;">GAS 환경 외 외부 웹사이트에서 배포할 때 배포 URL을 입력하세요.</p>
+        </div>
+      </details>
+    </div>
+
+    <div style="display: flex; gap: 10px; margin-top: 20px;">
+      <button type="button" class="btn btn-secondary btn-flex-1" id="btnBackToStudent">학생 화면</button>
+      <button type="button" class="btn btn-primary btn-flex-1" id="btnTeacherLogin">로그인</button>
+    </div>
+  </section>
+
+  <!-- 로그인 후 대시보드 화면 -->
+  <section id="teacherDashboard" style="display: none;">
+    
+    <!-- 대시보드 헤더 -->
+    <div class="card-header-flex" style="margin-bottom: 14px;">
+      <div>
+        <h2 style="font-size: 1.4rem; font-weight: 800;">📊 교사 관리 대시보드</h2>
+        <p style="font-size: 0.88rem; color: var(--text-muted);">학생들의 활동지 제출 현황과 시청 콘텐츠 통계를 한눈에 확인합니다.</p>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button type="button" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.82rem;" id="btnExportCsv">📥 CSV 다운로드</button>
+        <button type="button" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.82rem;" id="btnTeacherLogout">로그아웃</button>
+      </div>
+    </div>
+
+    <!-- 탭 메뉴 -->
+    <div class="teacher-tabs">
+      <button type="button" class="tab-btn active" data-tab="tabList">📋 학생 제출 목록</button>
+      <button type="button" class="tab-btn" data-tab="tabStats">📈 시청 콘텐츠 통계</button>
+      <button type="button" class="tab-btn" data-tab="tabSettings">⚙️ 문항 & 가이드 설정</button>
+    </div>
+
+    <!-- 탭 1: 학생 제출 목록 -->
+    <div id="tabList" class="tab-content">
+      <!-- 요약 통계 위젯 -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-val" id="statTotalStudents">0</div>
+          <div class="stat-lbl">전체 활동지 수</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statSubmitted" style="color: var(--step2-color);">0</div>
+          <div class="stat-lbl">제출 완료</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statGraded" style="color: var(--step4-color);">0</div>
+          <div class="stat-lbl">채점 완료</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statAvgScore" style="color: var(--step1-color);">-</div>
+          <div class="stat-lbl">평균 점수</div>
+        </div>
+      </div>
+
+      <!-- 필터 바 -->
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
+        <select id="filterGrade" class="form-control" style="width: auto; min-width: 110px;">
+          <option value="">학년 전체</option>
+        </select>
+        <select id="filterClass" class="form-control" style="width: auto; min-width: 100px;">
+          <option value="">반 전체</option>
+        </select>
+        <select id="filterStatus" class="form-control" style="width: auto; min-width: 120px;">
+          <option value="">상태 전체</option>
+          <option value="DRAFT">임시저장</option>
+          <option value="SUBMITTED">제출완료</option>
+          <option value="RETURNED">반려됨</option>
+          <option value="GRADED">채점완료</option>
+        </select>
+        <input type="text" id="filterKeyword" class="form-control" style="flex: 1; min-width: 150px;" placeholder="학생 이름 또는 영상 제목 검색">
+        <button type="button" class="btn btn-secondary" id="btnRefreshList">🔄 새로고침</button>
+      </div>
+
+      <!-- 학생 목록 -->
+      <div id="teacherStudentList"></div>
+    </div>
+
+    <!-- 탭 2: 시청 콘텐츠 통계 대시보드 -->
+    <div id="tabStats" class="tab-content" style="display: none;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
+        <!-- 인기 유튜브 채널 순위 -->
+        <div class="quest-card">
+          <h3 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 14px; display: flex; align-items: center; gap: 6px;">
+            <span>📺</span> 학생들이 가장 많이 본 채널 TOP 10
+          </h3>
+          <div id="topChannelsList" class="rank-list">
+            <p style="color: var(--text-muted); font-size: 0.88rem;">통계 데이터를 불러오는 중...</p>
+          </div>
+        </div>
+
+        <!-- 인기 영상 제목 순위 -->
+        <div class="quest-card">
+          <h3 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 14px; display: flex; align-items: center; gap: 6px;">
+            <span>🎬</span> 시청 영상 TOP 10
+          </h3>
+          <div id="topVideosList" class="rank-list">
+            <p style="color: var(--text-muted); font-size: 0.88rem;">통계 데이터를 불러오는 중...</p>
+          </div>
+        </div>
+
+        <!-- STEP2 질문 분류 분포 -->
+        <div class="quest-card" style="grid-column: 1 / -1;">
+          <h3 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 14px;">
+            📊 나만의 질문 분류 분포
+          </h3>
+          <div id="categoryStatsList" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 탭 3: 문항 및 가이드 설정 -->
+    <div id="tabSettings" class="tab-content" style="display: none;">
+      <div class="quest-card">
+        <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 16px;">⚙️ 활동지 문항 및 가이드 문구 커스텀</h3>
+        
+        <div class="form-group">
+          <label class="form-label" for="settingActivityTitle">활동지 메인 제목</label>
+          <input type="text" id="settingActivityTitle" class="form-control" placeholder="대중매체 비판적 시청 활동지">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="settingGuide1">STEP 1 안내 문구</label>
+          <textarea id="settingGuide1" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="settingGuide2">STEP 2 안내 문구</label>
+          <textarea id="settingGuide2" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="settingGuide3">STEP 3 안내 문구</label>
+          <textarea id="settingGuide3" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="settingGuide4">STEP 4 안내 문구</label>
+          <textarea id="settingGuide4" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="settingNewPw">교사 비밀번호 변경 (변경할 때만 입력)</label>
+          <input type="password" id="settingNewPw" class="form-control" placeholder="새 비밀번호">
+        </div>
+
+        <button type="button" class="btn btn-primary" id="btnSaveSettings" style="margin-top: 14px;">
+          설정 저장하기
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 학생 상세 평가 화면 -->
+  <section id="teacherDetailSection" style="display: none;">
+    <button type="button" class="btn btn-secondary" style="margin-bottom: 16px;" id="btnDetailBack">
+      ← 제출 목록으로 돌아가기
+    </button>
+    <div id="teacherDetailContent"></div>
+  </section>
+</main>
+
+<div id="modalRoot"></div>
+
+<!-- ============================================================ -->
+<!-- 3. 스크립트 로직 (App Engine) -->
+<!-- ============================================================ -->
+<script>
+(function () {
+  'use strict';
+
+  var DEFAULT_STEP2_CATEGORIES = ['이해가 안 되는 부분', '궁금한 점(의문)', '다른 사람 의견이 궁금한 점', '비판적 의문', '기타'];
+  var CLIENT_MAX_ROWS = { step1: 10, step2: 10, step3: 15, step4: 6 };
+  var STATUS_LABEL = { DRAFT: '임시저장', SUBMITTED: '제출완료', RETURNED: '반려됨', GRADED: '채점완료' };
+
+  var state = {
+    mode: 'student',
+    student: defaultStudent(),
+    loadedStatus: '',
+    locked: false,
+    settings: {
+      activityTitle: '대중매체 비판적 시청 활동지',
+      stepGuides: null,
+      step2Categories: DEFAULT_STEP2_CATEGORIES
+    },
+    teacher: {
+      token: '',
+      list: [],
+      stats: null,
+      filters: { grade: '', classNum: '', status: '', keyword: '' },
+      currentId: ''
+    }
+  };
+
+  function defaultStudent() {
+    return {
+      id: '', grade: '', classNum: '', number: '', name: '',
+      channelName: '', videoTitle: '', videoUrl: '',
+      step1: [mk1(), mk1()],
+      step2: [mk2(), mk2(), mk2()],
+      step3: [mk3()],
+      step4: [mk4()],
+      score: '', feedback: '', returnReason: ''
+    };
+  }
+  function mk1() { return { question: '', answer: '' }; }
+  function mk2() { return { question: '', category: '' }; }
+  function mk3() { return { comment: '', intent: '' }; }
+  function mk4() { return { quote: '', background: '', limitation: '' }; }
+
+  function $(id) { return document.getElementById(id); }
+  function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+  function escAttr(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function escHtml(s) { return escAttr(s).replace(/\n/g, '<br>'); }
+
+  function toast(msg, kind) {
+    var el = $('toast');
+    el.textContent = msg;
+    el.className = 'toast-box show ' + (kind || '');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { el.className = 'toast-box'; }, 2600);
+  }
+
+  function setBusy(b) {
+    document.body.classList.toggle('busy', b);
+    Array.prototype.forEach.call(document.querySelectorAll('.btn'), function (btn) { btn.disabled = b; });
+  }
+
+  /* 통신 레이어: google.script.run (GAS) + fetch/doPost (GitHub Standalone) */
+  var DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbx1wDwzoEAAgx1mTjIC4_VBVXh9ZMefedooEeZ8vyLV91qLxDOy5Wfm_e1wZZU-NlyJ/exec';
+
+  function getCustomGasUrl() {
+    return localStorage.getItem('CUSTOM_GAS_URL') || ($('customGasUrlInput') && $('customGasUrlInput').value.trim()) || DEFAULT_GAS_URL;
+  }
+
+  function runServer(action, payload) {
+    // GAS 환경 내부일 때 (google.script.run 사용 가능 시)
+    if (typeof google !== 'undefined' && google.script && google.script.run && !localStorage.getItem('CUSTOM_GAS_URL')) {
+      return new Promise(function (resolve, reject) {
+        google.script.run
+          .withSuccessHandler(function (res) {
+            if (res && res.ok) resolve(res.data);
+            else reject(new Error((res && res.message) || '오류가 발생했습니다.'));
+          })
+          .withFailureHandler(function (err) {
+            reject(new Error(err && err.message ? err.message : String(err)));
+          })
+          .dispatch(action, payload);
+      });
+    }
+
+    var targetUrl = getCustomGasUrl();
+    if (!targetUrl) {
+      return Promise.reject(new Error('선생님 화면에서 Apps Script 웹앱 배포 URL을 먼저 설정해 주세요.'));
+    }
+
+    return fetch(targetUrl, {
+      method: 'POST',
+      body: JSON.stringify({ action: action, payload: payload }),
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+    }).then(function (res) { return res.json(); }).then(function (res) {
+      if (res && res.ok) return res.data;
+      throw new Error((res && res.message) || '서버 통신 오류가 발생했습니다.');
+    });
+  }
+
+  /* 💡 질문 힌트 토글 */
+  window.toggleHint = function (id) {
+    var el = $(id);
+    if (el) el.classList.toggle('show');
+  };
+
+  /* ============================================================ */
+  /* ⚡ 유튜브 링크 파싱 및 oEmbed 자동완성 & 플레이어 */
+  /* ============================================================ */
+  function extractYouTubeId(url) {
+    if (!url) return null;
+    var str = url.trim();
+    var match = str.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|live\/))([\w-]{11})/);
+    return match ? match[1] : null;
+  }
+
+  function fetchYouTubeOEmbed(url) {
+    var videoId = extractYouTubeId(url);
+    if (!videoId) {
+      toast('올바른 유튜브 링크(URL)를 입력해 주세요.', 'error');
+      return Promise.reject(new Error('유효하지 않은 URL'));
+    }
+
+    setBusy(true);
+    var oembedUrl = 'https://www.youtube.com/oembed?url=' + encodeURIComponent('https://www.youtube.com/watch?v=' + videoId) + '&format=json';
+
+    return fetch(oembedUrl)
+      .then(function (res) {
+        if (!res.ok) throw new Error('영상 정보를 가져올 수 없습니다.');
+        return res.json();
+      })
+      .then(function (data) {
+        // 자동 입력칸 채우기
+        var title = data.title || '';
+        var author = data.author_name || '';
+        var thumb = 'https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg';
+
+        $('videoInput').value = title;
+        $('channelInput').value = author;
+        state.student.videoTitle = title;
+        state.student.channelName = author;
+        state.student.videoUrl = url;
+
+        // 프리뷰 카드 표시
+        showYouTubePreview(videoId, title, author, thumb);
+        toast('영상 정보와 썸네일을 자동으로 불러왔어요! ✨', 'ok');
+        updateProgress();
+      })
+      .catch(function (err) {
+        // oEmbed 실패 시 썸네일 직접 구성
+        var thumb = 'https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg';
+        showYouTubePreview(videoId, '유튜브 영상', '유튜브 채널', thumb);
+        toast('영상을 연동했어요. 제목과 채널명을 확인해 주세요.', 'ok');
+      })
+      .finally(function () {
+        setBusy(false);
+      });
+  }
+
+  function showYouTubePreview(videoId, title, author, thumb) {
+    var card = $('ytPreviewCard');
+    var media = $('ytMediaContainer');
+    var thumbImg = $('ytThumbImg');
+    var overlay = $('ytPlayOverlay');
+
+    card.classList.add('show');
+    $('ytMetaTitle').textContent = title;
+    $('ytMetaAuthor').textContent = author;
+    thumbImg.src = thumb;
+    overlay.style.display = 'flex';
+
+    // 플레이 버튼 클릭 시 iframe 삽입 (앱 내 바로 재생)
+    overlay.onclick = function () {
+      media.innerHTML = '<iframe src="https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+    };
+  }
+
+  /* ============================================================ */
+  /* STEP 렌더링 & 질문 관리 */
+  /* ============================================================ */
+  function buildEntryCard(stepKey, index, row) {
+    var wrap = document.createElement('div');
+    wrap.className = 'entry-item';
+
+    var badge = document.createElement('div');
+    badge.className = 'entry-num-badge';
+    badge.textContent = String(index + 1);
+    wrap.appendChild(badge);
+
+    var grid = document.createElement('div');
+    grid.className = 'entry-fields-grid' + (stepKey === 'step1' || stepKey === 'step3' ? ' two-col' : '');
+
+    if (stepKey === 'step1') {
+      grid.appendChild(createField('question', '호기심 질문', '예: 썸네일에 왜 이 단어를 강조했을까?', row.question, stepKey, index));
+      grid.appendChild(createField('answer', '나의 예상 답변', '내 생각이나 배경지식으로 미리 예상해보기', row.answer, stepKey, index));
+    } else if (stepKey === 'step2') {
+      grid.appendChild(createSelectField('category', '질문 분류', state.settings.step2Categories, row.category, stepKey, index));
+      grid.appendChild(createField('question', '질문 내용', '예: 영상에서 언급된 수치가 실제 통계와 맞을까?', row.question, stepKey, index));
+    } else if (stepKey === 'step3') {
+      grid.appendChild(createField('comment', '인상 깊은 댓글 옮겨적기', '댓글 내용을 그대로 적어보세요', row.comment, stepKey, index));
+      grid.appendChild(createField('intent', '작성자의 숨겨진 의도/관점', '이 댓글을 쓴 사람은 왜 이렇게 썼을까?', row.intent, stepKey, index));
+    } else if (stepKey === 'step4') {
+      grid.appendChild(createField('quote', '1) 분석할 댓글 인용', '비판적으로 살펴볼 핵심 댓글 문장', row.quote, stepKey, index));
+      grid.appendChild(createField('background', '2) 작성자의 배경/경험 추론 질문', '이 사람은 평소 어떤 입장이나 경험을 겪었을까?', row.background, stepKey, index));
+      grid.appendChild(createField('limitation', '3) 미디어의 한계 파악 질문', '이 콘텐츠는 왜 이런 실질적인 문제를 다루지 않았을까?', row.limitation, stepKey, index));
+    }
+
+    wrap.appendChild(grid);
+
+    if (!state.locked) {
+      var delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'entry-delete-btn';
+      delBtn.innerHTML = '✕';
+      delBtn.title = '항목 삭제';
+      delBtn.onclick = function () {
+        if (state.student[stepKey].length <= 1) {
+          toast('최소 1개 항목은 남아 있어야 해요.', 'error');
+          return;
+        }
+        state.student[stepKey].splice(index, 1);
+        renderStepList(stepKey);
+        updateProgress();
+      };
+      wrap.appendChild(delBtn);
+    }
+
+    return wrap;
+  }
+
+  function createField(key, labelText, placeholder, val, stepKey, index) {
+    var div = document.createElement('div');
+    div.className = 'form-group';
+    var lbl = document.createElement('label');
+    lbl.className = 'form-label';
+    lbl.textContent = labelText;
+    var ta = document.createElement('textarea');
+    ta.className = 'form-control';
+    ta.placeholder = placeholder;
+    ta.value = val || '';
+    ta.disabled = state.locked;
+    ta.addEventListener('input', function (e) {
+      state.student[stepKey][index][key] = e.target.value;
+      updateProgress();
+    });
+    div.appendChild(lbl);
+    div.appendChild(ta);
+    return div;
+  }
+
+  function createSelectField(key, labelText, options, val, stepKey, index) {
+    var div = document.createElement('div');
+    div.className = 'form-group';
+    var lbl = document.createElement('label');
+    lbl.className = 'form-label';
+    lbl.textContent = labelText;
+    var sel = document.createElement('select');
+    sel.className = 'form-control';
+    sel.disabled = state.locked;
+    var defOpt = document.createElement('option');
+    defOpt.value = '';
+    defOpt.textContent = '질문 유형 선택';
+    sel.appendChild(defOpt);
+    options.forEach(function (opt) {
+      var o = document.createElement('option');
+      o.value = opt;
+      o.textContent = opt;
+      sel.appendChild(o);
+    });
+    sel.value = val || '';
+    sel.addEventListener('change', function (e) {
+      state.student[stepKey][index][key] = e.target.value;
+      updateProgress();
+    });
+    div.appendChild(lbl);
+    div.appendChild(sel);
+    return div;
+  }
+
+  function renderStepList(stepKey) {
+    var container = $(stepKey + 'List');
+    container.innerHTML = '';
+    state.student[stepKey].forEach(function (row, idx) {
+      container.appendChild(buildEntryCard(stepKey, idx, row));
+    });
+    var addBtn = $('add' + capitalize(stepKey) + 'Btn');
+    if (addBtn) addBtn.disabled = state.locked || state.student[stepKey].length >= CLIENT_MAX_ROWS[stepKey];
+  }
+  function renderAllSteps() { ['step1', 'step2', 'step3', 'step4'].forEach(renderStepList); }
+
+  function addRow(stepKey, maker) {
+    if (state.locked) return;
+    if (state.student[stepKey].length >= CLIENT_MAX_ROWS[stepKey]) {
+      toast('더 이상 추가할 수 없어요. (최대 ' + CLIENT_MAX_ROWS[stepKey] + '개)', 'error');
+      return;
+    }
+    state.student[stepKey].push(maker());
+    renderStepList(stepKey);
+    updateProgress();
+  }
+
+  /* ============================================================ */
+  /* 실시간 진행률 게이지 계산 */
+  /* ============================================================ */
+  function updateProgress() {
+    var totalChecks = 6; // 기본정보, 유튜브, step1, step2, step3, step4
+    var completed = 0;
+
+    if (state.student.grade && state.student.classNum && state.student.number && state.student.name.trim()) completed++;
+    if (state.student.videoTitle.trim()) completed++;
+
+    function hasValid(arr, f) { return arr.some(function (item) { return item[f] && item[f].trim().length > 0; }); }
+    if (hasValid(state.student.step1, 'question')) completed++;
+    if (hasValid(state.student.step2, 'question')) completed++;
+    if (hasValid(state.student.step3, 'comment')) completed++;
+    if (hasValid(state.student.step4, 'quote')) completed++;
+
+    var pct = Math.round((completed / totalChecks) * 100);
+    $('progressBarFill').style.width = pct + '%';
+    $('progressPercent').textContent = pct + '%';
+  }
+
+  /* 상태 배너 렌더링 */
+  function renderStatusBanner() {
+    var el = $('statusBanner');
+    var s = state.loadedStatus;
+    if (!s) { el.style.display = 'none'; return; }
+    el.style.display = 'flex';
+    var html = '';
+    if (s === 'DRAFT') {
+      el.className = 'status-banner draft';
+      html = '<span>📝</span> <div><strong>임시저장 상태입니다.</strong> 이어서 작성한 뒤 하단의 [제출하기] 버튼을 눌러주세요.</div>';
+    } else if (s === 'SUBMITTED') {
+      el.className = 'status-banner submitted';
+      html = '<span>✅</span> <div><strong>제출 완료!</strong> 선생님 확인을 기다리고 있어요. (수정이 필요하면 선생님께 반려를 요청하세요)</div>';
+    } else if (s === 'RETURNED') {
+      el.className = 'status-banner returned';
+      html = '<span>↩️</span> <div><strong>선생님이 반려했습니다.</strong> 내용을 보완하여 다시 제출해 주세요.<br>' +
+        (state.student.returnReason ? '<strong style="color:#991B1B;">반려 사유:</strong> ' + escHtml(state.student.returnReason) : '') + '</div>';
+    } else if (s === 'GRADED') {
+      el.className = 'status-banner graded';
+      html = '<span>🏆</span> <div><strong>채점 완료!</strong> ' + (state.student.score !== '' && state.student.score != null ? '<strong>' + escAttr(state.student.score) + '점</strong>' : '') +
+        (state.student.feedback ? '<br><strong style="color:#5B21B6;">선생님 피드백:</strong> ' + escHtml(state.student.feedback) : '') + '</div>';
+    }
+    el.innerHTML = html;
+  }
+
+  /* ============================================================ */
+  /* 학생 데이터 로드 / 임시저장 / 제출 */
+  /* ============================================================ */
+  function bindStudentFields() {
+    $('gradeInput').addEventListener('input', function (e) { state.student.grade = e.target.value; updateProgress(); });
+    $('classInput').addEventListener('input', function (e) { state.student.classNum = e.target.value; updateProgress(); });
+    $('numberInput').addEventListener('input', function (e) { state.student.number = e.target.value; updateProgress(); });
+    $('nameInput').addEventListener('input', function (e) { state.student.name = e.target.value; updateProgress(); });
+    $('channelInput').addEventListener('input', function (e) { state.student.channelName = e.target.value; });
+    $('videoInput').addEventListener('input', function (e) { state.student.videoTitle = e.target.value; updateProgress(); });
+
+    $('numberInput').addEventListener('blur', function () {
+      if (state.student.grade && state.student.classNum && state.student.number) tryLoadExisting();
+    });
+
+    $('btnAutoFetchYt').addEventListener('click', function () {
+      var url = $('ytUrlInput').value;
+      if (!url) { toast('유튜브 영상 링크를 먼저 붙여넣어 주세요.', 'error'); return; }
+      fetchYouTubeOEmbed(url);
+    });
+    $('ytUrlInput').addEventListener('paste', function (e) {
+      setTimeout(function () {
+        var url = $('ytUrlInput').value;
+        if (url) fetchYouTubeOEmbed(url);
+      }, 100);
+    });
+  }
+
+  function tryLoadExisting() {
+    runServer('loadResponse', {
+      id: state.student.id, grade: state.student.grade, classNum: state.student.classNum, number: state.student.number
+    }).then(function (data) {
+      if (data && data.found) {
+        applyLoadedRecord(data.record);
+        toast('이전에 작성하던 활동지를 불러왔어요! ✨', 'ok');
+      }
+    }).catch(function (err) {
+      console.warn(err);
+    });
+  }
+
+  function applyLoadedRecord(rec) {
+    state.student.id = rec.id;
+    state.student.channelName = rec.channelName || '';
+    state.student.videoTitle = rec.videoTitle || '';
+    state.student.videoUrl = rec.videoUrl || '';
+    state.student.step1 = (rec.step1 && rec.step1.length) ? rec.step1 : [mk1(), mk1()];
+    state.student.step2 = (rec.step2 && rec.step2.length) ? rec.step2 : [mk2(), mk2(), mk2()];
+    state.student.step3 = (rec.step3 && rec.step3.length) ? rec.step3 : [mk3()];
+    state.student.step4 = (rec.step4 && rec.step4.length) ? rec.step4 : [mk4()];
+    state.student.score = rec.score;
+    state.student.feedback = rec.feedback;
+    state.student.returnReason = rec.returnReason;
+    state.loadedStatus = rec.status || '';
+    state.locked = (rec.status === 'SUBMITTED' || rec.status === 'GRADED');
+
+    $('channelInput').value = state.student.channelName;
+    $('videoInput').value = state.student.videoTitle;
+    if (state.student.videoUrl) {
+      $('ytUrlInput').value = state.student.videoUrl;
+      var vid = extractYouTubeId(state.student.videoUrl);
+      if (vid) showYouTubePreview(vid, state.student.videoTitle, state.student.channelName, 'https://img.youtube.com/vi/' + vid + '/hqdefault.jpg');
+    }
+
+    renderAllSteps();
+    renderStatusBanner();
+    $('studentActionBar').style.display = state.locked ? 'none' : 'block';
+    updateProgress();
+  }
+
+  function collectPayload() {
+    return {
+      id: state.student.id,
+      grade: state.student.grade,
+      classNum: state.student.classNum,
+      number: state.student.number,
+      name: state.student.name,
+      channelName: state.student.channelName,
+      videoTitle: state.student.videoTitle,
+      videoUrl: state.student.videoUrl,
+      step1: state.student.step1,
+      step2: state.student.step2,
+      step3: state.student.step3,
+      step4: state.student.step4
+    };
+  }
+
+  function validateStudent(isDraft) {
+    if (!state.student.grade || !state.student.classNum || !state.student.number || !state.student.name.trim()) {
+      toast('학년, 반, 번호, 이름을 모두 입력해 주세요.', 'error');
+      return false;
+    }
+    if (!isDraft && (!state.student.videoTitle.trim())) {
+      toast('시청한 유튜브 영상을 입력하거나 링크를 넣어주세요.', 'error');
+      return false;
+    }
+    return true;
+  }
+
+  function saveDraft() {
+    if (!validateStudent(true)) return;
+    setBusy(true);
+    runServer('saveDraft', collectPayload()).then(function (data) {
+      state.student.id = data.id;
+      state.loadedStatus = data.status;
+      renderStatusBanner();
+      toast('임시저장되었습니다. 언제든 이어서 쓸 수 있어요.', 'ok');
+    }).catch(function (err) { toast(err.message, 'error'); }).finally(function () { setBusy(false); });
+  }
+
+  function submitForm() {
+    if (!validateStudent(false)) return;
+    showConfirm('제출 후에는 선생님의 확인 전까지 수정할 수 없습니다. 제출할까요?', '제출하기').then(function (ok) {
+      if (!ok) return;
+      setBusy(true);
+      runServer('submit', collectPayload()).then(function (data) {
+        state.student.id = data.id;
+        state.loadedStatus = data.status;
+        state.locked = true;
+        renderAllSteps();
+        renderStatusBanner();
+        $('studentActionBar').style.display = 'none';
+        triggerConfetti();
+        toast('🎉 활동지가 성공적으로 제출되었습니다! 수고했어요!', 'ok');
+      }).catch(function (err) { toast(err.message, 'error'); }).finally(function () { setBusy(false); });
+    });
+  }
+
+  /* ============================================================ */
+  /* 👩‍🏫 교사 관리자 기능 */
+  /* ============================================================ */
+  function switchMode(mode) {
+    state.mode = mode;
+    $('studentView').style.display = mode === 'student' ? 'block' : 'none';
+    $('studentProgressTracker').style.display = mode === 'student' ? 'block' : 'none';
+    $('teacherView').style.display = mode === 'teacher' ? 'block' : 'none';
+    $('teacherToggleBtn').textContent = mode === 'teacher' ? '🎒 학생 화면으로' : '👩‍🏫 선생님 화면';
+  }
+
+  function teacherLogin() {
+    var pw = $('teacherPwInput').value;
+    if (!pw) { toast('비밀번호를 입력해 주세요.', 'error'); return; }
+    
+    var customUrl = $('customGasUrlInput') ? $('customGasUrlInput').value.trim() : '';
+    if (customUrl) localStorage.setItem('CUSTOM_GAS_URL', customUrl);
+
+    setBusy(true);
+    runServer('teacherLogin', { password: pw }).then(function (data) {
+      state.teacher.token = data.token;
+      $('teacherPwInput').value = '';
+      $('teacherLoginCard').style.display = 'none';
+      $('teacherDashboard').style.display = 'block';
+      toast('관리자로 로그인되었습니다.', 'ok');
+      loadTeacherDashboard();
+    }).catch(function (err) { toast(err.message, 'error'); }).finally(function () { setBusy(false); });
+  }
+
+  function teacherLogout() {
+    state.teacher.token = '';
+    state.teacher.list = [];
+    $('teacherDashboard').style.display = 'none';
+    $('teacherDetailSection').style.display = 'none';
+    $('teacherLoginCard').style.display = 'block';
+    toast('로그아웃되었습니다.');
+  }
+
+  function loadTeacherDashboard() {
+    setBusy(true);
+    Promise.all([
+      runServer('teacherList', { token: state.teacher.token }),
+      runServer('teacherStats', { token: state.teacher.token }),
+      runServer('loadSettings', { token: state.teacher.token })
+    ]).then(function (results) {
+      var listData = results[0];
+      var statsData = results[1];
+      var settingsData = results[2];
+
+      state.teacher.list = listData.list || [];
+      state.teacher.stats = statsData;
+      if (settingsData) applySettings(settingsData);
+
+      populateTeacherFilters();
+      renderTeacherList();
+      renderTeacherStats();
+    }).catch(function (err) { toast(err.message, 'error'); }).finally(function () { setBusy(false); });
+  }
+
+  function applySettings(s) {
+    state.settings = s;
+    if (s.activityTitle) {
+      $('navAppTitle').textContent = s.activityTitle;
+      if ($('settingActivityTitle')) $('settingActivityTitle').value = s.activityTitle;
+    }
+    if (s.stepGuides) {
+      if (s.stepGuides.step1) $('guideStep1').textContent = s.stepGuides.step1;
+      if (s.stepGuides.step2) $('guideStep2').textContent = s.stepGuides.step2;
+      if (s.stepGuides.step3) $('guideStep3').textContent = s.stepGuides.step3;
+      if (s.stepGuides.step4) $('guideStep4').textContent = s.stepGuides.step4;
+      if ($('settingGuide1')) $('settingGuide1').value = s.stepGuides.step1 || '';
+      if ($('settingGuide2')) $('settingGuide2').value = s.stepGuides.step2 || '';
+      if ($('settingGuide3')) $('settingGuide3').value = s.stepGuides.step3 || '';
+      if ($('settingGuide4')) $('settingGuide4').value = s.stepGuides.step4 || '';
+    }
+  }
+
+  function populateTeacherFilters() {
+    function unique(arr) {
+      var set = {};
+      arr.forEach(function (v) { if (v) set[v] = true; });
+      return Object.keys(set).map(Number).sort(function (a, b) { return a - b; });
+    }
+    var grades = unique(state.teacher.list.map(function (r) { return r.grade; }));
+    var classes = unique(state.teacher.list.map(function (r) { return r.classNum; }));
+
+    var gSel = $('filterGrade');
+    gSel.innerHTML = '<option value="">학년 전체</option>' + grades.map(function (g) { return '<option value="' + g + '">' + g + '학년</option>'; }).join('');
+    var cSel = $('filterClass');
+    cSel.innerHTML = '<option value="">반 전체</option>' + classes.map(function (c) { return '<option value="' + c + '">' + c + '반</option>'; }).join('');
+  }
+
+  function renderTeacherList() {
+    var container = $('teacherStudentList');
+    var f = state.teacher.filters;
+    var filtered = state.teacher.list.filter(function (r) {
+      if (f.grade && String(r.grade) !== f.grade) return false;
+      if (f.classNum && String(r.classNum) !== f.classNum) return false;
+      if (f.status && r.status !== f.status) return false;
+      if (f.keyword) {
+        var kw = f.keyword.toLowerCase();
+        var match = (r.name && r.name.toLowerCase().indexOf(kw) > -1) ||
+                    (r.videoTitle && r.videoTitle.toLowerCase().indexOf(kw) > -1) ||
+                    (r.channelName && r.channelName.toLowerCase().indexOf(kw) > -1);
+        if (!match) return false;
+      }
+      return true;
+    });
+
+    if (!filtered.length) {
+      container.innerHTML = '<div class="quest-card" style="text-align:center; color:var(--text-muted);">조건에 맞는 학생 활동지가 없습니다.</div>';
+      return;
+    }
+
+    container.innerHTML = filtered.map(function (r) {
+      var scoreTxt = r.status === 'GRADED' && r.score !== '' && r.score != null ? ' · <strong>' + escAttr(r.score) + '점</strong>' : '';
+      return '<div class="student-list-item" data-id="' + escAttr(r.id) + '">' +
+        '<div>' +
+          '<div style="font-weight:800; font-size:1rem; margin-bottom:2px;">' +
+            escAttr(r.grade) + '학년 ' + escAttr(r.classNum) + '반 ' + escAttr(r.number) + '번 ' + escAttr(r.name) +
+          '</div>' +
+          '<div style="font-size:0.82rem; color:var(--text-muted);">' +
+            '📺 ' + escAttr(r.channelName || '-') + ' | 🎬 ' + escAttr(r.videoTitle || '영상 미등록') +
+          '</div>' +
+        '</div>' +
+        '<div style="text-align:right;">' +
+          '<span class="student-tag ' + escAttr(r.status) + '">' + STATUS_LABEL[r.status] + scoreTxt + '</span>' +
+          '<div style="font-size:0.75rem; color:#94A3B8; margin-top:4px;">' + escAttr(r.updatedAt || r.submittedAt || '') + '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    Array.prototype.forEach.call(container.querySelectorAll('.student-list-item'), function (el) {
+      el.addEventListener('click', function () { openTeacherDetail(el.dataset.id); });
+    });
+  }
+
+  function renderTeacherStats() {
+    var s = state.teacher.stats;
+    if (!s) return;
+
+    $('statTotalStudents').textContent = s.totalStudents || 0;
+    $('statSubmitted').textContent = s.statusCounts.SUBMITTED || 0;
+    $('statGraded').textContent = s.statusCounts.GRADED || 0;
+    $('statAvgScore').textContent = s.avgScore > 0 ? s.avgScore + '점' : '-';
+
+    // 채널 순위
+    var chHtml = '';
+    if (s.topChannels && s.topChannels.length) {
+      chHtml = s.topChannels.map(function (c, i) {
+        return '<div class="rank-item">' +
+          '<div><span class="rank-badge">' + (i + 1) + '</span><strong>' + escAttr(c.name) + '</strong></div>' +
+          '<span class="rank-count">' + c.count + '회 시청</span>' +
+        '</div>';
+      }).join('');
+    } else {
+      chHtml = '<p style="color:var(--text-muted); font-size:0.88rem;">시청 기록이 없습니다.</p>';
+    }
+    $('topChannelsList').innerHTML = chHtml;
+
+    // 영상 순위
+    var vHtml = '';
+    if (s.topVideos && s.topVideos.length) {
+      vHtml = s.topVideos.map(function (v, i) {
+        return '<div class="rank-item">' +
+          '<div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:75%;"><span class="rank-badge">' + (i + 1) + '</span>' + escAttr(v.title) + '</div>' +
+          '<span class="rank-count">' + v.count + '명</span>' +
+        '</div>';
+      }).join('');
+    } else {
+      vHtml = '<p style="color:var(--text-muted); font-size:0.88rem;">시청 기록이 없습니다.</p>';
+    }
+    $('topVideosList').innerHTML = vHtml;
+
+    // 카테고리 통계
+    var catHtml = '';
+    if (s.categoryCounts) {
+      Object.keys(s.categoryCounts).forEach(function (cat) {
+        catHtml += '<div style="background:#F1F5F9; padding:8px 14px; border-radius:20px; font-size:0.85rem; font-weight:700;">' +
+          escAttr(cat) + ': <span style="color:var(--primary);">' + s.categoryCounts[cat] + '건</span></div>';
+      });
+    }
+    $('categoryStatsList').innerHTML = catHtml || '<p style="color:var(--text-muted); font-size:0.85rem;">카테고리 데이터 없음</p>';
+  }
+
+  /* 학생 상세 평가 모드 */
+  function openTeacherDetail(id) {
+    setBusy(true);
+    runServer('teacherDetail', { token: state.teacher.token, id: id }).then(function (rec) {
+      state.teacher.currentId = id;
+      renderTeacherDetail(rec);
+      $('teacherDashboard').style.display = 'none';
+      $('teacherDetailSection').style.display = 'block';
+    }).catch(function (err) { toast(err.message, 'error'); }).finally(function () { setBusy(false); });
+  }
+
+  function renderTeacherDetail(rec) {
+    var vid = extractYouTubeId(rec.videoUrl);
+    var html = '<div class="quest-card">' +
+      '<div class="card-header-flex">' +
+        '<div>' +
+          '<h2 style="font-size:1.3rem; font-weight:800;">' + escAttr(rec.grade) + '학년 ' + escAttr(rec.classNum) + '반 ' + escAttr(rec.number) + '번 ' + escAttr(rec.name) + '</h2>' +
+          '<p style="font-size:0.88rem; color:var(--text-muted); margin-top:2px;">제출시각: ' + escAttr(rec.submittedAt || '-') + ' | 수정시각: ' + escAttr(rec.updatedAt || '-') + '</p>' +
+        '</div>' +
+        '<span class="student-tag ' + escAttr(rec.status) + '" style="font-size:0.85rem;">' + STATUS_LABEL[rec.status] + '</span>' +
+      '</div>';
+
+    // 영상 정보
+    html += '<div style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-md); padding:14px; margin-bottom:18px;">' +
+      '<div style="font-weight:700; font-size:0.95rem;">📺 시청 영상: ' + escAttr(rec.videoTitle || '-') + ' (' + escAttr(rec.channelName || '-') + ')</div>' +
+      (rec.videoUrl ? '<div style="margin-top:6px;"><a href="' + escAttr(rec.videoUrl) + '" target="_blank" style="color:var(--primary); font-size:0.85rem; font-weight:600;">🔗 유튜브에서 영상 바로보기</a></div>' : '') +
+      '</div>';
+
+    // STEP 1~4
+    html += renderDetailStep('STEP 1. 훑어보기 질문', rec.step1, ['question', 'answer'], ['호기심 질문', '나의 예상 답변'], 'var(--step1-color)');
+    html += renderDetailStep('STEP 2. 나만의 질문 파일링', rec.step2, ['category', 'question'], ['질문 분류', '질문 내용'], 'var(--step2-color)');
+    html += renderDetailStep('STEP 3. 댓글 속마음 탐정', rec.step3, ['comment', 'intent'], ['댓글 인용', '작성자 의도/관점'], 'var(--step3-color)');
+    html += renderDetailStep('STEP 4. 미디어 팩트체커 (비판적 질문)', rec.step4, ['quote', 'background', 'limitation'], ['댓글 인용', '작성자 배경 추론', '미디어 한계 파악'], 'var(--step4-color)');
+
+    if (rec.status === 'RETURNED' && rec.returnReason) {
+      html += '<div style="background:#FEE2E2; border:1px solid #FECACA; border-radius:var(--radius-md); padding:12px 16px; margin:16px 0; color:#991B1B;">' +
+        '<strong>반려 사유:</strong> ' + escHtml(rec.returnReason) + '</div>';
+    }
+
+    // 채점 및 피드백 폼
+    html += '<div style="border-top:2px dashed var(--border); padding-top:18px; margin-top:20px;">' +
+      '<h3 style="font-size:1.1rem; font-weight:800; margin-bottom:12px;">✍️ 채점 및 교사 피드백</h3>' +
+      '<div class="form-group">' +
+        '<label class="form-label">점수 (0~100점, 선택)</label>' +
+        '<input type="number" id="detailScoreInput" class="form-control" min="0" max="100" style="max-width:160px;" value="' + escAttr(rec.score) + '">' +
+      '</div>' +
+      '<div class="form-group">' +
+        '<label class="form-label">피드백 작성</label>' +
+        '<div class="feedback-presets">' +
+          '<button type="button" class="preset-chip" onclick="addFeedbackPreset(\'✨ 비판적 시각으로 날카로운 질문을 아주 잘 작성했어요!\')">✨ 훌륭한 비판적 질문</button>' +
+          '<button type="button" class="preset-chip" onclick="addFeedbackPreset(\'💡 댓글 작성자의 숨겨진 의도를 예리하게 짚어냈어요.\')">💡 의도 분석 우수</button>' +
+          '<button type="button" class="preset-chip" onclick="addFeedbackPreset(\'👍 STEP4에서 미디어가 다루지 않은 문제를 조금 더 깊게 생각해보면 좋겠어요.\')">👍 한계 분석 보완 권장</button>' +
+          '<button type="button" class="preset-chip" onclick="addFeedbackPreset(\'👏 전반적으로 성실하고 논리적으로 활동지를 완성했어요.\')">👏 성실성 칭찬</button>' +
+        '</div>' +
+        '<textarea id="detailFeedbackInput" class="form-control" rows="3" placeholder="학생에게 전할 칭찬과 피드백을 입력하세요">' + escAttr(rec.feedback) + '</textarea>' +
+      '</div>' +
+      '<div style="display:flex; gap:10px; margin-top:18px;">' +
+        '<button type="button" class="btn btn-danger" id="btnDetailReturn" style="flex:1;">↩️ 반려하기 (재작성 요청)</button>' +
+        '<button type="button" class="btn btn-primary" id="btnDetailGrade" style="flex:1.5;">💾 채점 및 피드백 저장</button>' +
+      '</div>' +
+      '</div></div>';
+
+    $('teacherDetailContent').innerHTML = html;
+
+    $('btnDetailGrade').onclick = function () {
+      var score = $('detailScoreInput').value;
+      var feedback = $('detailFeedbackInput').value;
+      setBusy(true);
+      runServer('teacherGrade', { token: state.teacher.token, id: rec.id, score: score, feedback: feedback })
+        .then(function () {
+          toast('채점이 완료되었습니다.', 'ok');
+          $('teacherDetailSection').style.display = 'none';
+          $('teacherDashboard').style.display = 'block';
+          loadTeacherDashboard();
+        }).catch(function (err) { toast(err.message, 'error'); }).finally(function () { setBusy(false); });
+    };
+
+    $('btnDetailReturn').onclick = function () {
+      showPrompt('반려 사유를 입력해 주세요.', '예: STEP3 댓글 의도 분석을 조금 더 구체적으로 작성해 주세요.').then(function (reason) {
+        if (!reason) return;
+        setBusy(true);
+        runServer('teacherReturn', { token: state.teacher.token, id: rec.id, reason: reason })
+          .then(function () {
+            toast('반려 처리되었습니다.', 'ok');
+            $('teacherDetailSection').style.display = 'none';
+            $('teacherDashboard').style.display = 'block';
+            loadTeacherDashboard();
+          }).catch(function (err) { toast(err.message, 'error'); }).finally(function () { setBusy(false); });
+      });
+    };
+  }
+
+  window.addFeedbackPreset = function (txt) {
+    var ta = $('detailFeedbackInput');
+    if (ta) {
+      ta.value = (ta.value ? ta.value + ' ' : '') + txt;
+    }
+  };
+
+  function renderDetailStep(title, rows, keys, labels, color) {
+    var h = '<div style="margin-bottom:16px; border-left:4px solid ' + color + '; padding-left:12px;">' +
+      '<h4 style="font-size:0.95rem; font-weight:800; margin-bottom:8px;">' + escAttr(title) + '</h4>';
+    if (!rows || !rows.length) {
+      h += '<p style="color:var(--text-muted); font-size:0.85rem;">작성 내용 없음</p>';
+    } else {
+      rows.forEach(function (row, i) {
+        h += '<div style="background:#F8FAFC; border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 12px; margin-bottom:6px; font-size:0.88rem;">';
+        keys.forEach(function (k, ki) {
+          h += '<div style="margin-bottom:4px;"><span style="color:var(--text-muted); font-size:0.78rem; font-weight:700;">' + escAttr(labels[ki]) + ':</span> ' +
+            (row[k] ? escHtml(row[k]) : '<span style="color:#94A3B8;">-</span>') + '</div>';
+        });
+        h += '</div>';
+      });
+    }
+    return h + '</div>';
+  }
+
+  /* CSV 다운로드 */
+  function exportCsv() {
+    if (!state.teacher.list || !state.teacher.list.length) { toast('다운로드할 제출 데이터가 없습니다.', 'error'); return; }
+    var headers = ['학년', '반', '번호', '이름', '상태', '점수', '채널명', '영상제목', '영상URL', '피드백', '제출시각'];
+    var rows = state.teacher.list.map(function (r) {
+      return [
+        r.grade, r.classNum, r.number, '"' + (r.name || '').replace(/"/g, '""') + '"',
+        STATUS_LABEL[r.status] || r.status, r.score || '',
+        '"' + (r.channelName || '').replace(/"/g, '""') + '"',
+        '"' + (r.videoTitle || '').replace(/"/g, '""') + '"',
+        '"' + (r.videoUrl || '').replace(/"/g, '""') + '"',
+        '"' + (r.feedback || '').replace(/"/g, '""') + '"',
+        r.submittedAt || ''
+      ].join(',');
+    });
+    var csvContent = '\uFEFF' + headers.join(',') + '\n' + rows.join('\n');
+    var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = '유튜브_비판적시청_활동결과_' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.click();
+    toast('CSV 파일이 다운로드되었습니다.', 'ok');
+  }
+
+  /* ============================================================ */
+  /* 커스텀 모달 (Confirm / Prompt) */
+  /* ============================================================ */
+  function showConfirm(msg, okText) {
+    return new Promise(function (resolve) {
+      var root = $('modalRoot');
+      root.innerHTML = '<div class="modal-overlay"><div class="modal-card">' +
+        '<p style="font-size:1rem; font-weight:700; margin-bottom:18px;">' + escHtml(msg) + '</p>' +
+        '<div style="display:flex; justify-content:flex-end; gap:8px;">' +
+          '<button type="button" class="btn btn-secondary" id="mCancel">취소</button>' +
+          '<button type="button" class="btn btn-primary" id="mOk">' + escAttr(okText || '확인') + '</button>' +
+        '</div></div></div>';
+      $('mCancel').onclick = function () { root.innerHTML = ''; resolve(false); };
+      $('mOk').onclick = function () { root.innerHTML = ''; resolve(true); };
+    });
+  }
+
+  function showPrompt(title, placeholder) {
+    return new Promise(function (resolve) {
+      var root = $('modalRoot');
+      root.innerHTML = '<div class="modal-overlay"><div class="modal-card">' +
+        '<h3 style="font-size:1.05rem; font-weight:800; margin-bottom:8px;">' + escHtml(title) + '</h3>' +
+        '<textarea id="mPromptInput" class="form-control" rows="3" style="margin-bottom:14px;" placeholder="' + escAttr(placeholder || '') + '"></textarea>' +
+        '<div style="display:flex; justify-content:flex-end; gap:8px;">' +
+          '<button type="button" class="btn btn-secondary" id="mPromptCancel">취소</button>' +
+          '<button type="button" class="btn btn-danger" id="mPromptOk">반려하기</button>' +
+        '</div></div></div>';
+      $('mPromptCancel').onclick = function () { root.innerHTML = ''; resolve(null); };
+      $('mPromptOk').onclick = function () {
+        var v = $('mPromptInput').value.trim();
+        root.innerHTML = '';
+        resolve(v || null);
+      };
+    });
+  }
+
+  /* ============================================================ */
+  /* 🎉 축하 폭죽(Confetti) 파티클 애니메이션 */
+  /* ============================================================ */
+  function triggerConfetti() {
+    var canvas = $('confettiCanvas');
+    var ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    var particles = [];
+    var colors = ['#4F46E5', '#F59E0B', '#10B981', '#EC4899', '#8B5CF6', '#3B82F6'];
+    for (var i = 0; i < 120; i++) {
+      particles.push({
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        r: Math.random() * 6 + 4,
+        d: Math.random() * 120,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        tilt: Math.floor(Math.random() * 10) - 10,
+        tiltAngleIncremental: (Math.random() * 0.07) + 0.05,
+        tiltAngle: 0,
+        vx: (Math.random() - 0.5) * 16,
+        vy: (Math.random() - 0.5) * 16 - 4,
+        gravity: 0.35,
+        alpha: 1
+      });
+    }
+
+    var animId;
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      var alive = false;
+      particles.forEach(function (p) {
+        p.vy += p.gravity;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.tiltAngle += p.tiltAngleIncremental;
+        p.tilt = Math.sin(p.tiltAngle) * 15;
+        p.alpha -= 0.008;
+
+        if (p.alpha > 0) {
+          alive = true;
+          ctx.beginPath();
+          ctx.lineWidth = p.r;
+          ctx.strokeStyle = p.color;
+          ctx.globalAlpha = Math.max(0, p.alpha);
+          ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+          ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+          ctx.stroke();
+        }
+      });
+      ctx.globalAlpha = 1;
+      if (alive) animId = requestAnimationFrame(draw);
+      else ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    draw();
+  }
+
+  /* ============================================================ */
+  /* 초기화 및 이벤트 리스너 바인딩 */
+  /* ============================================================ */
+  function bindAll() {
+    $('addStep1Btn').onclick = function () { addRow('step1', mk1); };
+    $('addStep2Btn').onclick = function () { addRow('step2', mk2); };
+    $('addStep3Btn').onclick = function () { addRow('step3', mk3); };
+    $('addStep4Btn').onclick = function () { addRow('step4', mk4); };
+
+    $('btnSaveDraft').onclick = saveDraft;
+    $('btnSubmitForm').onclick = submitForm;
+
+    bindStudentFields();
+
+    $('teacherToggleBtn').onclick = function () {
+      switchMode(state.mode === 'student' ? 'teacher' : 'student');
+    };
+    $('btnBackToStudent').onclick = function () { switchMode('student'); };
+    $('btnTeacherLogin').onclick = teacherLogin;
+    $('teacherPwInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') teacherLogin(); });
+    $('btnTeacherLogout').onclick = teacherLogout;
+
+    // 탭 전환
+    Array.prototype.forEach.call(document.querySelectorAll('.tab-btn'), function (btn) {
+      btn.addEventListener('click', function () {
+        Array.prototype.forEach.call(document.querySelectorAll('.tab-btn'), function (b) { b.classList.remove('active'); });
+        Array.prototype.forEach.call(document.querySelectorAll('.tab-content'), function (tc) { tc.style.display = 'none'; });
+        btn.classList.add('active');
+        $(btn.dataset.tab).style.display = 'block';
+      });
+    });
+
+    // 필터
+    $('filterGrade').addEventListener('change', function (e) { state.teacher.filters.grade = e.target.value; renderTeacherList(); });
+    $('filterClass').addEventListener('change', function (e) { state.teacher.filters.classNum = e.target.value; renderTeacherList(); });
+    $('filterStatus').addEventListener('change', function (e) { state.teacher.filters.status = e.target.value; renderTeacherList(); });
+    $('filterKeyword').addEventListener('input', function (e) { state.teacher.filters.keyword = e.target.value; renderTeacherList(); });
+    $('btnRefreshList').onclick = loadTeacherDashboard;
+    $('btnExportCsv').onclick = exportCsv;
+    $('btnDetailBack').onclick = function () {
+      $('teacherDetailSection').style.display = 'none';
+      $('teacherDashboard').style.display = 'block';
+    };
+
+    // 설정 저장
+    $('btnSaveSettings').onclick = function () {
+      var newSettings = {
+        activityTitle: $('settingActivityTitle').value.trim() || '대중매체 비판적 시청 활동지',
+        stepGuides: {
+          step1: $('settingGuide1').value.trim(),
+          step2: $('settingGuide2').value.trim(),
+          step3: $('settingGuide3').value.trim(),
+          step4: $('settingGuide4').value.trim()
+        }
+      };
+      var newPw = $('settingNewPw').value.trim();
+      setBusy(true);
+      runServer('saveSettings', { token: state.teacher.token, settings: newSettings, newPassword: newPw || null })
+        .then(function () {
+          applySettings(newSettings);
+          $('settingNewPw').value = '';
+          toast('설정이 안전하게 저장되었습니다.', 'ok');
+        }).catch(function (err) { toast(err.message, 'error'); }).finally(function () { setBusy(false); });
+    };
+
+    // 공용 설정 자동 로드 시도
+    runServer('getPublicConfig', {}).then(function (cfg) {
+      if (cfg) applySettings(cfg);
+    }).catch(function () {});
+  }
+
+  function init() {
+    bindAll();
+    renderAllSteps();
+    renderStatusBanner();
+    updateProgress();
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+</body>
+</html>
