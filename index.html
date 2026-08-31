@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>미디어 팩트체크 탐정 수사본부</title>
+<title id="htmlTitle">미디어 팩트체크 탐정 수사본부</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800;900&family=Black+Han+Sans&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg-base: #090D16;
@@ -27,12 +27,10 @@
     --text-normal: #E2E8F0;
     --text-muted: #94A3B8;
     --border-dark: #334155;
-    --border-neon: rgba(99, 102, 241, 0.5);
 
     --radius-sm: 8px;
     --radius-md: 14px;
     --radius-lg: 20px;
-    --shadow-neon: 0 0 20px rgba(99, 102, 241, 0.2);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -70,7 +68,7 @@
     100% { background-position: 0% 0%; }
   }
 
-  /* 상단 네비게이션 헤더 */
+  /* 상단 헤더 */
   .hq-header {
     position: sticky;
     top: 0;
@@ -80,7 +78,7 @@
     border-bottom: 1px solid var(--border-dark);
   }
   .hq-inner {
-    max-width: 900px;
+    max-width: 920px;
     margin: 0 auto;
     padding: 12px 18px;
     display: flex;
@@ -108,7 +106,7 @@
     box-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
   }
 
-  /* 방탈출 스테이지 위저드 맵 (Stage Navigator) */
+  /* 스테이지 위저드 맵 */
   .stage-tracker-wrap {
     background: rgba(15, 23, 42, 0.95);
     border-bottom: 1px solid var(--border-dark);
@@ -119,7 +117,7 @@
   .stage-tracker-wrap::-webkit-scrollbar { display: none; }
   
   .stage-steps-list {
-    max-width: 900px;
+    max-width: 920px;
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -177,21 +175,12 @@
     background: var(--emerald-neon);
     color: #0F172A;
   }
-  .step-label-title {
-    font-size: 0.8rem;
-    font-weight: 800;
-    line-height: 1.2;
-    white-space: nowrap;
-  }
-  .step-label-sub {
-    font-size: 0.68rem;
-    color: var(--text-muted);
-    white-space: nowrap;
-  }
+  .step-label-title { font-size: 0.8rem; font-weight: 800; line-height: 1.2; white-space: nowrap; }
+  .step-label-sub { font-size: 0.68rem; color: var(--text-muted); white-space: nowrap; }
 
-  /* 메인 레이아웃 */
+  /* 메인 컨테이너 */
   .main-container {
-    max-width: 860px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 24px 16px 110px;
   }
@@ -212,7 +201,7 @@
     to { opacity: 1; transform: translateY(0) scale(1); }
   }
 
-  /* 방탈출 사건 브리핑 헤더 */
+  /* 미션 브리핑 헤더 */
   .mission-brief {
     background: linear-gradient(135deg, #1E1B4B 0%, #0F172A 100%);
     border: 1px solid rgba(99, 102, 241, 0.4);
@@ -243,9 +232,10 @@
     font-size: 0.88rem;
     color: var(--text-muted);
     line-height: 1.5;
+    white-space: pre-line;
   }
 
-  /* 입력 폼 컨트롤 */
+  /* 입력 폼 */
   .form-group { margin-bottom: 16px; }
   .form-group:last-child { margin-bottom: 0; }
   .form-label {
@@ -279,7 +269,6 @@
     cursor: not-allowed;
   }
 
-  /* 요원 프로필 그리드 */
   .agent-profile-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -287,7 +276,7 @@
   }
   .agent-name-field { grid-column: 1 / -1; }
 
-  /* 유튜브 단서 스캐너 박스 */
+  /* 유튜브 스캐너 박스 */
   .scanner-box {
     background: rgba(30, 41, 59, 0.6);
     border: 1.5px dashed rgba(6, 182, 212, 0.5);
@@ -321,7 +310,7 @@
     box-shadow: 0 0 16px rgba(6, 182, 212, 0.6);
   }
 
-  /* 유튜브 영상 프리뷰/인라인 플레이어 */
+  /* 유튜브 플레이어 */
   .media-monitor-card {
     margin-top: 14px;
     background: #000;
@@ -395,7 +384,7 @@
     font-weight: 800;
   }
 
-  /* 단서 카드 리스트 (Entries) */
+  /* 단서 카드 */
   .clue-entry-card {
     background: var(--bg-card);
     border: 1px solid var(--border-dark);
@@ -474,10 +463,9 @@
   }
   .btn-add-clue:hover {
     background: rgba(99, 102, 241, 0.16);
-    box-shadow: 0 0 14px var(--step-glow, var(--primary-glow));
   }
 
-  /* 💡 힌트 해독기 박스 */
+  /* 힌트 해독기 */
   .hint-decoder-box {
     background: rgba(15, 23, 42, 0.8);
     border: 1px solid var(--border-dark);
@@ -491,7 +479,7 @@
   .hint-decoder-box ul { padding-left: 18px; margin-top: 6px; }
   .hint-decoder-box li { margin-bottom: 4px; }
 
-  /* 하단 고정 스텝 컨트롤 액션바 */
+  /* 하단 컨트롤 바 */
   .step-control-bar {
     position: fixed;
     bottom: 0; left: 0; right: 0;
@@ -502,7 +490,7 @@
     z-index: 50;
   }
   .step-control-inner {
-    max-width: 860px;
+    max-width: 900px;
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -510,7 +498,7 @@
     gap: 10px;
   }
 
-  /* 버튼 스타일 */
+  /* 버튼들 */
   .btn {
     padding: 12px 20px;
     border-radius: var(--radius-sm);
@@ -523,192 +511,115 @@
     gap: 8px;
     border: 1px solid transparent;
     transition: all 0.2s ease;
-    text-decoration: none;
   }
   .btn:disabled { opacity: 0.45; cursor: not-allowed; }
-  
-  .btn-prev {
-    background: var(--bg-card);
-    border-color: var(--border-dark);
-    color: var(--text-normal);
-  }
+  .btn-prev { background: var(--bg-card); border-color: var(--border-dark); color: var(--text-normal); }
   .btn-prev:hover { background: var(--bg-card-hover); color: var(--text-bright); }
-
-  .btn-save-draft {
-    background: rgba(30, 41, 59, 0.8);
-    border-color: var(--border-dark);
-    color: var(--amber-neon);
-  }
+  .btn-save-draft { background: rgba(30, 41, 59, 0.8); border-color: var(--border-dark); color: var(--amber-neon); }
   .btn-save-draft:hover { background: rgba(245, 158, 11, 0.15); border-color: var(--amber-neon); }
+  .btn-next-step { background: linear-gradient(135deg, #6366F1, #06B6D4); color: white; box-shadow: 0 0 16px rgba(99, 102, 241, 0.4); flex: 1.2; }
+  .btn-next-step:hover { transform: translateY(-1px); box-shadow: 0 0 22px rgba(6, 182, 212, 0.6); }
+  .btn-submit-final { background: linear-gradient(135deg, #10B981, #06B6D4); color: #0F172A; box-shadow: 0 0 18px rgba(16, 185, 129, 0.5); flex: 1.4; }
+  .btn-submit-final:hover { transform: translateY(-1px); box-shadow: 0 0 25px rgba(16, 185, 129, 0.8); }
 
-  .btn-next-step {
-    background: linear-gradient(135deg, #6366F1, #06B6D4);
-    color: white;
-    box-shadow: 0 0 16px rgba(99, 102, 241, 0.4);
-    flex: 1.2;
-  }
-  .btn-next-step:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 0 22px rgba(6, 182, 212, 0.6);
-  }
-
-  .btn-submit-final {
-    background: linear-gradient(135deg, #10B981, #06B6D4);
-    color: #0F172A;
-    box-shadow: 0 0 18px rgba(16, 185, 129, 0.5);
-    flex: 1.4;
-  }
-  .btn-submit-final:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 0 25px rgba(16, 185, 129, 0.8);
-  }
-
-  /* 상태 알림 배너 */
-  .status-banner {
-    border-radius: var(--radius-md);
-    padding: 14px 18px;
-    margin-bottom: 20px;
-    font-size: 0.92rem;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
+  /* 상태 알림 */
+  .status-banner { border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 20px; font-size: 0.92rem; display: flex; align-items: center; gap: 12px; }
   .status-banner.draft { background: rgba(245, 158, 11, 0.15); border: 1px solid var(--amber-neon); color: #FDE68A; }
   .status-banner.submitted { background: rgba(16, 185, 129, 0.15); border: 1px solid var(--emerald-neon); color: #A7F3D0; }
   .status-banner.returned { background: rgba(244, 63, 94, 0.15); border: 1px solid var(--rose-neon); color: #FECDD3; }
   .status-banner.graded { background: rgba(139, 92, 246, 0.15); border: 1px solid var(--violet-neon); color: #DDD6FE; }
 
-  /* 토스트 메시지 */
+  /* 토스트 */
   .toast-box {
-    position: fixed;
-    bottom: 86px;
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: #1E293B;
-    border: 1px solid var(--cyan-neon);
-    color: var(--text-bright);
-    padding: 12px 24px;
-    border-radius: 999px;
-    font-size: 0.92rem;
-    font-weight: 700;
-    box-shadow: 0 0 20px rgba(6, 182, 212, 0.35);
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1000;
-    white-space: nowrap;
+    position: fixed; bottom: 86px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: #1E293B; border: 1px solid var(--cyan-neon); color: var(--text-bright);
+    padding: 12px 24px; border-radius: 999px; font-size: 0.92rem; font-weight: 700;
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.35); opacity: 0; pointer-events: none;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; white-space: nowrap;
   }
   .toast-box.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   .toast-box.ok { border-color: var(--emerald-neon); box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
   .toast-box.error { border-color: var(--rose-neon); box-shadow: 0 0 20px rgba(244, 63, 94, 0.4); }
 
-  /* 교사 대시보드 */
-  .teacher-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 20px;
-    border-bottom: 1px solid var(--border-dark);
-    padding-bottom: 8px;
-  }
-  .tab-btn {
-    padding: 10px 18px;
-    border-radius: var(--radius-sm);
-    background: var(--bg-card);
-    border: 1px solid var(--border-dark);
-    font-weight: 800;
-    font-size: 0.92rem;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .tab-btn.active {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(6, 182, 212, 0.3));
-    border-color: var(--cyan-neon);
-    color: var(--text-bright);
-  }
+  /* 교사 대시보드 탭 */
+  .teacher-tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--border-dark); padding-bottom: 8px; overflow-x: auto; }
+  .tab-btn { padding: 10px 18px; border-radius: var(--radius-sm); background: var(--bg-card); border: 1px solid var(--border-dark); font-weight: 800; font-size: 0.92rem; color: var(--text-muted); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .tab-btn.active { background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(6, 182, 212, 0.3)); border-color: var(--cyan-neon); color: var(--text-bright); }
 
-  .stat-card-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-    gap: 14px;
-    margin-bottom: 20px;
-  }
-  .stat-neon-box {
-    background: var(--bg-card);
-    border: 1px solid var(--border-dark);
-    border-radius: var(--radius-md);
-    padding: 16px;
-  }
-  .stat-val {
-    font-size: 1.8rem;
-    font-weight: 900;
-    color: var(--cyan-neon);
-    font-family: 'Orbitron', sans-serif;
-  }
+  .stat-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .stat-neon-box { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius-md); padding: 16px; }
+  .stat-val { font-size: 1.8rem; font-weight: 900; color: var(--cyan-neon); font-family: 'Orbitron', sans-serif; }
   .stat-lbl { font-size: 0.8rem; color: var(--text-muted); font-weight: 700; }
 
-  .student-row-card {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: var(--bg-card);
-    border: 1px solid var(--border-dark);
-    border-radius: var(--radius-md);
-    padding: 14px 18px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .student-row-card:hover {
-    border-color: var(--cyan-neon);
-    transform: translateX(3px);
-  }
+  .student-row-card { display: flex; align-items: center; justify-content: space-between; background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; }
+  .student-row-card:hover { border-color: var(--cyan-neon); transform: translateX(3px); }
 
-  .status-tag {
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 800;
-  }
+  .status-tag { padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 800; }
   .status-tag.DRAFT { background: rgba(245, 158, 11, 0.2); color: #FDE68A; }
   .status-tag.SUBMITTED { background: rgba(16, 185, 129, 0.2); color: #A7F3D0; }
   .status-tag.RETURNED { background: rgba(244, 63, 94, 0.2); color: #FECDD3; }
   .status-tag.GRADED { background: rgba(139, 92, 246, 0.2); color: #DDD6FE; }
 
-  /* 모달 오버레이 */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(9, 13, 22, 0.75);
-    backdrop-filter: blur(8px);
+  /* 🛠️ 풀 커스텀 비주얼 에디터 전용 스타일 */
+  .editor-section-card {
+    background: #131B2E;
+    border: 1px solid var(--border-dark);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .editor-section-head {
     display: flex;
     align-items: center;
-    justify-content: center;
-    z-index: 2000;
-    padding: 16px;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-dark);
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+  }
+  .editor-section-head h4 {
+    font-size: 1.05rem;
+    font-weight: 900;
+    color: var(--cyan-neon);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .editor-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 640px) {
+    .editor-grid-2 { grid-template-columns: 1fr; }
+  }
+
+  .field-edit-box {
+    background: var(--bg-surface);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  .field-edit-title {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--amber-neon);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  /* 모달 */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(9, 13, 22, 0.75); backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 16px;
   }
   .modal-box {
-    background: var(--bg-surface);
-    border: 1px solid var(--cyan-neon);
-    border-radius: var(--radius-lg);
-    max-width: 500px;
-    width: 100%;
-    padding: 24px;
-    box-shadow: 0 0 30px rgba(6, 182, 212, 0.25);
+    background: var(--bg-surface); border: 1px solid var(--cyan-neon); border-radius: var(--radius-lg);
+    max-width: 500px; width: 100%; padding: 24px; box-shadow: 0 0 30px rgba(6, 182, 212, 0.25);
   }
 
-  #confettiCanvas {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-    z-index: 999999;
-  }
-
-  @media (max-width: 640px) {
-    .stage-card { padding: 16px; }
-    .agent-profile-grid { grid-template-columns: repeat(3, 1fr); }
-  }
+  #confettiCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999999; }
 </style>
 </head>
 <body>
@@ -722,7 +633,7 @@
     <div class="hq-brand">
       <span>🕵️‍♂️</span>
       <span id="navAppTitle">미디어 팩트체크 탐정 수사본부</span>
-      <span class="hq-badge">MISSION V2.0</span>
+      <span class="hq-badge" id="navBadge">MISSION V2.0</span>
     </div>
     <div>
       <button type="button" class="btn btn-prev" style="padding: 7px 14px; font-size: 0.85rem;" id="teacherToggleBtn">
@@ -739,8 +650,8 @@
       <button type="button" class="stage-step-btn active" data-step="0">
         <span class="step-num">0</span>
         <div>
-          <div class="step-label-title">STAGE 0</div>
-          <div class="step-label-sub">요원 등록 & 영상 스캔</div>
+          <div class="step-label-title" id="stageTabTitle0">STAGE 0</div>
+          <div class="step-label-sub" id="stageTabSub0">요원 등록 & 영상 스캔</div>
         </div>
       </button>
     </li>
@@ -748,8 +659,8 @@
       <button type="button" class="stage-step-btn" data-step="1">
         <span class="step-num">1</span>
         <div>
-          <div class="step-label-title">STAGE 1</div>
-          <div class="step-label-sub">호기심 레이더</div>
+          <div class="step-label-title" id="stageTabTitle1">STAGE 1</div>
+          <div class="step-label-sub" id="stageTabSub1">호기심 레이더</div>
         </div>
       </button>
     </li>
@@ -757,8 +668,8 @@
       <button type="button" class="stage-step-btn" data-step="2">
         <span class="step-num">2</span>
         <div>
-          <div class="step-label-title">STAGE 2</div>
-          <div class="step-label-sub">의문점 파일링</div>
+          <div class="step-label-title" id="stageTabTitle2">STAGE 2</div>
+          <div class="step-label-sub" id="stageTabSub2">의문점 파일링</div>
         </div>
       </button>
     </li>
@@ -766,8 +677,8 @@
       <button type="button" class="stage-step-btn" data-step="3">
         <span class="step-num">3</span>
         <div>
-          <div class="step-label-title">STAGE 3</div>
-          <div class="step-label-sub">용의자 댓글 수사</div>
+          <div class="step-label-title" id="stageTabTitle3">STAGE 3</div>
+          <div class="step-label-sub" id="stageTabSub3">용의자 댓글 수사</div>
         </div>
       </button>
     </li>
@@ -775,8 +686,8 @@
       <button type="button" class="stage-step-btn" data-step="4">
         <span class="step-num">4</span>
         <div>
-          <div class="step-label-title">STAGE 4</div>
-          <div class="step-label-sub">팩트체크 결론</div>
+          <div class="step-label-title" id="stageTabTitle4">STAGE 4</div>
+          <div class="step-label-sub" id="stageTabSub4">팩트체크 결론</div>
         </div>
       </button>
     </li>
@@ -793,43 +704,40 @@
   <!-- ==================== STAGE 0 ==================== -->
   <section id="stepSection0" class="stage-card" style="--step-color: var(--cyan-neon);">
     <div class="mission-brief">
-      <div class="mission-tag">📁 MISSION 00</div>
-      <h2 class="mission-title">수사 요원 신원 등록 & 타깃 영상 스캔</h2>
-      <p class="mission-desc">
-        사건 일지를 기록할 요원 신원을 등록하고, 수사 대상이 될 유튜브 영상 링크를 입력하세요.<br>
-        유튜브 링크를 붙여넣으면 영상 정보와 증거 플레이어가 자동 활성화됩니다.
-      </p>
+      <div class="mission-tag" id="dispStep0Tag">📁 MISSION 00</div>
+      <h2 class="mission-title" id="dispStep0Title">수사 요원 신원 등록 & 타깃 영상 스캔</h2>
+      <p class="mission-desc" id="dispStep0Desc">사건 일지를 기록할 요원 신원을 등록하고, 수사 대상이 될 유튜브 영상 링크를 입력하세요. 유튜브 링크를 붙여넣으면 영상 정보와 증거 플레이어가 자동 활성화됩니다.</p>
     </div>
 
     <!-- 인적사항 -->
     <div class="agent-profile-grid">
       <div class="form-group">
-        <label class="form-label" for="gradeInput">학년<span class="req">*</span></label>
+        <label class="form-label" id="lblGrade" for="gradeInput">학년<span class="req">*</span></label>
         <input type="number" id="gradeInput" class="form-control" min="1" max="6" placeholder="예: 1">
       </div>
       <div class="form-group">
-        <label class="form-label" for="classInput">반<span class="req">*</span></label>
+        <label class="form-label" id="lblClass" for="classInput">반<span class="req">*</span></label>
         <input type="number" id="classInput" class="form-control" min="1" max="20" placeholder="예: 3">
       </div>
       <div class="form-group">
-        <label class="form-label" for="numberInput">번호<span class="req">*</span></label>
+        <label class="form-label" id="lblNumber" for="numberInput">번호<span class="req">*</span></label>
         <input type="number" id="numberInput" class="form-control" min="1" max="45" placeholder="예: 12">
       </div>
       <div class="form-group agent-name-field">
-        <label class="form-label" for="nameInput">요원 이름<span class="req">*</span></label>
+        <label class="form-label" id="lblName" for="nameInput">요원 이름<span class="req">*</span></label>
         <input type="text" id="nameInput" class="form-control" maxlength="20" placeholder="학생 이름을 입력하세요">
       </div>
     </div>
 
     <!-- ⚡ 유튜브 단서 스캐너 -->
     <div class="scanner-box">
-      <label class="form-label" style="color: var(--cyan-neon); font-weight: 800;">
+      <label class="form-label" id="dispScannerTitle" style="color: var(--cyan-neon); font-weight: 800;">
         ⚡ 유튜브 타깃 영상 스캔 (쇼츠 / 일반 영상 URL 붙여넣기)
       </label>
       <div class="scanner-input-wrap">
         <input type="url" id="ytUrlInput" class="form-control" placeholder="https://youtu.be/... 또는 youtube.com/watch?v=...">
         <button type="button" class="btn-scan" id="btnAutoFetchYt">
-          <span>단서 추출</span> 🔍
+          <span id="dispScanBtnText">단서 추출 🔍</span>
         </button>
       </div>
 
@@ -849,11 +757,11 @@
 
       <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 10px; margin-top: 14px;">
         <div class="form-group">
-          <label class="form-label" for="channelInput">채널명 (작성자)</label>
+          <label class="form-label" id="lblChannel" for="channelInput">채널명 (작성자)</label>
           <input type="text" id="channelInput" class="form-control" placeholder="채널 이름">
         </div>
         <div class="form-group">
-          <label class="form-label" for="videoInput">영상 제목</label>
+          <label class="form-label" id="lblVideoTitle" for="videoInput">영상 제목</label>
           <input type="text" id="videoInput" class="form-control" placeholder="영상 제목">
         </div>
       </div>
@@ -863,16 +771,14 @@
   <!-- ==================== STAGE 1 ==================== -->
   <section id="stepSection1" class="stage-card" style="display: none; --step-color: var(--amber-neon);">
     <div class="mission-brief">
-      <div class="mission-tag">🔍 MISSION 01</div>
-      <h2 class="mission-title">호기심 레이더: 첫인상 단서 포착</h2>
-      <p class="mission-desc" id="guideStep1">
-        영상을 본격 시청하기 전, 썸네일과 제목, 첫 장면만 보고 떠오른 호기심 질문과 나의 예상 답안을 기록하세요.
-      </p>
+      <div class="mission-tag" id="dispStep1Tag">🔍 MISSION 01</div>
+      <h2 class="mission-title" id="dispStep1Title">호기심 레이더: 첫인상 단서 포착</h2>
+      <p class="mission-desc" id="dispStep1Desc">영상을 본격 시청하기 전, 썸네일과 제목, 첫 장면만 보고 떠오른 호기심 질문과 나의 예상 답안을 기록하세요.</p>
     </div>
 
-    <div class="hint-decoder-box">
-      <strong>💡 단서 포착 힌트</strong>
-      <ul>
+    <div class="hint-decoder-box" id="dispStep1HintBox">
+      <strong id="dispStep1HintTitle">💡 단서 포착 힌트</strong>
+      <ul id="dispStep1HintList">
         <li>"썸네일에 강조된 자극적인 문구는 영상 내용과 정말 관련이 있을까?"</li>
         <li>"제작자는 왜 이런 제목을 붙여 시청자의 클릭을 유도했을까?"</li>
       </ul>
@@ -885,16 +791,14 @@
   <!-- ==================== STAGE 2 ==================== -->
   <section id="stepSection2" class="stage-card" style="display: none; --step-color: var(--emerald-neon);">
     <div class="mission-brief">
-      <div class="mission-tag">💡 MISSION 02</div>
-      <h2 class="mission-title">의문점 파일링: 증거 분석 & 분류</h2>
-      <p class="mission-desc" id="guideStep2">
-        영상을 시청하며 이해되지 않거나 의심스러운 점, 친구들과 토론해보고 싶은 의문점을 질문 파일로 분류하세요.
-      </p>
+      <div class="mission-tag" id="dispStep2Tag">💡 MISSION 02</div>
+      <h2 class="mission-title" id="dispStep2Title">의문점 파일링: 증거 분석 & 분류</h2>
+      <p class="mission-desc" id="dispStep2Desc">영상을 시청하며 이해되지 않거나 의심스러운 점, 친구들과 토론해보고 싶은 의문점을 질문 파일로 분류하세요.</p>
     </div>
 
-    <div class="hint-decoder-box">
-      <strong>💡 증거 분류 기준</strong>
-      <ul>
+    <div class="hint-decoder-box" id="dispStep2HintBox">
+      <strong id="dispStep2HintTitle">💡 증거 분류 기준</strong>
+      <ul id="dispStep2HintList">
         <li><strong>이해가 안 되는 부분:</strong> 설명이 부족하거나 전문 용어가 난해한 부분</li>
         <li><strong>궁금한 점(의문):</strong> 영상에 나오지 않은 뒷이야기나 팩트체크가 필요한 부분</li>
         <li><strong>다른 사람 의견:</strong> 보는 사람마다 입장이 갈릴 수 있는 가치관 이슈</li>
@@ -908,16 +812,14 @@
   <!-- ==================== STAGE 3 ==================== -->
   <section id="stepSection3" class="stage-card" style="display: none; --step-color: var(--rose-neon);">
     <div class="mission-brief">
-      <div class="mission-tag">🕵️ MISSION 03</div>
-      <h2 class="mission-title">용의자 심리 수사: 댓글 속 숨은 의도</h2>
-      <p class="mission-desc" id="guideStep3">
-        댓글창을 조사하여 강한 편견이나 감정이 담긴 댓글을 포착하고, 작성자의 숨겨진 의도와 관점을 프로파일링하세요.
-      </p>
+      <div class="mission-tag" id="dispStep3Tag">🕵️ MISSION 03</div>
+      <h2 class="mission-title" id="dispStep3Title">용의자 심리 수사: 댓글 속 숨은 의도</h2>
+      <p class="mission-desc" id="dispStep3Desc">댓글창을 조사하여 강한 편견이나 감정이 담긴 댓글을 포착하고, 작성자의 숨겨진 의도와 관점을 프로파일링하세요.</p>
     </div>
 
-    <div class="hint-decoder-box">
-      <strong>💡 댓글 프로파일링 팁</strong>
-      <ul>
+    <div class="hint-decoder-box" id="dispStep3HintBox">
+      <strong id="dispStep3HintTitle">💡 댓글 프로파일링 팁</strong>
+      <ul id="dispStep3HintList">
         <li>이 댓글을 쓴 사람은 평소 어떤 이해관계나 불만을 겪었을까?</li>
         <li>자신의 주장을 강조하기 위해 과장되거나 편향된 표현을 사용하지는 않았는가?</li>
       </ul>
@@ -930,19 +832,17 @@
   <!-- ==================== STAGE 4 ==================== -->
   <section id="stepSection4" class="stage-card" style="display: none; --step-color: var(--violet-neon);">
     <div class="mission-brief">
-      <div class="mission-tag">⚖️ MISSION 04</div>
-      <h2 class="mission-title">팩트체커 최종 결론: 비판적 한계 파헤치기</h2>
-      <p class="mission-desc" id="guideStep4">
-        댓글의 맥락을 깊이 파헤치고, 미디어 콘텐츠가 조명하지 않은 현실의 실질적인 문제점을 비판적 질문으로 완성하세요.
-      </p>
+      <div class="mission-tag" id="dispStep4Tag">⚖️ MISSION 04</div>
+      <h2 class="mission-title" id="dispStep4Title">팩트체커 최종 결론: 비판적 한계 파헤치기</h2>
+      <p class="mission-desc" id="dispStep4Desc">댓글의 맥락을 깊이 파헤치고, 미디어 콘텐츠가 조명하지 않은 현실의 실질적인 문제점을 비판적 질문으로 완성하세요.</p>
     </div>
 
-    <div class="hint-decoder-box">
-      <strong>💡 최종 비판 예시</strong>
-      <ul>
-        <li><strong>[댓글 인용]</strong> "축제 때문에 버스 막히고 주민들은 고통인데 뉴스는 겉만 번지르르하네요."</li>
-        <li><strong>[작성자 배경 추론]</strong> 이 주민은 지역 대중교통이나 시 행정에 어떤 누적된 불편을 느꼈을까?</li>
-        <li><strong>[미디어 한계 파악]</strong> 왜 이 영상은 화려함 뒤에 숨은 실질적인 주민 불편을 다루지 않았을까?</li>
+    <div class="hint-decoder-box" id="dispStep4HintBox">
+      <strong id="dispStep4HintTitle">💡 최종 비판 예시</strong>
+      <ul id="dispStep4HintList">
+        <li>[댓글 인용] "축제 때문에 버스 막히고 주민들은 고통인데 뉴스는 겉만 번지르르하네요."</li>
+        <li>[작성자 배경 추론] 이 주민은 지역 대중교통이나 시 행정에 어떤 누적된 불편을 느꼈을까?</li>
+        <li>[미디어 한계 파악] 왜 이 영상은 화려함 뒤에 숨은 실질적인 주민 불편을 다루지 않았을까?</li>
       </ul>
     </div>
 
@@ -950,20 +850,20 @@
     <button type="button" class="btn-add-clue" id="addStep4Btn">+ 비판적 질문 단서 추가</button>
   </section>
 
-  <!-- 하단 고정 스테이지 위저드 컨트롤 바 -->
+  <!-- 하단 고정 컨트롤 바 -->
   <div class="step-control-bar" id="studentControlBar">
     <div class="step-control-inner">
       <button type="button" class="btn btn-prev" id="btnPrevStep" style="visibility: hidden;">
-        ◀ 이전 단계
+        <span id="btnPrevText">◀ 이전 단계</span>
       </button>
       <button type="button" class="btn btn-save-draft" id="btnSaveDraft">
-        💾 임시저장
+        <span id="btnSaveDraftText">💾 임시저장</span>
       </button>
       <button type="button" class="btn btn-next-step" id="btnNextStep">
-        다음 퀘스트 단계로 ▶ (자동저장)
+        <span id="btnNextStepText">다음 퀘스트 단계로 ▶ (자동저장)</span>
       </button>
       <button type="button" class="btn btn-submit-final" id="btnSubmitForm" style="display: none;">
-        🚀 최종 사건 일지 제출하기
+        <span id="btnSubmitText">🚀 최종 사건 일지 제출하기</span>
       </button>
     </div>
   </div>
@@ -999,7 +899,7 @@
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
       <div>
         <h2 style="font-size: 1.4rem; font-weight: 900; color: var(--text-bright);">📊 수사 지휘 통제 대시보드</h2>
-        <p style="font-size: 0.85rem; color: var(--text-muted);">학생 활동지 제출 현황 및 시청 콘텐츠 통계 분석</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">학생 활동지 제출 현황, 시청 콘텐츠 통계 및 문항 풀 커스텀 에디터</p>
       </div>
       <div style="display: flex; gap: 8px;">
         <button type="button" class="btn btn-prev" style="padding: 7px 12px; font-size: 0.82rem;" id="btnExportCsv">📥 CSV 다운로드</button>
@@ -1011,7 +911,8 @@
     <div class="teacher-tabs">
       <button type="button" class="tab-btn active" data-tab="tabList">📋 학생 제출 목록</button>
       <button type="button" class="tab-btn" data-tab="tabStats">📈 콘텐츠 시청 통계</button>
-      <button type="button" class="tab-btn" data-tab="tabSettings">⚙️ 설정 & 비밀번호 변경</button>
+      <button type="button" class="tab-btn" data-tab="tabCustomEditor">🛠️ 활동지 문항 & UI 풀 커스텀</button>
+      <button type="button" class="tab-btn" data-tab="tabSecurity">🔐 비밀번호 관리</button>
     </div>
 
     <!-- 탭 1: 학생 목록 -->
@@ -1083,9 +984,377 @@
       </div>
     </div>
 
-    <!-- 탭 3: 설정 & 비밀번호 변경 -->
-    <div id="tabSettings" class="tab-content" style="display: none;">
-      <div class="stage-card" style="margin-bottom: 20px;">
+    <!-- 탭 3: 🛠️ 활동지 문항 & UI 풀 커스텀 에디터 (Visual Editor) -->
+    <div id="tabCustomEditor" class="tab-content" style="display: none;">
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <p style="font-size: 0.9rem; color: var(--text-muted);">
+          학생 화면에 노출되는 <strong>모든 타이틀, 미션 안내 문구, 힌트 상자, 입력란 라벨, 플레이스홀더, 버튼 이름</strong>을 수정할 수 있습니다.
+        </p>
+        <button type="button" class="btn btn-next-step" id="btnSaveAllCustomSettings">
+          💾 모든 커스텀 설정 일괄 저장
+        </button>
+      </div>
+
+      <!-- 1. 앱 헤더 및 공통 설정 -->
+      <div class="editor-section-card">
+        <div class="editor-section-head">
+          <h4>🏛️ 앱 메인 타이틀 & 브랜딩</h4>
+        </div>
+        <div class="editor-grid-2">
+          <div class="form-group">
+            <label class="form-label">웹앱 메인 제목</label>
+            <input type="text" id="edtAppTitle" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">상단 헤더 배지 문구</label>
+            <input type="text" id="edtAppBadge" class="form-control">
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. STAGE 0 설정 -->
+      <div class="editor-section-card">
+        <div class="editor-section-head">
+          <h4>📁 STAGE 0: 요원 신원 등록 & 영상 스캔</h4>
+        </div>
+        <div class="editor-grid-2">
+          <div class="form-group">
+            <label class="form-label">미션 태그</label>
+            <input type="text" id="edtStep0Tag" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">미션 타이틀</label>
+            <input type="text" id="edtStep0Title" class="form-control">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">미션 가이드 설명문</label>
+          <textarea id="edtStep0Desc" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="editor-grid-2">
+          <div class="form-group">
+            <label class="form-label">유튜브 스캐너 라벨</label>
+            <input type="text" id="edtScannerTitle" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">단서 추출 버튼 텍스트</label>
+            <input type="text" id="edtScanBtnText" class="form-control">
+          </div>
+        </div>
+        <div class="field-edit-title">입력 필드 라벨 커스텀</div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+          <div class="form-group">
+            <label class="form-label">학년 라벨</label>
+            <input type="text" id="edtLblGrade" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">반 라벨</label>
+            <input type="text" id="edtLblClass" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">번호 라벨</label>
+            <input type="text" id="edtLblNumber" class="form-control">
+          </div>
+        </div>
+        <div class="editor-grid-2" style="margin-top: 8px;">
+          <div class="form-group">
+            <label class="form-label">이름 라벨</label>
+            <input type="text" id="edtLblName" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">채널명 라벨</label>
+            <input type="text" id="edtLblChannel" class="form-control">
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. STAGE 1 설정 -->
+      <div class="editor-section-card">
+        <div class="editor-section-head">
+          <h4 style="color: var(--amber-neon);">🔍 STAGE 1: 호기심 레이더</h4>
+        </div>
+        <div class="editor-grid-2">
+          <div class="form-group">
+            <label class="form-label">미션 태그</label>
+            <input type="text" id="edtStep1Tag" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">미션 타이틀</label>
+            <input type="text" id="edtStep1Title" class="form-control">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">가이드 설명 문구</label>
+          <textarea id="edtStep1Desc" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="field-edit-box">
+          <div class="field-edit-title">💡 힌트 해독기 박스</div>
+          <div class="form-group">
+            <label class="form-label">힌트 제목</label>
+            <input type="text" id="edtStep1HintTitle" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">힌트 목록 (엔터로 줄바꿈하여 여러 줄 입력)</label>
+            <textarea id="edtStep1HintLines" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="editor-grid-2">
+          <div class="field-edit-box">
+            <div class="field-edit-title">질문 입력란</div>
+            <div class="form-group">
+              <label class="form-label">라벨명</label>
+              <input type="text" id="edtStep1QLabel" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">플레이스홀더 (힌트)</label>
+              <input type="text" id="edtStep1QHolder" class="form-control">
+            </div>
+          </div>
+          <div class="field-edit-box">
+            <div class="field-edit-title">답변 입력란</div>
+            <div class="form-group">
+              <label class="form-label">라벨명</label>
+              <input type="text" id="edtStep1ALabel" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">플레이스홀더 (힌트)</label>
+              <input type="text" id="edtStep1AHolder" class="form-control">
+            </div>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: 10px;">
+          <label class="form-label">단서 추가 버튼명</label>
+          <input type="text" id="edtStep1AddBtn" class="form-control">
+        </div>
+      </div>
+
+      <!-- 4. STAGE 2 설정 -->
+      <div class="editor-section-card">
+        <div class="editor-section-head">
+          <h4 style="color: var(--emerald-neon);">💡 STAGE 2: 의문점 파일링</h4>
+        </div>
+        <div class="editor-grid-2">
+          <div class="form-group">
+            <label class="form-label">미션 태그</label>
+            <input type="text" id="edtStep2Tag" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">미션 타이틀</label>
+            <input type="text" id="edtStep2Title" class="form-control">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">가이드 설명 문구</label>
+          <textarea id="edtStep2Desc" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="field-edit-box">
+          <div class="field-edit-title">💡 힌트 해독기 박스</div>
+          <div class="form-group">
+            <label class="form-label">힌트 제목</label>
+            <input type="text" id="edtStep2HintTitle" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">힌트 목록 (엔터로 줄바꿈)</label>
+            <textarea id="edtStep2HintLines" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">의문점 질문 분류 카테고리 옵션 (쉼표로 구분)</label>
+          <input type="text" id="edtStep2Categories" class="form-control" placeholder="이해가 안 되는 부분, 궁금한 점(의문), 다른 사람 의견, 기타">
+        </div>
+        <div class="editor-grid-2">
+          <div class="field-edit-box">
+            <div class="field-edit-title">분류 셀렉트 박스</div>
+            <div class="form-group">
+              <label class="form-label">라벨명</label>
+              <input type="text" id="edtStep2CatLabel" class="form-control">
+            </div>
+          </div>
+          <div class="field-edit-box">
+            <div class="field-edit-title">질문 내용 입력란</div>
+            <div class="form-group">
+              <label class="form-label">라벨명</label>
+              <input type="text" id="edtStep2QLabel" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">플레이스홀더</label>
+              <input type="text" id="edtStep2QHolder" class="form-control">
+            </div>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: 10px;">
+          <label class="form-label">단서 추가 버튼명</label>
+          <input type="text" id="edtStep2AddBtn" class="form-control">
+        </div>
+      </div>
+
+      <!-- 5. STAGE 3 설정 -->
+      <div class="editor-section-card">
+        <div class="editor-section-head">
+          <h4 style="color: var(--rose-neon);">🕵️ STAGE 3: 용의자 댓글 수사</h4>
+        </div>
+        <div class="editor-grid-2">
+          <div class="form-group">
+            <label class="form-label">미션 태그</label>
+            <input type="text" id="edtStep3Tag" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">미션 타이틀</label>
+            <input type="text" id="edtStep3Title" class="form-control">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">가이드 설명 문구</label>
+          <textarea id="edtStep3Desc" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="field-edit-box">
+          <div class="field-edit-title">💡 힌트 해독기 박스</div>
+          <div class="form-group">
+            <label class="form-label">힌트 제목</label>
+            <input type="text" id="edtStep3HintTitle" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">힌트 목록 (엔터로 줄바꿈)</label>
+            <textarea id="edtStep3HintLines" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="editor-grid-2">
+          <div class="field-edit-box">
+            <div class="field-edit-title">댓글 인용 입력란</div>
+            <div class="form-group">
+              <label class="form-label">라벨명</label>
+              <input type="text" id="edtStep3CLabel" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">플레이스홀더</label>
+              <input type="text" id="edtStep3CHolder" class="form-control">
+            </div>
+          </div>
+          <div class="field-edit-box">
+            <div class="field-edit-title">작성자 의도/관점 입력란</div>
+            <div class="form-group">
+              <label class="form-label">라벨명</label>
+              <input type="text" id="edtStep3ILabel" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">플레이스홀더</label>
+              <input type="text" id="edtStep3IHolder" class="form-control">
+            </div>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: 10px;">
+          <label class="form-label">단서 추가 버튼명</label>
+          <input type="text" id="edtStep3AddBtn" class="form-control">
+        </div>
+      </div>
+
+      <!-- 6. STAGE 4 설정 -->
+      <div class="editor-section-card">
+        <div class="editor-section-head">
+          <h4 style="color: var(--violet-neon);">⚖️ STAGE 4: 팩트체커 최종 결론</h4>
+        </div>
+        <div class="editor-grid-2">
+          <div class="form-group">
+            <label class="form-label">미션 태그</label>
+            <input type="text" id="edtStep4Tag" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">미션 타이틀</label>
+            <input type="text" id="edtStep4Title" class="form-control">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">가이드 설명 문구</label>
+          <textarea id="edtStep4Desc" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="field-edit-box">
+          <div class="field-edit-title">💡 힌트 해독기 박스</div>
+          <div class="form-group">
+            <label class="form-label">힌트 제목</label>
+            <input type="text" id="edtStep4HintTitle" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">힌트 목록 (엔터로 줄바꿈)</label>
+            <textarea id="edtStep4HintLines" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+          <div class="field-edit-box">
+            <div class="field-edit-title">1) 댓글 인용란</div>
+            <div class="form-group">
+              <label class="form-label">라벨명</label>
+              <input type="text" id="edtStep4QLabel" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">플레이스홀더</label>
+              <input type="text" id="edtStep4QHolder" class="form-control">
+            </div>
+          </div>
+          <div class="field-edit-box">
+            <div class="field-edit-title">2) 배경 추론란</div>
+            <div class="form-group">
+              <label class="form-label">라벨명</label>
+              <input type="text" id="edtStep4BLabel" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">플레이스홀더</label>
+              <input type="text" id="edtStep4BHolder" class="form-control">
+            </div>
+          </div>
+          <div class="field-edit-box">
+            <div class="field-edit-title">3) 한계 파악란</div>
+            <div class="form-group">
+              <label class="form-label">라벨명</label>
+              <input type="text" id="edtStep4LLabel" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">플레이스홀더</label>
+              <input type="text" id="edtStep4LHolder" class="form-control">
+            </div>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: 10px;">
+          <label class="form-label">단서 추가 버튼명</label>
+          <input type="text" id="edtStep4AddBtn" class="form-control">
+        </div>
+      </div>
+
+      <!-- 7. 하단 진행 버튼 문구 커스텀 -->
+      <div class="editor-section-card">
+        <div class="editor-section-head">
+          <h4>🔘 하단 네비게이션 버튼 문구 커스텀</h4>
+        </div>
+        <div class="editor-grid-2">
+          <div class="form-group">
+            <label class="form-label">이전 단계 버튼명</label>
+            <input type="text" id="edtBtnPrev" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">임시저장 버튼명</label>
+            <input type="text" id="edtBtnSaveDraft" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">다음 단계 버튼명</label>
+            <input type="text" id="edtBtnNext" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">최종 제출 버튼명</label>
+            <input type="text" id="edtBtnSubmit" class="form-control">
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align: right; margin-top: 20px;">
+        <button type="button" class="btn btn-next-step" style="padding: 14px 28px; font-size: 1rem;" id="btnSaveAllCustomSettingsBottom">
+          💾 커스텀 설정 최종 저장 및 학생 화면 적용
+        </button>
+      </div>
+    </div>
+
+    <!-- 탭 4: 비밀번호 관리 -->
+    <div id="tabSecurity" class="tab-content" style="display: none;">
+      <div class="stage-card" style="max-width: 500px;">
         <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 16px; color: var(--rose-neon);">
           🔐 교사 관리자 비밀번호 변경
         </h3>
@@ -1099,35 +1368,6 @@
         </div>
         <button type="button" class="btn btn-next-step" id="btnChangePassword">
           비밀번호 변경하기
-        </button>
-      </div>
-
-      <div class="stage-card">
-        <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 16px; color: var(--cyan-neon);">
-          ⚙️ 활동지 문항 가이드 문구 설정
-        </h3>
-        <div class="form-group">
-          <label class="form-label" for="settingActivityTitle">활동지 메인 제목</label>
-          <input type="text" id="settingActivityTitle" class="form-control" placeholder="미디어 팩트체크 탐정 수사본부">
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="settingGuide1">STAGE 1 안내 문구</label>
-          <textarea id="settingGuide1" class="form-control" rows="2"></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="settingGuide2">STAGE 2 안내 문구</label>
-          <textarea id="settingGuide2" class="form-control" rows="2"></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="settingGuide3">STAGE 3 안내 문구</label>
-          <textarea id="settingGuide3" class="form-control" rows="2"></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="settingGuide4">STAGE 4 안내 문구</label>
-          <textarea id="settingGuide4" class="form-control" rows="2"></textarea>
-        </div>
-        <button type="button" class="btn btn-next-step" id="btnSaveSettings">
-          가이드 설정 저장
         </button>
       </div>
     </div>
@@ -1145,28 +1385,105 @@
 <div id="modalRoot"></div>
 
 <!-- ============================================================ -->
-<!-- 3. 스크립트 로직 (App Engine) -->
+<!-- 3. 스크립트 로직 -->
 <!-- ============================================================ -->
 <script>
 (function () {
   'use strict';
 
   var DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbx1wDwzoEAAgx1mTjIC4_VBVXh9ZMefedooEeZ8vyLV91qLxDOy5Wfm_e1wZZU-NlyJ/exec';
-  var DEFAULT_STEP2_CATEGORIES = ['이해가 안 되는 부분', '궁금한 점(의문)', '다른 사람 의견이 궁금한 점', '비판적 의문', '기타'];
   var CLIENT_MAX_ROWS = { step1: 10, step2: 10, step3: 15, step4: 6 };
   var STATUS_LABEL = { DRAFT: '임시저장', SUBMITTED: '제출완료', RETURNED: '반려됨', GRADED: '채점완료' };
 
+  var defaultFullSettings = {
+    activityTitle: '미디어 팩트체크 탐정 수사본부',
+    headerBadge: 'MISSION V2.0',
+    stageNav: [
+      { title: 'STAGE 0', sub: '요원 등록 & 영상 스캔' },
+      { title: 'STAGE 1', sub: '호기심 레이더' },
+      { title: 'STAGE 2', sub: '의문점 파일링' },
+      { title: 'STAGE 3', sub: '용의자 댓글 수사' },
+      { title: 'STAGE 4', sub: '팩트체크 결론' }
+    ],
+    step0: {
+      tag: '📁 MISSION 00',
+      title: '수사 요원 신원 등록 & 타깃 영상 스캔',
+      desc: '사건 일지를 기록할 요원 신원을 등록하고, 수사 대상이 될 유튜브 영상 링크를 입력하세요.\n유튜브 링크를 붙여넣으면 영상 정보와 증거 플레이어가 자동 활성화됩니다.',
+      scannerTitle: '⚡ 유튜브 타깃 영상 스캔 (쇼츠 / 일반 영상 URL 붙여넣기)',
+      scanBtnText: '단서 추출 🔍',
+      labels: { grade: '학년', classNum: '반', number: '번호', name: '요원 이름', channel: '채널명 (작성자)', videoTitle: '영상 제목' }
+    },
+    step1: {
+      tag: '🔍 MISSION 01',
+      title: '호기심 레이더: 첫인상 단서 포착',
+      desc: '영상을 본격 시청하기 전, 썸네일과 제목, 첫 장면만 보고 떠오른 호기심 질문과 나의 예상 답안을 기록하세요.',
+      hintTitle: '💡 단서 포착 힌트',
+      hints: [
+        '썸네일에 강조된 자극적인 문구는 영상 내용과 정말 관련이 있을까?',
+        '제작자는 왜 이런 제목을 붙여 시청자의 클릭을 유도했을까?'
+      ],
+      addBtnText: '+ 호기심 질문 단서 추가',
+      qLabel: '호기심 질문', qHolder: '예: 썸네일에 왜 이 단어를 강조했을까?',
+      aLabel: '나의 예상 답안', aHolder: '내 생각이나 지식으로 미리 추론해보기'
+    },
+    step2: {
+      tag: '💡 MISSION 02',
+      title: '의문점 파일링: 증거 분석 & 분류',
+      desc: '영상을 시청하며 이해되지 않거나 의심스러운 점, 친구들과 토론해보고 싶은 의문점을 질문 파일로 분류하세요.',
+      hintTitle: '💡 증거 분류 기준',
+      hints: [
+        '이해가 안 되는 부분: 설명이 부족하거나 전문 용어가 난해한 부분',
+        '궁금한 점(의문): 영상에 나오지 않은 뒷이야기나 팩트체크가 필요한 부분',
+        '다른 사람 의견: 보는 사람마다 입장이 갈릴 수 있는 가치관 이슈'
+      ],
+      categories: ['이해가 안 되는 부분', '궁금한 점(의문)', '다른 사람 의견이 궁금한 점', '비판적 의문', '기타'],
+      addBtnText: '+ 의문 질문 단서 추가',
+      catLabel: '의문점 분류',
+      qLabel: '질문 내용', qHolder: '예: 영상에 나온 주장이 실제 통계와 부합할까?'
+    },
+    step3: {
+      tag: '🕵️ MISSION 03',
+      title: '용의자 심리 수사: 댓글 속 숨은 의도',
+      desc: '댓글창을 조사하여 강한 편견이나 감정이 담긴 댓글을 포착하고, 작성자의 숨겨진 의도와 관점을 프로파일링하세요.',
+      hintTitle: '💡 댓글 프로파일링 팁',
+      hints: [
+        '이 댓글을 쓴 사람은 평소 어떤 이해관계나 불만을 겪었을까?',
+        '자신의 주장을 강조하기 위해 과장되거나 편향된 표현을 사용하지는 않았는가?'
+      ],
+      addBtnText: '+ 댓글 수사 단서 추가',
+      cLabel: '포착한 댓글 인용', cHolder: '분석할 댓글 문장을 그대로 적어보세요',
+      iLabel: '작성자의 숨은 의도/관점', iHolder: '이 사람은 왜 이런 댓글을 썼을까?'
+    },
+    step4: {
+      tag: '⚖️ MISSION 04',
+      title: '팩트체커 최종 결론: 비판적 한계 파헤치기',
+      desc: '댓글의 맥락을 깊이 파헤치고, 미디어 콘텐츠가 조명하지 않은 현실의 실질적인 문제점을 비판적 질문으로 완성하세요.',
+      hintTitle: '💡 최종 비판 예시',
+      hints: [
+        '[댓글 인용] "축제 때문에 버스 막히고 주민들은 고통인데 뉴스는 겉만 번지르르하네요."',
+        '[작성자 배경 추론] 이 주민은 지역 대중교통이나 시 행정에 어떤 누적된 불편을 느꼈을까?',
+        '[미디어 한계 파악] 왜 이 영상은 화려함 뒤에 숨은 실질적인 주민 불편을 다루지 않았을까?'
+      ],
+      addBtnText: '+ 비판적 질문 단서 추가',
+      qLabel: '1) 핵심 댓글 인용', qHolder: '비판적으로 파헤칠 댓글 문장',
+      bLabel: '2) 작성자 배경/경험 추론 질문', bHolder: '이 사람은 어떤 입장이나 피해를 겪었을까?',
+      lLabel: '3) 미디어 한계 파악 질문', lHolder: '이 영상은 왜 실질적 문제를 깊이 다루지 않았을까?'
+    },
+    buttons: {
+      prev: '◀ 이전 단계',
+      saveDraft: '💾 임시저장',
+      next: '다음 퀘스트 단계로 ▶ (자동저장)',
+      submit: '🚀 최종 사건 일지 제출하기'
+    }
+  };
+
   var state = {
     mode: 'student',
-    currentStep: 0, // 0 to 4
+    currentStep: 0,
     student: defaultStudent(),
     loadedStatus: '',
     locked: false,
-    settings: {
-      activityTitle: '미디어 팩트체크 탐정 수사본부',
-      stepGuides: null,
-      step2Categories: DEFAULT_STEP2_CATEGORIES
-    },
+    settings: JSON.parse(JSON.stringify(defaultFullSettings)),
     teacher: {
       token: '',
       list: [],
@@ -1215,7 +1532,6 @@
   }
 
   function runServer(action, payload) {
-    // GAS iframe 내부 구동 시
     if (typeof google !== 'undefined' && google.script && google.script.run) {
       return new Promise(function (resolve, reject) {
         google.script.run
@@ -1230,7 +1546,6 @@
       });
     }
 
-    // GitHub 배포본 (fetch 호출)
     return fetch(DEFAULT_GAS_URL, {
       method: 'POST',
       body: JSON.stringify({ action: action, payload: payload }),
@@ -1242,34 +1557,262 @@
   }
 
   /* ============================================================ */
-  /* 방탈출 단계별 스텝 전환 (Step Wizard Engine) */
+  /* 🛠️ 풀 커스텀 설정 렌더링 & 바인딩 */
+  /* ============================================================ */
+  function applyFullSettings(s) {
+    if (!s) return;
+    state.settings = deepMerge(JSON.parse(JSON.stringify(defaultFullSettings)), s);
+    var st = state.settings;
+
+    // 브랜딩
+    $('htmlTitle').textContent = st.activityTitle;
+    $('navAppTitle').textContent = st.activityTitle;
+    if ($('navBadge')) $('navBadge').textContent = st.headerBadge || 'MISSION V2.0';
+
+    // 스테이지 탭
+    if (st.stageNav && st.stageNav.length >= 5) {
+      for (var i = 0; i < 5; i++) {
+        if ($('stageTabTitle' + i)) $('stageTabTitle' + i).textContent = st.stageNav[i].title;
+        if ($('stageTabSub' + i)) $('stageTabSub' + i).textContent = st.stageNav[i].sub;
+      }
+    }
+
+    // STAGE 0
+    if ($('dispStep0Tag')) $('dispStep0Tag').textContent = st.step0.tag;
+    if ($('dispStep0Title')) $('dispStep0Title').textContent = st.step0.title;
+    if ($('dispStep0Desc')) $('dispStep0Desc').textContent = st.step0.desc;
+    if ($('dispScannerTitle')) $('dispScannerTitle').textContent = st.step0.scannerTitle;
+    if ($('dispScanBtnText')) $('dispScanBtnText').textContent = st.step0.scanBtnText;
+    if (st.step0.labels) {
+      if ($('lblGrade')) $('lblGrade').innerHTML = escAttr(st.step0.labels.grade) + '<span class="req">*</span>';
+      if ($('lblClass')) $('lblClass').innerHTML = escAttr(st.step0.labels.classNum) + '<span class="req">*</span>';
+      if ($('lblNumber')) $('lblNumber').innerHTML = escAttr(st.step0.labels.number) + '<span class="req">*</span>';
+      if ($('lblName')) $('lblName').innerHTML = escAttr(st.step0.labels.name) + '<span class="req">*</span>';
+      if ($('lblChannel')) $('lblChannel').textContent = st.step0.labels.channel;
+      if ($('lblVideoTitle')) $('lblVideoTitle').textContent = st.step0.labels.videoTitle;
+    }
+
+    // STAGE 1~4 공통 렌더링
+    applyStepTexts(1, st.step1);
+    applyStepTexts(2, st.step2);
+    applyStepTexts(3, st.step3);
+    applyStepTexts(4, st.step4);
+
+    // 하단 버튼
+    if (st.buttons) {
+      if ($('btnPrevText')) $('btnPrevText').textContent = st.buttons.prev;
+      if ($('btnSaveDraftText')) $('btnSaveDraftText').textContent = st.buttons.saveDraft;
+      if ($('btnNextStepText')) $('btnNextStepText').textContent = st.buttons.next;
+      if ($('btnSubmitText')) $('btnSubmitText').textContent = st.buttons.submit;
+    }
+
+    // 질문 목록 리렌더링 (라벨/플레이스홀더 반영)
+    renderAllSteps();
+    fillEditorFields();
+  }
+
+  function applyStepTexts(num, stepData) {
+    if (!stepData) return;
+    if ($('dispStep' + num + 'Tag')) $('dispStep' + num + 'Tag').textContent = stepData.tag;
+    if ($('dispStep' + num + 'Title')) $('dispStep' + num + 'Title').textContent = stepData.title;
+    if ($('dispStep' + num + 'Desc')) $('dispStep' + num + 'Desc').textContent = stepData.desc;
+    if ($('dispStep' + num + 'HintTitle')) $('dispStep' + num + 'HintTitle').textContent = stepData.hintTitle;
+    
+    var hList = $('dispStep' + num + 'HintList');
+    if (hList && stepData.hints) {
+      hList.innerHTML = stepData.hints.map(function (h) { return '<li>' + escHtml(h) + '</li>'; }).join('');
+    }
+    var addBtn = $('addStep' + num + 'Btn');
+    if (addBtn && stepData.addBtnText) addBtn.textContent = stepData.addBtnText;
+  }
+
+  function deepMerge(target, source) {
+    for (var key in source) {
+      if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+        if (!target[key]) target[key] = {};
+        deepMerge(target[key], source[key]);
+      } else {
+        target[key] = source[key];
+      }
+    }
+    return target;
+  }
+
+  /* 에디터 폼에 현재 설정값 채우기 */
+  function fillEditorFields() {
+    var st = state.settings;
+    if (!$('edtAppTitle')) return;
+
+    $('edtAppTitle').value = st.activityTitle || '';
+    $('edtAppBadge').value = st.headerBadge || '';
+
+    // Step 0
+    $('edtStep0Tag').value = st.step0.tag || '';
+    $('edtStep0Title').value = st.step0.title || '';
+    $('edtStep0Desc').value = st.step0.desc || '';
+    $('edtScannerTitle').value = st.step0.scannerTitle || '';
+    $('edtScanBtnText').value = st.step0.scanBtnText || '';
+    $('edtLblGrade').value = st.step0.labels.grade || '';
+    $('edtLblClass').value = st.step0.labels.classNum || '';
+    $('edtLblNumber').value = st.step0.labels.number || '';
+    $('edtLblName').value = st.step0.labels.name || '';
+    $('edtLblChannel').value = st.step0.labels.channel || '';
+
+    // Step 1
+    $('edtStep1Tag').value = st.step1.tag || '';
+    $('edtStep1Title').value = st.step1.title || '';
+    $('edtStep1Desc').value = st.step1.desc || '';
+    $('edtStep1HintTitle').value = st.step1.hintTitle || '';
+    $('edtStep1HintLines').value = (st.step1.hints || []).join('\n');
+    $('edtStep1QLabel').value = st.step1.qLabel || '';
+    $('edtStep1QHolder').value = st.step1.qHolder || '';
+    $('edtStep1ALabel').value = st.step1.aLabel || '';
+    $('edtStep1AHolder').value = st.step1.aHolder || '';
+    $('edtStep1AddBtn').value = st.step1.addBtnText || '';
+
+    // Step 2
+    $('edtStep2Tag').value = st.step2.tag || '';
+    $('edtStep2Title').value = st.step2.title || '';
+    $('edtStep2Desc').value = st.step2.desc || '';
+    $('edtStep2HintTitle').value = st.step2.hintTitle || '';
+    $('edtStep2HintLines').value = (st.step2.hints || []).join('\n');
+    $('edtStep2Categories').value = (st.step2.categories || []).join(', ');
+    $('edtStep2CatLabel').value = st.step2.catLabel || '';
+    $('edtStep2QLabel').value = st.step2.qLabel || '';
+    $('edtStep2QHolder').value = st.step2.qHolder || '';
+    $('edtStep2AddBtn').value = st.step2.addBtnText || '';
+
+    // Step 3
+    $('edtStep3Tag').value = st.step3.tag || '';
+    $('edtStep3Title').value = st.step3.title || '';
+    $('edtStep3Desc').value = st.step3.desc || '';
+    $('edtStep3HintTitle').value = st.step3.hintTitle || '';
+    $('edtStep3HintLines').value = (st.step3.hints || []).join('\n');
+    $('edtStep3CLabel').value = st.step3.cLabel || '';
+    $('edtStep3CHolder').value = st.step3.cHolder || '';
+    $('edtStep3ILabel').value = st.step3.iLabel || '';
+    $('edtStep3IHolder').value = st.step3.iHolder || '';
+    $('edtStep3AddBtn').value = st.step3.addBtnText || '';
+
+    // Step 4
+    $('edtStep4Tag').value = st.step4.tag || '';
+    $('edtStep4Title').value = st.step4.title || '';
+    $('edtStep4Desc').value = st.step4.desc || '';
+    $('edtStep4HintTitle').value = st.step4.hintTitle || '';
+    $('edtStep4HintLines').value = (st.step4.hints || []).join('\n');
+    $('edtStep4QLabel').value = st.step4.qLabel || '';
+    $('edtStep4QHolder').value = st.step4.qHolder || '';
+    $('edtStep4BLabel').value = st.step4.bLabel || '';
+    $('edtStep4BHolder').value = st.step4.bHolder || '';
+    $('edtStep4LLabel').value = st.step4.lLabel || '';
+    $('edtStep4LHolder').value = st.step4.lHolder || '';
+    $('edtStep4AddBtn').value = st.step4.addBtnText || '';
+
+    // Buttons
+    $('edtBtnPrev').value = st.buttons.prev || '';
+    $('edtBtnSaveDraft').value = st.buttons.saveDraft || '';
+    $('edtBtnNext').value = st.buttons.next || '';
+    $('edtBtnSubmit').value = st.buttons.submit || '';
+  }
+
+  function collectEditorSettings() {
+    function getLines(id) {
+      return $(id).value.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+    }
+    function getCsv(id) {
+      return $(id).value.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+    }
+
+    return {
+      activityTitle: $('edtAppTitle').value.trim() || defaultFullSettings.activityTitle,
+      headerBadge: $('edtAppBadge').value.trim() || 'MISSION V2.0',
+      step0: {
+        tag: $('edtStep0Tag').value.trim(),
+        title: $('edtStep0Title').value.trim(),
+        desc: $('edtStep0Desc').value.trim(),
+        scannerTitle: $('edtScannerTitle').value.trim(),
+        scanBtnText: $('edtScanBtnText').value.trim(),
+        labels: {
+          grade: $('edtLblGrade').value.trim(),
+          classNum: $('edtLblClass').value.trim(),
+          number: $('edtLblNumber').value.trim(),
+          name: $('edtLblName').value.trim(),
+          channel: $('edtLblChannel').value.trim(),
+          videoTitle: '영상 제목'
+        }
+      },
+      step1: {
+        tag: $('edtStep1Tag').value.trim(),
+        title: $('edtStep1Title').value.trim(),
+        desc: $('edtStep1Desc').value.trim(),
+        hintTitle: $('edtStep1HintTitle').value.trim(),
+        hints: getLines('edtStep1HintLines'),
+        addBtnText: $('edtStep1AddBtn').value.trim(),
+        qLabel: $('edtStep1QLabel').value.trim(), qHolder: $('edtStep1QHolder').value.trim(),
+        aLabel: $('edtStep1ALabel').value.trim(), aHolder: $('edtStep1AHolder').value.trim()
+      },
+      step2: {
+        tag: $('edtStep2Tag').value.trim(),
+        title: $('edtStep2Title').value.trim(),
+        desc: $('edtStep2Desc').value.trim(),
+        hintTitle: $('edtStep2HintTitle').value.trim(),
+        hints: getLines('edtStep2HintLines'),
+        categories: getCsv('edtStep2Categories'),
+        addBtnText: $('edtStep2AddBtn').value.trim(),
+        catLabel: $('edtStep2CatLabel').value.trim(),
+        qLabel: $('edtStep2QLabel').value.trim(), qHolder: $('edtStep2QHolder').value.trim()
+      },
+      step3: {
+        tag: $('edtStep3Tag').value.trim(),
+        title: $('edtStep3Title').value.trim(),
+        desc: $('edtStep3Desc').value.trim(),
+        hintTitle: $('edtStep3HintTitle').value.trim(),
+        hints: getLines('edtStep3HintLines'),
+        addBtnText: $('edtStep3AddBtn').value.trim(),
+        cLabel: $('edtStep3CLabel').value.trim(), cHolder: $('edtStep3CHolder').value.trim(),
+        iLabel: $('edtStep3ILabel').value.trim(), iHolder: $('edtStep3IHolder').value.trim()
+      },
+      step4: {
+        tag: $('edtStep4Tag').value.trim(),
+        title: $('edtStep4Title').value.trim(),
+        desc: $('edtStep4Desc').value.trim(),
+        hintTitle: $('edtStep4HintTitle').value.trim(),
+        hints: getLines('edtStep4HintLines'),
+        addBtnText: $('edtStep4AddBtn').value.trim(),
+        qLabel: $('edtStep4QLabel').value.trim(), qHolder: $('edtStep4QHolder').value.trim(),
+        bLabel: $('edtStep4BLabel').value.trim(), bHolder: $('edtStep4BHolder').value.trim(),
+        lLabel: $('edtStep4LLabel').value.trim(), lHolder: $('edtStep4LHolder').value.trim()
+      },
+      buttons: {
+        prev: $('edtBtnPrev').value.trim(),
+        saveDraft: $('edtBtnSaveDraft').value.trim(),
+        next: $('edtBtnNext').value.trim(),
+        submit: $('edtBtnSubmit').value.trim()
+      }
+    };
+  }
+
+  /* ============================================================ */
+  /* 위저드 스텝 엔진 */
   /* ============================================================ */
   function goToStep(stepIndex, autoSave) {
     if (stepIndex < 0 || stepIndex > 4) return;
-    
-    // 단계 전환 시 자동 임시저장 (단, 기본 신원 정보가 입력된 경우)
-    if (autoSave && state.student.name.trim()) {
-      silentDraftSave();
-    }
+    if (autoSave && state.student.name.trim()) silentDraftSave();
 
     state.currentStep = stepIndex;
 
-    // 모든 스텝 섹션 숨김 후 대상 스텝만 표시
     for (var i = 0; i <= 4; i++) {
       var sec = $('stepSection' + i);
       if (sec) sec.style.display = (i === stepIndex) ? 'block' : 'none';
     }
 
-    // 네비게이터 탭 상태 갱신
     Array.prototype.forEach.call(document.querySelectorAll('.stage-step-btn'), function (btn) {
       var s = Number(btn.dataset.step);
       btn.classList.toggle('active', s === stepIndex);
       btn.classList.toggle('completed', s < stepIndex);
     });
 
-    // 하단 버튼 구성 변경
     $('btnPrevStep').style.visibility = (stepIndex > 0) ? 'visible' : 'hidden';
-    
     if (stepIndex === 4) {
       $('btnNextStep').style.display = 'none';
       $('btnSubmitForm').style.display = state.locked ? 'none' : 'inline-flex';
@@ -1288,14 +1831,10 @@
       state.loadedStatus = data.status;
       renderStatusBanner();
       toast('💾 작성 내용이 자동 임시저장되었습니다.', 'ok');
-    }).catch(function (e) {
-      console.warn('AutoSave error:', e);
-    });
+    }).catch(function (e) { console.warn('AutoSave error:', e); });
   }
 
-  /* ============================================================ */
-  /* ⚡ 유튜브 링크 파싱 및 자동완성 & 플레이어 */
-  /* ============================================================ */
+  /* 유튜브 링크 파싱 & oEmbed */
   function extractYouTubeId(url) {
     if (!url) return null;
     var match = url.trim().match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|live\/))([\w-]{11})/);
@@ -1304,19 +1843,13 @@
 
   function fetchYouTubeOEmbed(url) {
     var videoId = extractYouTubeId(url);
-    if (!videoId) {
-      toast('올바른 유튜브 링크를 입력해 주세요.', 'error');
-      return Promise.reject(new Error('Invalid URL'));
-    }
+    if (!videoId) { toast('올바른 유튜브 링크를 입력해 주세요.', 'error'); return Promise.reject(new Error('Invalid URL')); }
 
     setBusy(true);
     var oembedUrl = 'https://www.youtube.com/oembed?url=' + encodeURIComponent('https://www.youtube.com/watch?v=' + videoId) + '&format=json';
 
     return fetch(oembedUrl)
-      .then(function (res) {
-        if (!res.ok) throw new Error('정보를 가져올 수 없습니다.');
-        return res.json();
-      })
+      .then(function (res) { if (!res.ok) throw new Error('fetch failed'); return res.json(); })
       .then(function (data) {
         var title = data.title || '';
         var author = data.author_name || '';
@@ -1336,9 +1869,7 @@
         showYouTubeMonitor(videoId, '유튜브 영상', '유튜브 채널', thumb);
         toast('영상을 연동했습니다.', 'ok');
       })
-      .finally(function () {
-        setBusy(false);
-      });
+      .finally(function () { setBusy(false); });
   }
 
   function showYouTubeMonitor(videoId, title, author, thumb) {
@@ -1358,10 +1889,9 @@
     };
   }
 
-  /* ============================================================ */
-  /* 단서 카드 렌더링 */
-  /* ============================================================ */
+  /* 단서 카드 빌더 */
   function buildEntryCard(stepKey, index, row) {
+    var st = state.settings[stepKey];
     var wrap = document.createElement('div');
     wrap.className = 'clue-entry-card';
 
@@ -1374,18 +1904,18 @@
     grid.className = 'clue-fields-grid' + (stepKey === 'step1' || stepKey === 'step3' ? ' two-col' : '');
 
     if (stepKey === 'step1') {
-      grid.appendChild(createField('question', '호기심 질문', '예: 썸네일에 왜 이 단어를 강조했을까?', row.question, stepKey, index));
-      grid.appendChild(createField('answer', '나의 예상 답안', '내 생각이나 지식으로 미리 추론해보기', row.answer, stepKey, index));
+      grid.appendChild(createField('question', st.qLabel || '호기심 질문', st.qHolder || '', row.question, stepKey, index));
+      grid.appendChild(createField('answer', st.aLabel || '나의 예상 답안', st.aHolder || '', row.answer, stepKey, index));
     } else if (stepKey === 'step2') {
-      grid.appendChild(createSelectField('category', '의문점 분류', state.settings.step2Categories, row.category, stepKey, index));
-      grid.appendChild(createField('question', '질문 내용', '예: 영상에 나온 주장이 실제 통계와 부합할까?', row.question, stepKey, index));
+      grid.appendChild(createSelectField('category', st.catLabel || '의문점 분류', st.categories || defaultFullSettings.step2.categories, row.category, stepKey, index));
+      grid.appendChild(createField('question', st.qLabel || '질문 내용', st.qHolder || '', row.question, stepKey, index));
     } else if (stepKey === 'step3') {
-      grid.appendChild(createField('comment', '포착한 댓글 인용', '분석할 댓글 문장을 그대로 적어보세요', row.comment, stepKey, index));
-      grid.appendChild(createField('intent', '작성자의 숨은 의도/관점', '이 사람은 왜 이런 댓글을 썼을까?', row.intent, stepKey, index));
+      grid.appendChild(createField('comment', st.cLabel || '포착한 댓글 인용', st.cHolder || '', row.comment, stepKey, index));
+      grid.appendChild(createField('intent', st.iLabel || '작성자의 숨은 의도/관점', st.iHolder || '', row.intent, stepKey, index));
     } else if (stepKey === 'step4') {
-      grid.appendChild(createField('quote', '1) 핵심 댓글 인용', '비판적으로 파헤칠 댓글 문장', row.quote, stepKey, index));
-      grid.appendChild(createField('background', '2) 작성자 배경/경험 추론 질문', '이 사람은 어떤 입장이나 피해를 겪었을까?', row.background, stepKey, index));
-      grid.appendChild(createField('limitation', '3) 미디어 한계 파악 질문', '이 영상은 왜 실질적 문제를 깊이 다루지 않았을까?', row.limitation, stepKey, index));
+      grid.appendChild(createField('quote', st.qLabel || '1) 핵심 댓글 인용', st.qHolder || '', row.quote, stepKey, index));
+      grid.appendChild(createField('background', st.bLabel || '2) 작성자 배경/경험 추론 질문', st.bHolder || '', row.background, stepKey, index));
+      grid.appendChild(createField('limitation', st.lLabel || '3) 미디어 한계 파악 질문', st.lHolder || '', row.limitation, stepKey, index));
     }
 
     wrap.appendChild(grid);
@@ -1421,9 +1951,7 @@
     ta.placeholder = placeholder;
     ta.value = val || '';
     ta.disabled = state.locked;
-    ta.addEventListener('input', function (e) {
-      state.student[stepKey][index][key] = e.target.value;
-    });
+    ta.addEventListener('input', function (e) { state.student[stepKey][index][key] = e.target.value; });
     div.appendChild(lbl);
     div.appendChild(ta);
     return div;
@@ -1439,18 +1967,15 @@
     sel.className = 'form-control';
     sel.disabled = state.locked;
     var defOpt = document.createElement('option');
-    defOpt.value = '';
-    defOpt.textContent = '질문 유형 선택';
+    defOpt.value = ''; defOpt.textContent = '질문 유형 선택';
     sel.appendChild(defOpt);
-    options.forEach(function (opt) {
+    (options || []).forEach(function (opt) {
       var o = document.createElement('option');
       o.value = opt; o.textContent = opt;
       sel.appendChild(o);
     });
     sel.value = val || '';
-    sel.addEventListener('change', function (e) {
-      state.student[stepKey][index][key] = e.target.value;
-    });
+    sel.addEventListener('change', function (e) { state.student[stepKey][index][key] = e.target.value; });
     div.appendChild(lbl);
     div.appendChild(sel);
     return div;
@@ -1477,7 +2002,6 @@
     renderStepList(stepKey);
   }
 
-  /* 상태 배너 렌더링 */
   function renderStatusBanner() {
     var el = $('statusBanner');
     var s = state.loadedStatus;
@@ -1502,9 +2026,7 @@
     el.innerHTML = html;
   }
 
-  /* ============================================================ */
-  /* 데이터 로드 및 저장 */
-  /* ============================================================ */
+  /* 학생 데이터 로드/저장/제출 */
   function bindStudentFields() {
     $('gradeInput').addEventListener('input', function (e) { state.student.grade = e.target.value; });
     $('classInput').addEventListener('input', function (e) { state.student.classNum = e.target.value; });
@@ -1529,7 +2051,6 @@
       }, 100);
     });
 
-    // 위저드 맵 탭 클릭
     Array.prototype.forEach.call(document.querySelectorAll('.stage-step-btn'), function (btn) {
       btn.addEventListener('click', function () {
         goToStep(Number(btn.dataset.step), true);
@@ -1643,9 +2164,7 @@
     });
   }
 
-  /* ============================================================ */
-  /* 👩‍🏫 교사 사령관 기능 */
-  /* ============================================================ */
+  /* 교사 모드 */
   function switchMode(mode) {
     state.mode = mode;
     $('studentView').style.display = (mode === 'student') ? 'block' : 'none';
@@ -1686,30 +2205,12 @@
     ]).then(function (results) {
       state.teacher.list = results[0].list || [];
       state.teacher.stats = results[1];
-      if (results[2]) applySettings(results[2]);
+      if (results[2]) applyFullSettings(results[2]);
 
       populateTeacherFilters();
       renderTeacherList();
       renderTeacherStats();
     }).catch(function (err) { toast(err.message, 'error'); }).finally(function () { setBusy(false); });
-  }
-
-  function applySettings(s) {
-    state.settings = s;
-    if (s.activityTitle) {
-      $('navAppTitle').textContent = s.activityTitle;
-      if ($('settingActivityTitle')) $('settingActivityTitle').value = s.activityTitle;
-    }
-    if (s.stepGuides) {
-      if (s.stepGuides.step1) $('guideStep1').textContent = s.stepGuides.step1;
-      if (s.stepGuides.step2) $('guideStep2').textContent = s.stepGuides.step2;
-      if (s.stepGuides.step3) $('guideStep3').textContent = s.stepGuides.step3;
-      if (s.stepGuides.step4) $('guideStep4').textContent = s.stepGuides.step4;
-      if ($('settingGuide1')) $('settingGuide1').value = s.stepGuides.step1 || '';
-      if ($('settingGuide2')) $('settingGuide2').value = s.stepGuides.step2 || '';
-      if ($('settingGuide3')) $('settingGuide3').value = s.stepGuides.step3 || '';
-      if ($('settingGuide4')) $('settingGuide4').value = s.stepGuides.step4 || '';
-    }
   }
 
   function populateTeacherFilters() {
@@ -1781,21 +2282,18 @@
     $('statGraded').textContent = s.statusCounts.GRADED || 0;
     $('statAvgScore').textContent = s.avgScore > 0 ? s.avgScore + '점' : '-';
 
-    // 채널 순위
     $('topChannelsList').innerHTML = (s.topChannels && s.topChannels.length) ? s.topChannels.map(function (c, i) {
       return '<div style="display:flex; justify-content:space-between; background:var(--bg-surface); padding:10px 14px; border-radius:8px; font-size:0.88rem;">' +
         '<div><span style="color:var(--cyan-neon); font-weight:900; margin-right:8px;">' + (i + 1) + '.</span><strong>' + escAttr(c.name) + '</strong></div>' +
         '<span style="color:var(--cyan-neon); font-weight:800;">' + c.count + '회</span></div>';
     }).join('') : '<p style="color:var(--text-muted); font-size:0.85rem;">기록 없음</p>';
 
-    // 영상 순위
     $('topVideosList').innerHTML = (s.topVideos && s.topVideos.length) ? s.topVideos.map(function (v, i) {
       return '<div style="display:flex; justify-content:space-between; background:var(--bg-surface); padding:10px 14px; border-radius:8px; font-size:0.88rem;">' +
         '<div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:75%;"><span style="color:var(--amber-neon); font-weight:900; margin-right:8px;">' + (i + 1) + '.</span>' + escAttr(v.title) + '</div>' +
         '<span style="color:var(--amber-neon); font-weight:800;">' + v.count + '명</span></div>';
     }).join('') : '<p style="color:var(--text-muted); font-size:0.85rem;">기록 없음</p>';
 
-    // 카테고리 통계
     var catHtml = '';
     if (s.categoryCounts) {
       Object.keys(s.categoryCounts).forEach(function (cat) {
@@ -1938,9 +2436,6 @@
     toast('CSV 파일이 다운로드되었습니다.', 'ok');
   }
 
-  /* ============================================================ */
-  /* 커스텀 다이얼로그 (Confirm & Prompt) */
-  /* ============================================================ */
   function showConfirm(msg, okText) {
     return new Promise(function (resolve) {
       var root = $('modalRoot');
@@ -1984,18 +2479,14 @@
     var colors = ['#6366F1', '#06B6D4', '#F59E0B', '#10B981', '#F43F5E', '#8B5CF6'];
     for (var i = 0; i < 140; i++) {
       particles.push({
-        x: canvas.width / 2,
-        y: canvas.height / 2,
-        r: Math.random() * 6 + 4,
-        d: Math.random() * 140,
+        x: canvas.width / 2, y: canvas.height / 2,
+        r: Math.random() * 6 + 4, d: Math.random() * 140,
         color: colors[Math.floor(Math.random() * colors.length)],
         tilt: Math.floor(Math.random() * 10) - 10,
         tiltAngleIncremental: (Math.random() * 0.07) + 0.05,
         tiltAngle: 0,
-        vx: (Math.random() - 0.5) * 18,
-        vy: (Math.random() - 0.5) * 18 - 4,
-        gravity: 0.35,
-        alpha: 1
+        vx: (Math.random() - 0.5) * 18, vy: (Math.random() - 0.5) * 18 - 4,
+        gravity: 0.35, alpha: 1
       });
     }
 
@@ -2003,9 +2494,7 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       var alive = false;
       particles.forEach(function (p) {
-        p.vy += p.gravity;
-        p.x += p.vx;
-        p.y += p.vy;
+        p.vy += p.gravity; p.x += p.vx; p.y += p.vy;
         p.tiltAngle += p.tiltAngleIncremental;
         p.tilt = Math.sin(p.tiltAngle) * 15;
         p.alpha -= 0.008;
@@ -2039,9 +2528,7 @@
 
     bindStudentFields();
 
-    $('teacherToggleBtn').onclick = function () {
-      switchMode(state.mode === 'student' ? 'teacher' : 'student');
-    };
+    $('teacherToggleBtn').onclick = function () { switchMode(state.mode === 'student' ? 'teacher' : 'student'); };
     $('btnBackToStudent').onclick = function () { switchMode('student'); };
     $('btnTeacherLogin').onclick = teacherLogin;
     $('teacherPwInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') teacherLogin(); });
@@ -2067,7 +2554,7 @@
       $('teacherDashboard').style.display = 'block';
     };
 
-    // 비밀번호 전용 변경
+    // 비밀번호 변경
     $('btnChangePassword').onclick = function () {
       var pw1 = $('settingNewPw').value.trim();
       var pw2 = $('settingNewPwConfirm').value.trim();
@@ -2084,33 +2571,31 @@
         }).catch(function (err) { toast(err.message, 'error'); }).finally(function () { setBusy(false); });
     };
 
-    // 문항 가이드 설정 저장
-    $('btnSaveSettings').onclick = function () {
-      var newSettings = {
-        activityTitle: $('settingActivityTitle').value.trim() || '미디어 팩트체크 탐정 수사본부',
-        stepGuides: {
-          step1: $('settingGuide1').value.trim(),
-          step2: $('settingGuide2').value.trim(),
-          step3: $('settingGuide3').value.trim(),
-          step4: $('settingGuide4').value.trim()
-        }
-      };
+    // 풀 커스텀 설정 일괄 저장
+    function saveCustomSettingsHandler() {
+      var newSettings = collectEditorSettings();
       setBusy(true);
       runServer('saveSettings', { token: state.teacher.token, settings: newSettings })
         .then(function () {
-          applySettings(newSettings);
-          toast('가이드 설정이 저장되었습니다.', 'ok');
+          applyFullSettings(newSettings);
+          toast('✨ 모든 활동지 문항 및 가이드 설정이 안전하게 저장되었습니다!', 'ok');
         }).catch(function (err) { toast(err.message, 'error'); }).finally(function () { setBusy(false); });
-    };
+    }
 
+    $('btnSaveAllCustomSettings').onclick = saveCustomSettingsHandler;
+    $('btnSaveAllCustomSettingsBottom').onclick = saveCustomSettingsHandler;
+
+    // 공용 설정 불러오기
     runServer('getPublicConfig', {}).then(function (cfg) {
-      if (cfg) applySettings(cfg);
-    }).catch(function () {});
+      if (cfg) applyFullSettings(cfg);
+    }).catch(function () {
+      applyFullSettings(defaultFullSettings);
+    });
   }
 
   function init() {
     bindAll();
-    renderAllSteps();
+    applyFullSettings(defaultFullSettings);
     renderStatusBanner();
     goToStep(0, false);
   }

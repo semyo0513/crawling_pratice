@@ -105,12 +105,7 @@ function dispatch(action, payload) {
  *  2. 공용 설정 및 학생 기능
  *  ───────────────────────────────────────── */
 function handleGetPublicConfig_() {
-  const settings = getCustomSettings_();
-  return {
-    activityTitle: settings.activityTitle || CONFIG.ACTIVITY_TITLE,
-    stepGuides: settings.stepGuides || null,
-    step2Categories: settings.step2Categories || null
-  };
+  return getCustomSettings_();
 }
 
 function handleLoadResponse_(payload) {
