@@ -48,6 +48,7 @@
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
+    overflow-anchor: none;
   }
 
   /* 진행 로딩 네온 바 */
@@ -210,6 +211,7 @@
     max-width: 920px;
     margin: 0 auto;
     padding: 16px 16px 100px;
+    overflow-anchor: none;
   }
 
   /* 퀘스트 스테이지 카드 */
@@ -221,11 +223,11 @@
     box-shadow: 0 8px 30px rgba(0,0,0,0.4);
     position: relative;
     overflow: hidden;
-    animation: stageFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: stageFadeIn 0.15s ease-out;
   }
   @keyframes stageFadeIn {
-    from { opacity: 0; transform: translateY(12px) scale(0.99); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+    from { opacity: 0.2; }
+    to { opacity: 1; }
   }
 
   /* 미션 브리핑 헤더 */
@@ -2466,7 +2468,9 @@
       $('btnSubmitForm').style.display = 'none';
     }
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }
 
   function silentDraftSave() {
@@ -2908,7 +2912,9 @@
     $('btnOpenReportView').style.display = (mode === 'report') ? 'none' : 'inline-block';
     $('btnOpenArchiveFeed').style.display = (mode === 'feed') ? 'none' : 'inline-block';
     $('btnOpenTextMining').style.display = (mode === 'mining') ? 'none' : 'inline-block';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
 
     if (mode === 'feed') {
       loadArchiveFeed();
