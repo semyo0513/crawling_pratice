@@ -1181,12 +1181,6 @@
         </div>
       </div>
     </div>
-
-    <div style="margin-top: 22px; text-align: right;">
-      <button type="button" class="btn btn-next-step" id="btnStage0Next" style="padding: 10px 24px; font-size: 0.95rem;">
-        🚀 사건 일지 작성 시작하기 ▶ (STAGE 1으로)
-      </button>
-    </div>
   </section>
 
   <!-- ==================== STAGE 1 ==================== -->
@@ -2447,7 +2441,7 @@
   /* ============================================================ */
   function goToStep(stepIndex, autoSave) {
     if (stepIndex < 0 || stepIndex > 4) return;
-    if (autoSave && state.student.name.trim()) silentDraftSave();
+    if (autoSave && state.currentStep > 0 && state.student.name.trim()) silentDraftSave();
 
     state.currentStep = stepIndex;
 
@@ -2725,12 +2719,6 @@
       });
     });
 
-    if ($('btnStage0Next')) {
-      $('btnStage0Next').onclick = function () {
-        proceedFromStage0(1);
-      };
-    }
-
     $('btnPrevStep').onclick = function () { goToStep(state.currentStep - 1, true); };
     $('btnNextStep').onclick = function () {
       if (state.currentStep === 0) {
@@ -2749,29 +2737,26 @@
     syncInputsToState();
     if (!validateStudent(true)) return;
 
-    if (!state.student.id) {
-      setBusy(true);
-      runServer('loadResponse', {
-        grade: state.student.grade,
-        classNum: state.student.classNum,
-        number: state.student.number,
-        password: state.student.password
-      }).then(function (data) {
-        if (data && data.found) {
-          applyLoadedRecord(data.record);
-          toast('🎉 이전에 작성하던 사건 일지를 성공적으로 복원했습니다!', 'ok');
-        } else {
-          toast('새로운 사건 일지 작성을 시작합니다! 🚀', 'ok');
-        }
-        goToStep(targetStep, false);
-      }).catch(function (err) {
-        toast(err.message, 'error');
-      }).finally(function () {
-        setBusy(false);
-      });
-    } else {
-      goToStep(targetStep, true);
-    }
+    setBusy(true);
+    runServer('loadResponse', {
+      id: state.student.id,
+      grade: state.student.grade,
+      classNum: state.student.classNum,
+      number: state.student.number,
+      password: state.student.password
+    }).then(function (data) {
+      if (data && data.found) {
+        applyLoadedRecord(data.record);
+        toast('🎉 이전에 작성하던 사건 일지를 자동으로 불러왔습니다!', 'ok');
+      } else {
+        toast('새로운 사건 일지 작성을 시작합니다! 🚀', 'ok');
+      }
+      goToStep(targetStep, false);
+    }).catch(function (err) {
+      toast(err.message, 'error');
+    }).finally(function () {
+      setBusy(false);
+    });
   }
 
   function syncInputsToState() {
