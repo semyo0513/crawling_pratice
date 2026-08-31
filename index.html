@@ -35,6 +35,11 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  html {
+    scroll-behavior: auto !important;
+    overflow-anchor: none !important;
+  }
+
   body {
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     background-color: var(--bg-base);
@@ -48,7 +53,11 @@
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
-    overflow-anchor: none;
+    overflow-anchor: none !important;
+  }
+
+  button:focus {
+    outline: none !important;
   }
 
   /* 진행 로딩 네온 바 */
@@ -2438,11 +2447,15 @@
     };
   }
 
-  /* ============================================================ */
-  /* 위저드 스텝 엔진 */
-  /* ============================================================ */
+  function forceScrollTop() {
+    window.scrollTo(0, 0);
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+  }
+
   function goToStep(stepIndex, autoSave) {
     if (stepIndex < 0 || stepIndex > 4) return;
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     if (autoSave && state.currentStep > 0 && state.student.name.trim()) silentDraftSave();
 
     state.currentStep = stepIndex;
@@ -2468,9 +2481,10 @@
       $('btnSubmitForm').style.display = 'none';
     }
 
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
+    forceScrollTop();
+    requestAnimationFrame(forceScrollTop);
+    setTimeout(forceScrollTop, 50);
+    setTimeout(forceScrollTop, 150);
   }
 
   function silentDraftSave() {
