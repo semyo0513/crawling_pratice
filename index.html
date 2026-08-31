@@ -33,9 +33,13 @@
     --radius-lg: 20px;
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html {
+  html, body {
+    height: 100%;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden !important;
+    margin: 0;
+    padding: 0;
     scroll-behavior: auto !important;
     overflow-anchor: none !important;
   }
@@ -50,10 +54,9 @@
       linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
     background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
     color: var(--text-normal);
-    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
-    overflow-anchor: none !important;
   }
 
   button:focus {
@@ -80,8 +83,8 @@
 
   /* 상단 헤더 */
   .hq-header {
-    position: sticky;
-    top: 0;
+    flex-shrink: 0;
+    width: 100%;
     z-index: 60;
     background: rgba(15, 23, 42, 0.92);
     backdrop-filter: blur(14px);
@@ -145,6 +148,8 @@
 
   /* 스테이지 위저드 맵 */
   .stage-tracker-wrap {
+    flex-shrink: 0;
+    width: 100%;
     background: rgba(15, 23, 42, 0.95);
     border-bottom: 1px solid var(--border-dark);
     padding: 8px 14px;
@@ -215,12 +220,17 @@
   .step-label-title { font-size: 0.78rem; font-weight: 800; line-height: 1.2; white-space: nowrap; }
   .step-label-sub { font-size: 0.65rem; color: var(--text-muted); white-space: nowrap; }
 
-  /* 메인 컨테이너 (상단 여백 최소화) */
+  /* 메인 컨테이너 (창 전체는 100vh 고정, 내부에서만 스크롤) */
   .main-container {
-    max-width: 920px;
+    flex: 1;
+    width: 100%;
+    max-width: 960px;
     margin: 0 auto;
     padding: 16px 16px 100px;
-    overflow-anchor: none;
+    overflow-y: auto !important;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overflow-anchor: none !important;
   }
 
   /* 퀘스트 스테이지 카드 */
@@ -1024,6 +1034,16 @@
     border-top: 4px solid var(--matrix-color, var(--primary));
     border-radius: var(--radius-md);
     padding: 16px;
+  }
+
+  #confettiCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 99999;
   }
 </style>
 </head>
@@ -2451,6 +2471,15 @@
     window.scrollTo(0, 0);
     if (document.documentElement) document.documentElement.scrollTop = 0;
     if (document.body) document.body.scrollTop = 0;
+    var views = ['studentView', 'archiveFeedView', 'textMiningView', 'studentReportView', 'teacherView'];
+    views.forEach(function (id) {
+      var el = $(id);
+      if (el) el.scrollTop = 0;
+    });
+    var containers = document.querySelectorAll('.main-container');
+    Array.prototype.forEach.call(containers, function (c) {
+      c.scrollTop = 0;
+    });
   }
 
   function goToStep(stepIndex, autoSave) {
@@ -2917,6 +2946,10 @@
         renderStatusBanner();
         $('btnSubmitText').textContent = '🚀 수정된 사건 일지 다시 제출하기';
         triggerConfetti();
+        forceScrollTop();
+        requestAnimationFrame(forceScrollTop);
+        setTimeout(forceScrollTop, 50);
+        setTimeout(forceScrollTop, 150);
         toast('🎉 사건 일지가 성공적으로 ' + (isReSubmit ? '수정 제출' : '최종 제출') + '되었습니다! ✨', 'ok');
       }).catch(function (err) { toast(err.message, 'error'); }).finally(function () { setBusy(false); });
     });
