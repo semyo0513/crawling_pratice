@@ -141,7 +141,7 @@
     font-size: 0.82rem;
     font-weight: 800;
     border-radius: var(--radius-sm);
-    display: inline-flex;
+    display: inline-flex !important;
     align-items: center;
     justify-content: center;
     gap: 5px;
@@ -152,6 +152,11 @@
   }
   .nav-btn:hover {
     transform: translateY(-1px);
+  }
+  .nav-btn.active-nav {
+    box-shadow: 0 0 14px currentColor;
+    border-width: 1.5px !important;
+    filter: brightness(1.25);
   }
 
   /* 스테이지 위저드 맵 */
@@ -327,10 +332,26 @@
 
   .agent-profile-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 85px 85px 85px 1.2fr 1.5fr;
     gap: 12px;
+    width: 100%;
+    box-sizing: border-box;
   }
-  .agent-name-field { grid-column: 1 / -1; }
+  @media (max-width: 768px) {
+    .agent-profile-grid {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    .agent-profile-grid .form-group:nth-child(4),
+    .agent-profile-grid .form-group:nth-child(5) {
+      grid-column: span 3;
+    }
+  }
+  @media (max-width: 480px) {
+    .agent-profile-grid {
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+  }
 
   /* 유튜브 스캐너 박스 */
   .scanner-box {
@@ -1152,7 +1173,7 @@
     </div>
 
     <!-- 인적사항 & 학생 비밀번호 -->
-    <div class="agent-profile-grid" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
+    <div class="agent-profile-grid">
       <div class="form-group">
         <label class="form-label" id="lblGrade" for="gradeInput">학년<span class="req">*</span></label>
         <input type="number" id="gradeInput" class="form-control" min="1" max="6" placeholder="예: 1">
@@ -1511,7 +1532,7 @@
       </p>
     </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; width: 100%;">
       <div class="form-group">
         <label class="form-label" for="repGradeInput">학년</label>
         <input type="number" id="repGradeInput" class="form-control" placeholder="예: 1" min="1" max="6">
@@ -2973,13 +2994,13 @@
     $('studentReportView').style.display = (mode === 'report') ? 'block' : 'none';
     $('teacherView').style.display = (mode === 'teacher') ? 'block' : 'none';
     
-    $('teacherToggleBtn').textContent = (mode === 'teacher') ? '🎒 수사요원 화면' : '👩‍🏫 사령관 모드';
-    $('btnOpenReportView').style.display = (mode === 'report') ? 'none' : 'inline-block';
-    $('btnOpenArchiveFeed').style.display = (mode === 'feed') ? 'none' : 'inline-block';
-    $('btnOpenTextMining').style.display = (mode === 'mining') ? 'none' : 'inline-block';
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
+    // 상단 메뉴바 버튼 위치 영구 고정 & 액티브 하이라이트 표시
+    $('btnOpenTextMining').classList.toggle('active-nav', mode === 'mining');
+    $('btnOpenArchiveFeed').classList.toggle('active-nav', mode === 'feed');
+    $('btnOpenReportView').classList.toggle('active-nav', mode === 'report');
+    $('teacherToggleBtn').classList.toggle('active-nav', mode === 'teacher');
+
+    forceScrollTop();
 
     if (mode === 'feed') {
       loadArchiveFeed();
@@ -3803,9 +3824,9 @@
 
     // 상단 네비 및 모드 전환
     $('brandLogo').onclick = function () { switchMode('student'); };
-    $('btnOpenTextMining').onclick = function () { switchMode('mining'); };
-    $('btnOpenArchiveFeed').onclick = function () { switchMode('feed'); };
-    $('btnOpenReportView').onclick = function () { switchMode('report'); };
+    $('btnOpenTextMining').onclick = function () { switchMode(state.mode === 'mining' ? 'student' : 'mining'); };
+    $('btnOpenArchiveFeed').onclick = function () { switchMode(state.mode === 'feed' ? 'student' : 'feed'); };
+    $('btnOpenReportView').onclick = function () { switchMode(state.mode === 'report' ? 'student' : 'report'); };
     $('btnBackFromReport').onclick = function () { switchMode('student'); };
     $('btnBackFromMining').onclick = function () { switchMode('student'); };
     $('btnQueryReport').onclick = queryStudentReport;
