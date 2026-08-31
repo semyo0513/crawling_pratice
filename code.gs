@@ -191,15 +191,14 @@ function handleSave_(payload, intendedStatus) {
     if (idx === -1) idx = findRowIndexByKey_(data, payload.grade, payload.classNum, payload.number);
 
     const now = new Date();
-    let id, submittedAt, prevStatus, prevScore, prevFeedback, prevGrader, prevGradedAt, studentPw, prevLikes, prevComments;
+    let id, submittedAt, prevStatus, prevScore, prevFeedback, prevGrader, prevGradedAt, studentPw, prevLikes, prevComments, existing;
 
     if (idx > -1) {
-      const existing = rowToRecord_(data[idx]);
+      existing = rowToRecord_(data[idx]);
       prevStatus = existing.status;
       if (prevStatus === 'GRADED') {
         throw new Error('이미 채점이 완료된 활동지는 수정할 수 없습니다.');
       }
-      // 제출 완료(SUBMITTED) 상태라도 채점(GRADED) 전이라면 수정 및 재제출 허용
 
       // 비밀번호 일치 여부 확인
       if (existing.password && payload.password) {
@@ -236,6 +235,25 @@ function handleSave_(payload, intendedStatus) {
 
     const currentTitle = (getCustomSettings_().activityTitle) || CONFIG.ACTIVITY_TITLE;
 
+    let step1ToSave = payload.step1 || [];
+    let step2ToSave = payload.step2 || [];
+    let step3ToSave = payload.step3 || [];
+    let step4ToSave = payload.step4 || [];
+    let videoUrlToSave = payload.videoUrl || '';
+    let videoTitleToSave = payload.videoTitle || '';
+    let channelNameToSave = payload.channelName || '';
+
+    // DRAFT 저장 시 클라이언트 내용이 비어있으면 기존 데이터 보존
+    if (idx > -1 && intendedStatus === 'DRAFT' && existing) {
+      if (isEmptyStep_(step1ToSave) && !isEmptyStep_(existing.step1)) step1ToSave = existing.step1;
+      if (isEmptyStep_(step2ToSave) && !isEmptyStep_(existing.step2)) step2ToSave = existing.step2;
+      if (isEmptyStep_(step3ToSave) && !isEmptyStep_(existing.step3)) step3ToSave = existing.step3;
+      if (isEmptyStep_(step4ToSave) && !isEmptyStep_(existing.step4)) step4ToSave = existing.step4;
+      if (!videoUrlToSave && existing.videoUrl) videoUrlToSave = existing.videoUrl;
+      if (!videoTitleToSave && existing.videoTitle) videoTitleToSave = existing.videoTitle;
+      if (!channelNameToSave && existing.channelName) channelNameToSave = existing.channelName;
+    }
+
     const record = {
       id: id,
       activityTitle: currentTitle,
@@ -246,14 +264,17 @@ function handleSave_(payload, intendedStatus) {
       number: payload.number,
       name: String(payload.name).trim(),
       password: String(studentPw).trim(),
-      channelName: payload.channelName || '',
-      videoTitle: payload.videoTitle || '',
-      videoUrl: payload.videoUrl || '',
-      step1: payload.step1 || [],
-      step2: payload.step2 || [],
-      step3: payload.step3 || [],
-      step4: payload.step4 || [],
-      summary: buildSummaryText_(payload),
+      channelName: channelNameToSave,
+      videoTitle: videoTitleToSave,
+      videoUrl: videoUrlToSave,
+      step1: step1ToSave,
+      step2: step2ToSave,
+      step3: step3ToSave,
+      step4: step4ToSave,
+      summary: buildSummaryText_({
+        step1: step1ToSave, step2: step2ToSave, step3: step3ToSave, step4: step4ToSave,
+        channelName: channelNameToSave, videoTitle: videoTitleToSave
+      }),
       status: finalStatus,
       score: prevScore,
       feedback: prevFeedback,
@@ -908,6 +929,16 @@ function verifyTeacherToken_(token) {
   if (!token) throw new Error('교사 인증이 필요합니다.');
   const valid = CacheService.getScriptCache().get('teacher_' + token);
   if (valid !== 'valid') throw new Error('로그인이 만료되었습니다. 다시 로그인해 주세요.');
+}
+
+function isEmptyStep_(stepArr) {
+  if (!Array.isArray(stepArr) || stepArr.length === 0) return true;
+  return stepArr.every(function (item) {
+    if (!item || typeof item !== 'object') return true;
+    return Object.keys(item).every(function (k) {
+      return !item[k] || String(item[k]).trim() === '';
+    });
+  });
 }
 
 function findRowIndexById_(data, id) {
