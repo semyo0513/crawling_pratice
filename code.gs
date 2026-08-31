@@ -90,6 +90,7 @@ function dispatch(action, payload) {
       case 'saveDraft':              return { ok: true, data: handleSave_(payload, 'DRAFT') };
       case 'submit':                 return { ok: true, data: handleSave_(payload, 'SUBMITTED') };
       case 'getArchiveFeed':         return { ok: true, data: handleGetArchiveFeed_(payload) };
+      case 'getTextMiningData':      return { ok: true, data: handleTextMining_(payload) };
       case 'toggleLike':             return { ok: true, data: handleToggleLike_(payload) };
       case 'addComment':             return { ok: true, data: handleAddComment_(payload) };
       case 'teacherLogin':           return { ok: true, data: handleTeacherLogin_(payload) };
@@ -410,6 +411,131 @@ function handleAddComment_(payload) {
   } finally {
     lock.releaseLock();
   }
+}
+
+/** ─────────────────────────────────────────
+ *  3-2. 🧠 텍스트 마이닝 및 키워드 분석 엔진
+ *  ───────────────────────────────────────── */
+function handleTextMining_(payload) {
+  const sheet = getStudentSheet_();
+  const data = sheet.getDataRange().getValues();
+
+  const gradeFilter = payload && payload.grade ? String(payload.grade) : '';
+  const classFilter = payload && payload.classNum ? String(payload.classNum) : '';
+
+  // 불용어 (조사, 어미, 특수문자, 의미 없는 일반 단어)
+  const STOPWORDS = {
+    '영상': true, '댓글': true, '내용': true, '질문': true, '작성자': true, '생각': true,
+    '사람': true, '때문': true, '대한': true, '통해': true, '위해': true, '관련': true,
+    '이유': true, '어떤': true, '무엇': true, '어떻게': true, '이런': true, '저런': true,
+    '그런': true, '진짜': true, '정말': true, '너무': true, '많이': true, '조금': true,
+    '가장': true, '우리': true, '자신': true, '자기': true, '그것': true, '이것': true,
+    '저것': true, '부분': true, '하나': true, '모두': true, '모든': true, '다른': true,
+    '경우': true, '사실': true, '활동': true, '요원': true, '학생': true, '수사': true,
+    '일지': true, '단서': true, '호기심': true, '의문': true, '비판': true, '결론': true,
+    '추론': true, '인용': true, '문제': true, '유튜브': true, '채널': true, '제목': true,
+    '있을까': true, '있는가': true, '하는가': true, '했는가': true, '되는가': true,
+    '아닌가': true, '아닐까': true, '있다고': true, '한다고': true, '보인다': true,
+    '그리고': true, '하지만': true, '그러나': true, '따라서': true, '그래서': true
+  };
+
+  const wordCounts = {};
+  const stageWords = { step1: {}, step2: {}, step3: {}, step4: {} };
+  let totalStudentCount = 0;
+  let totalWordCount = 0;
+  let totalCluesCount = 0;
+
+  function extractWords(text, stageKey) {
+    if (!text || typeof text !== 'string') return;
+    // 2글자 이상의 한글/영문 단어 추출
+    const tokens = text.replace(/[^가-힣a-zA-Z0-9\s]/g, ' ').split(/\s+/);
+    tokens.forEach(function (token) {
+      const clean = token.trim();
+      if (clean.length < 2 || clean.length > 12) return;
+      if (STOPWORDS[clean]) return;
+      if (/^\d+$/.test(clean)) return; // 순수 숫자 제외
+
+      totalWordCount++;
+      wordCounts[clean] = (wordCounts[clean] || 0) + 1;
+      if (stageKey && stageWords[stageKey]) {
+        stageWords[stageKey][clean] = (stageWords[stageKey][clean] || 0) + 1;
+      }
+    });
+  }
+
+  for (let i = 1; i < data.length; i++) {
+    const rec = rowToRecord_(data[i]);
+    if (rec.status !== 'SUBMITTED' && rec.status !== 'GRADED') continue;
+    if (gradeFilter && String(rec.grade) !== gradeFilter) continue;
+    if (classFilter && String(rec.classNum) !== classFilter) continue;
+
+    totalStudentCount++;
+
+    // STAGE 1
+    if (Array.isArray(rec.step1)) {
+      rec.step1.forEach(function (row) {
+        totalCluesCount++;
+        extractWords(row.question, 'step1');
+        extractWords(row.answer, 'step1');
+      });
+    }
+    // STAGE 2
+    if (Array.isArray(rec.step2)) {
+      rec.step2.forEach(function (row) {
+        totalCluesCount++;
+        extractWords(row.question, 'step2');
+        extractWords(row.category, 'step2');
+      });
+    }
+    // STAGE 3
+    if (Array.isArray(rec.step3)) {
+      rec.step3.forEach(function (row) {
+        totalCluesCount++;
+        extractWords(row.comment, 'step3');
+        extractWords(row.intent, 'step3');
+      });
+    }
+    // STAGE 4
+    if (Array.isArray(rec.step4)) {
+      rec.step4.forEach(function (row) {
+        totalCluesCount++;
+        extractWords(row.quote, 'step4');
+        extractWords(row.background, 'step4');
+        extractWords(row.limitation, 'step4');
+      });
+    }
+  }
+
+  function toSortedList(dict, limit) {
+    return Object.keys(dict).map(function (k) {
+      return { word: k, count: dict[k] };
+    }).sort(function (a, b) { return b.count - a.count; }).slice(0, limit || 20);
+  }
+
+  const topKeywords = toSortedList(wordCounts, 30);
+  const stageTop = {
+    step1: toSortedList(stageWords.step1, 10),
+    step2: toSortedList(stageWords.step2, 10),
+    step3: toSortedList(stageWords.step3, 10),
+    step4: toSortedList(stageWords.step4, 10)
+  };
+
+  const top3WordList = topKeywords.slice(0, 3).map(function (k) { return '"' + k.word + '"(' + k.count + '회)'; }).join(', ');
+  const summaryInsight = totalStudentCount > 0
+    ? '총 ' + totalStudentCount + '명의 요원이 작성한 ' + totalCluesCount + '건의 수사 단서에서 ' + totalWordCount + '개의 유의미한 키워드를 추출했습니다. 핵심 관심 키워드는 ' + (top3WordList || '분석 중') + ' 순으로 집중되었습니다.'
+    : '분석 대상 활동지가 아직 없습니다.';
+
+  return {
+    stats: {
+      totalStudents: totalStudentCount,
+      totalClues: totalCluesCount,
+      totalWords: totalWordCount,
+      uniqueWords: Object.keys(wordCounts).length
+    },
+    topKeywords: topKeywords,
+    stageKeywords: stageTop,
+    summaryInsight: summaryInsight
+  };
 }
 
 /** ─────────────────────────────────────────

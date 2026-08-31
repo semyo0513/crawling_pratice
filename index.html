@@ -901,6 +901,90 @@
     background: var(--primary);
     color: white;
   }
+
+  /* 🧠 텍스트 마이닝 전용 스타일 */
+  .mining-wrap {
+    max-width: 960px;
+    margin: 0 auto 50px;
+  }
+  .word-cloud-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border-dark);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 200px;
+  }
+  .word-cloud-tag {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 900;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .word-cloud-tag:hover {
+    transform: scale(1.15);
+    z-index: 10;
+  }
+  .rank-bar-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .rank-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.88rem;
+  }
+  .rank-bar-word {
+    width: 100px;
+    font-weight: 800;
+    color: var(--text-bright);
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .rank-bar-track {
+    flex: 1;
+    height: 18px;
+    background: rgba(15, 23, 42, 0.8);
+    border-radius: 9px;
+    overflow: hidden;
+    border: 1px solid var(--border-dark);
+  }
+  .rank-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--cyan-neon));
+    border-radius: 9px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .rank-bar-count {
+    width: 45px;
+    font-weight: 800;
+    color: var(--cyan-neon);
+    font-size: 0.82rem;
+  }
+  .stage-matrix-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 18px;
+  }
+  .stage-matrix-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-dark);
+    border-top: 4px solid var(--matrix-color, var(--primary));
+    border-radius: var(--radius-md);
+    padding: 16px;
+  }
 </style>
 </head>
 <body>
@@ -917,6 +1001,9 @@
       <span class="hq-badge" id="navBadge">MISSION V2.0</span>
     </div>
     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+      <button type="button" class="btn btn-save-draft" style="padding: 7px 12px; font-size: 0.85rem; background: linear-gradient(135deg, #6366F1, #06B6D4); border-color: #06B6D4;" id="btnOpenTextMining">
+        🧠 텍스트 마이닝
+      </button>
       <button type="button" class="btn btn-save-draft" style="padding: 7px 12px; font-size: 0.85rem; background: linear-gradient(135deg, #EC4899, #8B5CF6); border-color: #EC4899;" id="btnOpenArchiveFeed">
         📸 수사 아카이브
       </button>
@@ -1221,7 +1308,123 @@
 
 
 <!-- ============================================================ -->
-<!-- 3. 학생 채점 결과보기 전용 독립 페이지 (Student Report View) -->
+<!-- 3. 🧠 텍스트 마이닝 & 키워드 분석 뷰 (Text Mining View) -->
+<!-- ============================================================ -->
+<main id="textMiningView" class="main-container" style="display: none;">
+  <div class="mining-wrap">
+    
+    <!-- 마이닝 컨트롤 바 -->
+    <div class="stage-card" style="margin-bottom: 20px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
+        <div>
+          <h2 style="font-size: 1.35rem; font-weight: 900; color: var(--cyan-neon); display: flex; align-items: center; gap: 8px;">
+            <span>🧠</span> 학생 수사 일지 텍스트 마이닝 & 키워드 분석
+          </h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">
+            전체 학생 요원들이 제출한 질문, 댓글 분석, 비판적 추론 텍스트의 핵심 키워드와 맥락을 마이닝합니다.
+          </p>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn btn-prev" id="btnCopyMiningReport" style="padding: 7px 12px; font-size: 0.82rem;">
+            📋 분석 리포트 복사
+          </button>
+          <button type="button" class="btn btn-prev" id="btnBackFromMining" style="padding: 7px 12px; font-size: 0.82rem;">
+            ← 활동지 작성으로
+          </button>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <select id="miningFilterGrade" class="form-control" style="flex: 1; min-width: 110px;">
+          <option value="">학년 전체</option>
+          <option value="1">1학년</option>
+          <option value="2">2학년</option>
+          <option value="3">3학년</option>
+        </select>
+        <select id="miningFilterClass" class="form-control" style="flex: 1; min-width: 110px;">
+          <option value="">반 전체</option>
+          <option value="1">1반</option>
+          <option value="2">2반</option>
+          <option value="3">3반</option>
+          <option value="4">4반</option>
+          <option value="5">5반</option>
+          <option value="6">6반</option>
+        </select>
+        <button type="button" class="btn btn-next-step" id="btnRunMining" style="padding: 8px 18px; font-size: 0.88rem;">
+          마이닝 분석 실행 🔍
+        </button>
+      </div>
+    </div>
+
+    <!-- 1. 통계 요약 카드 -->
+    <div class="stat-card-grid" style="margin-bottom: 20px;">
+      <div class="stat-neon-box">
+        <div class="stat-val" id="miningStatStudents">0</div>
+        <div class="stat-lbl">분석 학생 요원 수</div>
+      </div>
+      <div class="stat-neon-box">
+        <div class="stat-val" id="miningStatClues" style="color: var(--cyan-neon);">0</div>
+        <div class="stat-lbl">총 수사 단서 수</div>
+      </div>
+      <div class="stat-neon-box">
+        <div class="stat-val" id="miningStatWords" style="color: var(--amber-neon);">0</div>
+        <div class="stat-lbl">추출된 핵심 단어 수</div>
+      </div>
+      <div class="stat-neon-box">
+        <div class="stat-val" id="miningStatUnique" style="color: var(--emerald-neon);">0</div>
+        <div class="stat-lbl">고유 키워드 어휘 수</div>
+      </div>
+    </div>
+
+    <!-- 2. AI 수사 인사이트 종합 브리핑 -->
+    <div class="stage-card" style="margin-bottom: 20px; border-left: 4px solid var(--cyan-neon);">
+      <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-bright); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+        <span>📝</span> 학생 활동 핵심 텍스트 요약 브리핑
+      </h3>
+      <p id="miningSummaryInsight" style="font-size: 0.95rem; color: var(--text-bright); line-height: 1.6;">
+        마이닝 분석을 실행하여 인사이트를 확인하세요.
+      </p>
+    </div>
+
+    <!-- 3. 워드 클라우드 & TOP 15 랭킹 (2열 그리드) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 20px;">
+      <!-- 워드클라우드 태그 버블 -->
+      <div class="stage-card">
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--violet-neon); margin-bottom: 14px;">
+          ☁️ 핵심 키워드 워드 클라우드 (TOP 30)
+        </h3>
+        <div id="miningWordCloud" class="word-cloud-box">
+          <p style="color: var(--text-muted); font-size: 0.85rem;">데이터를 불러오는 중입니다...</p>
+        </div>
+      </div>
+
+      <!-- TOP 15 빈도 랭킹 차트 -->
+      <div class="stage-card">
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--amber-neon); margin-bottom: 14px;">
+          📈 최다 빈도 키워드 TOP 15
+        </h3>
+        <div id="miningRankChart" class="rank-bar-wrap">
+          <p style="color: var(--text-muted); font-size: 0.85rem;">데이터를 불러오는 중입니다...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. STAGE 1~4 단계별 핵심 키워드 매트릭스 -->
+    <div class="stage-card">
+      <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--emerald-neon); margin-bottom: 6px;">
+        🧩 퀘스트 단계별(STAGE 1~4) 주요 관심 키워드
+      </h3>
+      <p style="font-size: 0.82rem; color: var(--text-muted);">학생들이 각 수사 단계별로 가장 집중해서 작성한 단어 분포입니다.</p>
+
+      <div class="stage-matrix-grid" id="miningStageMatrix"></div>
+    </div>
+
+  </div>
+</main>
+
+
+<!-- ============================================================ -->
+<!-- 4. 학생 채점 결과보기 전용 독립 페이지 (Student Report View) -->
 <!-- ============================================================ -->
 <main id="studentReportView" class="main-container" style="display: none;">
   
@@ -2588,23 +2791,135 @@
     });
   }
 
-  /* 뷰 전환 모드 (student / feed / report / teacher) */
+  /* 뷰 전환 모드 (student / feed / mining / report / teacher) */
   function switchMode(mode) {
     state.mode = mode;
     $('studentView').style.display = (mode === 'student') ? 'block' : 'none';
     $('studentStageTracker').style.display = (mode === 'student') ? 'block' : 'none';
     $('archiveFeedView').style.display = (mode === 'feed') ? 'block' : 'none';
+    $('textMiningView').style.display = (mode === 'mining') ? 'block' : 'none';
     $('studentReportView').style.display = (mode === 'report') ? 'block' : 'none';
     $('teacherView').style.display = (mode === 'teacher') ? 'block' : 'none';
     
     $('teacherToggleBtn').textContent = (mode === 'teacher') ? '🎒 수사요원 화면' : '👩‍🏫 사령관 모드';
     $('btnOpenReportView').style.display = (mode === 'report') ? 'none' : 'inline-block';
     $('btnOpenArchiveFeed').style.display = (mode === 'feed') ? 'none' : 'inline-block';
+    $('btnOpenTextMining').style.display = (mode === 'mining') ? 'none' : 'inline-block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     if (mode === 'feed') {
       loadArchiveFeed();
+    } else if (mode === 'mining') {
+      loadTextMiningData();
     }
+  }
+
+  /* ============================================================ */
+  /* 🧠 텍스트 마이닝 & 키워드 분석 로직 */
+  /* ============================================================ */
+  function loadTextMiningData() {
+    var g = $('miningFilterGrade') ? $('miningFilterGrade').value : '';
+    var c = $('miningFilterClass') ? $('miningFilterClass').value : '';
+
+    setBusy(true);
+    runServer('getTextMiningData', { grade: g, classNum: c })
+      .then(function (data) {
+        renderTextMiningView(data);
+      })
+      .catch(function (err) { toast(err.message, 'error'); })
+      .finally(function () { setBusy(false); });
+  }
+
+  function renderTextMiningView(data) {
+    if (!data) return;
+    var stats = data.stats || {};
+    $('miningStatStudents').textContent = stats.totalStudents || 0;
+    $('miningStatClues').textContent = stats.totalClues || 0;
+    $('miningStatWords').textContent = stats.totalWords || 0;
+    $('miningStatUnique').textContent = stats.uniqueWords || 0;
+
+    $('miningSummaryInsight').textContent = data.summaryInsight || '분석 결과가 없습니다.';
+
+    // 워드 클라우드 렌더링
+    var cloudBox = $('miningWordCloud');
+    var topKeywords = data.topKeywords || [];
+    if (!topKeywords.length) {
+      cloudBox.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem;">추출된 키워드가 없습니다.</p>';
+    } else {
+      var maxCount = topKeywords[0].count || 1;
+      var colors = ['#06B6D4', '#6366F1', '#EC4899', '#F59E0B', '#10B981', '#8B5CF6', '#38BDF8'];
+      cloudBox.innerHTML = topKeywords.map(function (k, idx) {
+        var ratio = k.count / maxCount;
+        var fSize = (0.85 + ratio * 1.3).toFixed(2);
+        var col = colors[idx % colors.length];
+        var bg = 'rgba(255,255,255,0.06)';
+        return '<span class="word-cloud-tag" style="font-size:' + fSize + 'rem; color:' + col + '; background:' + bg + '; border:1px solid ' + col + '40;">' +
+          escAttr(k.word) + ' <small style="font-size:0.7em; opacity:0.8;">(' + k.count + ')</small></span>';
+      }).join('');
+    }
+
+    // TOP 15 가로 바 차트
+    var rankBox = $('miningRankChart');
+    var top15 = topKeywords.slice(0, 15);
+    if (!top15.length) {
+      rankBox.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem;">데이터 없음</p>';
+    } else {
+      var maxRankCount = top15[0].count || 1;
+      rankBox.innerHTML = top15.map(function (k, idx) {
+        var pct = ((k.count / maxRankCount) * 100).toFixed(1);
+        return '<div class="rank-bar-row">' +
+          '<div class="rank-bar-word">' + (idx + 1) + '. ' + escAttr(k.word) + '</div>' +
+          '<div class="rank-bar-track"><div class="rank-bar-fill" style="width:' + pct + '%;"></div></div>' +
+          '<div class="rank-bar-count">' + k.count + '회</div>' +
+          '</div>';
+      }).join('');
+    }
+
+    // STAGE 1~4 매트릭스
+    var matrixBox = $('miningStageMatrix');
+    var stageKeywords = data.stageKeywords || {};
+    var stageMeta = [
+      { key: 'step1', title: '🔍 STAGE 1. 호기심 단서', color: 'var(--amber-neon)' },
+      { key: 'step2', title: '💡 STAGE 2. 의문점 질문', color: 'var(--emerald-neon)' },
+      { key: 'step3', title: '🕵️ STAGE 3. 용의자 댓글', color: 'var(--rose-neon)' },
+      { key: 'step4', title: '⚖️ STAGE 4. 팩트체크 결론', color: 'var(--violet-neon)' }
+    ];
+
+    matrixBox.innerHTML = stageMeta.map(function (meta) {
+      var words = stageKeywords[meta.key] || [];
+      var listHtml = words.length ? words.map(function (w, i) {
+        return '<div style="display:flex; justify-content:space-between; font-size:0.84rem; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.04);">' +
+          '<span>' + (i + 1) + '. ' + escAttr(w.word) + '</span>' +
+          '<strong style="color:' + meta.color + ';">' + w.count + '회</strong></div>';
+      }).join('') : '<p style="color:var(--text-muted); font-size:0.8rem;">작성 단어 없음</p>';
+
+      return '<div class="stage-matrix-card" style="--matrix-color:' + meta.color + ';">' +
+        '<h4 style="font-size:0.95rem; font-weight:900; color:var(--text-bright); margin-bottom:10px;">' + meta.title + '</h4>' +
+        '<div>' + listHtml + '</div>' +
+        '</div>';
+    }).join('');
+
+    window._lastMiningReportText = generateMiningReportText(data);
+  }
+
+  function generateMiningReportText(data) {
+    var stats = data.stats || {};
+    var lines = [];
+    lines.push('■ [미디어 팩트체크 탐정본부] 학생 활동 텍스트 마이닝 종합 분석 리포트');
+    lines.push('--------------------------------------------------');
+    lines.push('· 분석 학생 수: ' + (stats.totalStudents || 0) + '명');
+    lines.push('· 총 수사 단서 수: ' + (stats.totalClues || 0) + '건');
+    lines.push('· 추출된 총 단어 수: ' + (stats.totalWords || 0) + '개');
+    lines.push('· 고유 키워드 어휘 수: ' + (stats.uniqueWords || 0) + '개');
+    lines.push('');
+    lines.push('■ 핵심 키워드 TOP 15:');
+    (data.topKeywords || []).slice(0, 15).forEach(function (k, i) {
+      lines.push((i + 1) + '. ' + k.word + ' (' + k.count + '회)');
+    });
+    lines.push('');
+    lines.push('■ AI 수사 인사이트:');
+    lines.push(data.summaryInsight || '');
+    return lines.join('\n');
   }
 
   /* ============================================================ */
@@ -3314,12 +3629,27 @@
 
     // 상단 네비 및 모드 전환
     $('brandLogo').onclick = function () { switchMode('student'); };
+    $('btnOpenTextMining').onclick = function () { switchMode('mining'); };
     $('btnOpenArchiveFeed').onclick = function () { switchMode('feed'); };
     $('btnOpenReportView').onclick = function () { switchMode('report'); };
     $('btnBackFromReport').onclick = function () { switchMode('student'); };
+    $('btnBackFromMining').onclick = function () { switchMode('student'); };
     $('btnQueryReport').onclick = queryStudentReport;
     $('repNumberInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') queryStudentReport(); });
     $('repPasswordInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') queryStudentReport(); });
+
+    // 텍스트 마이닝 이벤트
+    $('btnRunMining').onclick = loadTextMiningData;
+    $('miningFilterGrade').addEventListener('change', loadTextMiningData);
+    $('miningFilterClass').addEventListener('change', loadTextMiningData);
+    $('btnCopyMiningReport').onclick = function () {
+      if (window._lastMiningReportText && navigator.clipboard) {
+        navigator.clipboard.writeText(window._lastMiningReportText);
+        toast('📋 텍스트 마이닝 분석 리포트가 복사되었습니다!', 'ok');
+      } else {
+        toast('먼저 마이닝 분석을 실행해 주세요.', 'error');
+      }
+    };
 
     // 피드 필터 이벤트
     $('feedFilterGrade').addEventListener('change', loadArchiveFeed);
