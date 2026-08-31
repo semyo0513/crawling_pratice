@@ -4,6 +4,7 @@
  * ----------------------------------------------------------------
  *  - 학생: 학생 개별 비밀번호 직접 설정 및 검증, 방탈출 퀘스트, 스텝 전환 시 자동저장
  *  - 결과조회: 학년/반/번호 + 학생 비밀번호 입력 후 독립 페이지에서 채점 결과/인증서 열람
+ *  - 아카이빙: 인스타그램 스타일 수사 피드, 영상 감상, 좋아요(❤️) 및 동료 피드백 댓글(💬)
  *  - 교사: 제출 현황 관리, 시청 콘텐츠 통계, 문항 설정, 비밀번호 변경, 채점/피드백
  *  - 비밀번호/설정: 구글 시트의 [관리자설정] 및 [학생응답] 시트에 직접 저장/관리
  * ================================================================
@@ -22,14 +23,15 @@ const CONFIG = {
   MAX_TEXT_LENGTH: 2000
 };
 
-// 학생응답 시트 헤더 (비밀번호 컬럼 포함)
+// 학생응답 시트 헤더 (비밀번호, 좋아요수, 댓글_JSON 컬럼 포함)
 const HEADERS = [
   'ID', '활동명', '제출시각', '수정시각',
   '학년', '반', '번호', '이름', '비밀번호',
   '채널명', '영상제목', '영상URL',
   'STEP1_JSON', 'STEP2_JSON', 'STEP3_JSON', 'STEP4_JSON',
   '요약텍스트',
-  '상태', '점수', '교사피드백', '반려사유', '채점자', '채점시각'
+  '상태', '점수', '교사피드백', '반려사유', '채점자', '채점시각',
+  '좋아요수', '댓글_JSON'
 ];
 
 /** ─────────────────────────────────────────
@@ -87,6 +89,9 @@ function dispatch(action, payload) {
       case 'loadStudentReport':      return { ok: true, data: handleLoadStudentReport_(payload) };
       case 'saveDraft':              return { ok: true, data: handleSave_(payload, 'DRAFT') };
       case 'submit':                 return { ok: true, data: handleSave_(payload, 'SUBMITTED') };
+      case 'getArchiveFeed':         return { ok: true, data: handleGetArchiveFeed_(payload) };
+      case 'toggleLike':             return { ok: true, data: handleToggleLike_(payload) };
+      case 'addComment':             return { ok: true, data: handleAddComment_(payload) };
       case 'teacherLogin':           return { ok: true, data: handleTeacherLogin_(payload) };
       case 'teacherList':            return { ok: true, data: handleTeacherList_(payload) };
       case 'teacherDetail':          return { ok: true, data: handleTeacherDetail_(payload) };
@@ -185,7 +190,7 @@ function handleSave_(payload, intendedStatus) {
     if (idx === -1) idx = findRowIndexByKey_(data, payload.grade, payload.classNum, payload.number);
 
     const now = new Date();
-    let id, submittedAt, prevStatus, prevScore, prevFeedback, prevGrader, prevGradedAt, studentPw;
+    let id, submittedAt, prevStatus, prevScore, prevFeedback, prevGrader, prevGradedAt, studentPw, prevLikes, prevComments;
 
     if (idx > -1) {
       const existing = rowToRecord_(data[idx]);
@@ -211,12 +216,15 @@ function handleSave_(payload, intendedStatus) {
       prevFeedback = existing.feedback;
       prevGrader = existing.graderEmail;
       prevGradedAt = existing.gradedAt;
+      prevLikes = existing.likes || 0;
+      prevComments = existing.comments || [];
       studentPw = payload.password || existing.password || '';
     } else {
       id = Utilities.getUuid();
       submittedAt = '';
       prevStatus = '';
       prevScore = ''; prevFeedback = ''; prevGrader = ''; prevGradedAt = '';
+      prevLikes = 0; prevComments = [];
       studentPw = payload.password || '';
     }
 
@@ -253,7 +261,9 @@ function handleSave_(payload, intendedStatus) {
       feedback: prevFeedback,
       returnReason: intendedStatus === 'SUBMITTED' ? '' : (idx > -1 ? (data[idx][HEADERS.indexOf('반려사유')] || '') : ''),
       graderEmail: prevGrader,
-      gradedAt: prevGradedAt
+      gradedAt: prevGradedAt,
+      likes: prevLikes,
+      comments: prevComments
     };
 
     const rowArray = buildRowArray_(record);
@@ -274,7 +284,136 @@ function handleSave_(payload, intendedStatus) {
 }
 
 /** ─────────────────────────────────────────
- *  3. 교사 관리자 기능 (평문 비밀번호 검증)
+ *  3. 📸 수사 갤러리 & 아카이브 피드 (인스타그램 피드 / 피드백 / 좋아요)
+ *  ───────────────────────────────────────── */
+function handleGetArchiveFeed_(payload) {
+  const sheet = getStudentSheet_();
+  const data = sheet.getDataRange().getValues();
+  const list = [];
+
+  const gradeFilter = payload && payload.grade ? String(payload.grade) : '';
+  const classFilter = payload && payload.classNum ? String(payload.classNum) : '';
+  const keyword = payload && payload.keyword ? String(payload.keyword).toLowerCase().trim() : '';
+
+  for (let i = 1; i < data.length; i++) {
+    const rec = rowToRecord_(data[i]);
+    // 제출 완료(SUBMITTED) 또는 채점 완료(GRADED)된 게시물만 아카이빙에 노출
+    if (rec.status !== 'SUBMITTED' && rec.status !== 'GRADED') continue;
+
+    if (gradeFilter && String(rec.grade) !== gradeFilter) continue;
+    if (classFilter && String(rec.classNum) !== classFilter) continue;
+    if (keyword) {
+      const match = (rec.name && rec.name.toLowerCase().indexOf(keyword) > -1) ||
+                    (rec.videoTitle && rec.videoTitle.toLowerCase().indexOf(keyword) > -1) ||
+                    (rec.channelName && rec.channelName.toLowerCase().indexOf(keyword) > -1);
+      if (!match) continue;
+    }
+
+    list.push({
+      id: rec.id,
+      grade: rec.grade,
+      classNum: rec.classNum,
+      number: rec.number,
+      name: rec.name,
+      channelName: rec.channelName,
+      videoTitle: rec.videoTitle,
+      videoUrl: rec.videoUrl,
+      step1: rec.step1,
+      step2: rec.step2,
+      step3: rec.step3,
+      step4: rec.step4,
+      status: rec.status,
+      score: rec.score,
+      feedback: rec.feedback,
+      likes: Number(rec.likes) || 0,
+      comments: Array.isArray(rec.comments) ? rec.comments : [],
+      submittedAt: formatDate_(rec.submittedAt),
+      updatedAt: formatDate_(rec.updatedAt)
+    });
+  }
+
+  // 정렬 (인기순 / 최신순)
+  const sortBy = (payload && payload.sortBy === 'popular') ? 'popular' : 'recent';
+  if (sortBy === 'popular') {
+    list.sort(function (a, b) {
+      return (b.likes - a.likes) || (new Date(b.submittedAt) - new Date(a.submittedAt));
+    });
+  } else {
+    list.sort(function (a, b) {
+      return (new Date(b.submittedAt) - new Date(a.submittedAt)) ||
+        (Number(a.grade) - Number(b.grade)) ||
+        (Number(a.classNum) - Number(b.classNum));
+    });
+  }
+
+  return { feed: list };
+}
+
+/** 좋아요 토글 / 1 증가 */
+function handleToggleLike_(payload) {
+  if (!payload || !payload.id) throw new Error('게시물 ID가 없습니다.');
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const sheet = getStudentSheet_();
+    const data = sheet.getDataRange().getValues();
+    const idx = findRowIndexById_(data, payload.id);
+    if (idx === -1) throw new Error('해당 게시물을 찾을 수 없습니다.');
+
+    const likeCol = HEADERS.indexOf('좋아요수');
+    const currentLikes = Number(data[idx][likeCol]) || 0;
+    const nextLikes = currentLikes + 1;
+
+    sheet.getRange(idx + 1, likeCol + 1).setValue(nextLikes);
+    return { likes: nextLikes, id: payload.id };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** 동료 피드백 댓글 작성 */
+function handleAddComment_(payload) {
+  if (!payload || !payload.id) throw new Error('게시물 ID가 없습니다.');
+  const author = String(payload.authorName || '동료 요원').trim();
+  const content = String(payload.content || '').trim();
+
+  if (!content) throw new Error('피드백 댓글 내용을 입력해 주세요.');
+  if (content.length > 500) throw new Error('댓글은 최대 500자까지 작성 가능합니다.');
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const sheet = getStudentSheet_();
+    const data = sheet.getDataRange().getValues();
+    const idx = findRowIndexById_(data, payload.id);
+    if (idx === -1) throw new Error('해당 게시물을 찾을 수 없습니다.');
+
+    const commentCol = HEADERS.indexOf('댓글_JSON');
+    let comments = [];
+    try {
+      const raw = data[idx][commentCol];
+      if (raw) comments = JSON.parse(raw);
+    } catch (e) { comments = []; }
+
+    const newComment = {
+      id: Utilities.getUuid().slice(0, 8),
+      author: author,
+      content: content,
+      createdAt: formatDate_(new Date())
+    };
+
+    comments.push(newComment);
+    sheet.getRange(idx + 1, commentCol + 1).setValue(JSON.stringify(comments));
+
+    return { comments: comments, id: payload.id };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** ─────────────────────────────────────────
+ *  4. 교사 관리자 기능 (평문 비밀번호 검증)
  *  ───────────────────────────────────────── */
 function handleTeacherLogin_(payload) {
   if (!payload || !payload.password) {
@@ -414,7 +553,7 @@ function handleTeacherReturn_(payload) {
 }
 
 /** ─────────────────────────────────────────
- *  4. 시청 콘텐츠 통계 및 설정 관리
+ *  5. 시청 콘텐츠 통계 및 설정 관리
  *  ───────────────────────────────────────── */
 function handleTeacherStats_(payload) {
   verifyTeacherToken_(payload && payload.token);
@@ -500,7 +639,7 @@ function handleSaveSettings_(payload) {
 }
 
 /** ─────────────────────────────────────────
- *  5. 구글 시트 기반 [관리자설정] 및 [학생응답] 관리
+ *  6. 구글 시트 기반 [관리자설정] 및 [학생응답] 관리
  *  ───────────────────────────────────────── */
 function ensureAllSheets_() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -516,9 +655,9 @@ function ensureAllSheets_() {
     studentSheet.setColumnWidths(1, HEADERS.length, 130);
     studentSheet.setColumnWidth(HEADERS.indexOf('요약텍스트') + 1, 380);
   } else {
-    // 기존 시트에 비밀번호 컬럼이 없으면 헤더 보정
+    // 기존 시트에 새로운 컬럼이 없으면 헤더 보정
     const currentHeaders = studentSheet.getRange(1, 1, 1, studentSheet.getLastColumn() || 1).getValues()[0];
-    if (currentHeaders.indexOf('비밀번호') === -1) {
+    if (currentHeaders.indexOf('좋아요수') === -1 || currentHeaders.indexOf('댓글_JSON') === -1) {
       studentSheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
     }
   }
@@ -657,7 +796,9 @@ function rowToRecord_(rowValues) {
     step3: safeParse(get('STEP3_JSON')),
     step4: safeParse(get('STEP4_JSON')),
     status: get('상태'), score: get('점수'), feedback: get('교사피드백'),
-    returnReason: get('반려사유'), graderEmail: get('채점자'), gradedAt: get('채점시각')
+    returnReason: get('반려사유'), graderEmail: get('채점자'), gradedAt: get('채점시각'),
+    likes: Number(get('좋아요수')) || 0,
+    comments: safeParse(get('댓글_JSON'))
   };
 }
 
@@ -670,7 +811,8 @@ function buildRowArray_(r) {
     JSON.stringify(r.step3 || []), JSON.stringify(r.step4 || []),
     r.summary || '', r.status,
     (r.score === undefined || r.score === null) ? '' : r.score,
-    r.feedback || '', r.returnReason || '', r.graderEmail || '', r.gradedAt || ''
+    r.feedback || '', r.returnReason || '', r.graderEmail || '', r.gradedAt || '',
+    r.likes || 0, JSON.stringify(r.comments || [])
   ];
 }
 
