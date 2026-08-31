@@ -1176,6 +1176,12 @@
         </div>
       </div>
     </div>
+
+    <div style="margin-top: 22px; text-align: right;">
+      <button type="button" class="btn btn-next-step" id="btnStage0Next" style="padding: 10px 24px; font-size: 0.95rem;">
+        🚀 사건 일지 작성 시작하기 ▶ (STAGE 1으로)
+      </button>
+    </div>
   </section>
 
   <!-- ==================== STAGE 1 ==================== -->
@@ -2677,7 +2683,8 @@
     $('videoInput').addEventListener('input', function (e) { state.student.videoTitle = e.target.value; });
 
     $('passwordInput').addEventListener('blur', function () {
-      if (state.student.grade && state.student.classNum && state.student.number && state.student.password) {
+      syncInputsToState();
+      if (state.student.grade && state.student.classNum && state.student.number && state.student.password && state.student.password.length >= 4) {
         tryLoadExisting();
       }
     });
@@ -2696,13 +2703,24 @@
 
     Array.prototype.forEach.call(document.querySelectorAll('.stage-step-btn'), function (btn) {
       btn.addEventListener('click', function () {
-        goToStep(Number(btn.dataset.step), true);
+        var targetStep = Number(btn.dataset.step);
+        if (targetStep > 0 && !validateStudent(true)) return;
+        goToStep(targetStep, true);
       });
     });
 
+    if ($('btnStage0Next')) {
+      $('btnStage0Next').onclick = function () {
+        if (!validateStudent(true)) return;
+        goToStep(1, true);
+      };
+    }
+
     $('btnPrevStep').onclick = function () { goToStep(state.currentStep - 1, true); };
     $('btnNextStep').onclick = function () {
-      if (state.currentStep === 0 && !validateStudent(true)) return;
+      if (state.currentStep === 0) {
+        if (!validateStudent(true)) return;
+      }
       goToStep(state.currentStep + 1, true);
     };
 
@@ -2710,7 +2728,19 @@
     $('btnSubmitForm').onclick = submitForm;
   }
 
+  function syncInputsToState() {
+    if ($('gradeInput')) state.student.grade = $('gradeInput').value.trim();
+    if ($('classInput')) state.student.classNum = $('classInput').value.trim();
+    if ($('numberInput')) state.student.number = $('numberInput').value.trim();
+    if ($('nameInput')) state.student.name = $('nameInput').value.trim();
+    if ($('passwordInput')) state.student.password = $('passwordInput').value.trim();
+    if ($('channelInput')) state.student.channelName = $('channelInput').value.trim();
+    if ($('videoInput')) state.student.videoTitle = $('videoInput').value.trim();
+    if ($('ytUrlInput') && $('ytUrlInput').value.trim()) state.student.videoUrl = $('ytUrlInput').value.trim();
+  }
+
   function tryLoadExisting() {
+    syncInputsToState();
     runServer('loadResponse', {
       id: state.student.id,
       grade: state.student.grade,
@@ -2759,6 +2789,7 @@
   }
 
   function collectPayload() {
+    syncInputsToState();
     return {
       id: state.student.id,
       grade: state.student.grade,
@@ -2777,15 +2808,16 @@
   }
 
   function validateStudent(isDraft) {
-    if (!state.student.grade || !state.student.classNum || !state.student.number || !state.student.name.trim()) {
-      toast('학년, 반, 번호, 이름을 먼저 입력하세요.', 'error');
+    syncInputsToState();
+    if (!state.student.grade || !state.student.classNum || !state.student.number || !state.student.name) {
+      toast('학년, 반, 번호, 이름을 먼저 빠짐없이 입력하세요.', 'error');
       return false;
     }
-    if (!state.student.password || state.student.password.trim().length < 4) {
+    if (!state.student.password || state.student.password.length < 4) {
       toast('요원 비밀번호를 4자리 이상 입력/설정해 주세요.', 'error');
       return false;
     }
-    if (!isDraft && !state.student.videoTitle.trim()) {
+    if (!isDraft && !state.student.videoTitle) {
       toast('수사 대상 영상 정보를 입력하거나 링크를 넣어주세요.', 'error');
       return false;
     }
