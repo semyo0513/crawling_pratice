@@ -1,10 +1,10 @@
 /**
  * ================================================================
- *  대중매체·개인방송 비판적 시청 활동지 웹앱 — 서버(Code.gs)
+ *  대중매체·개인방송 비판적 시청 활동지 — [미디어 팩트체크 탐정본부] 서버(Code.gs)
  * ----------------------------------------------------------------
- *  - 학생: 유튜브 자동완성 활동지 작성, 실시간 임시저장 및 제출
- *  - 교사: 제출 현황 관리, 시청 콘텐츠 통계 분석, 문항 설정, 채점/피드백
- *  - 듀얼 통신 지원: google.script.run (GAS 내부) + doPost JSON API (GitHub 배포)
+ *  - 학생: 방탈출 퀘스트 단계별 진행, 스텝 전환 시 자동 임시저장, 유튜브 자동완성
+ *  - 교사: 제출 현황 관리, 시청 콘텐츠 통계 분석, 문항 설정, 비밀번호 변경, 채점/피드백
+ *  - 통신: google.script.run (GAS) + doPost JSON API (GitHub 배포 완벽 지원)
  * ================================================================
  */
 
@@ -12,7 +12,7 @@
  *  0. 환경 설정
  *  ───────────────────────────────────────── */
 const CONFIG = {
-  ACTIVITY_TITLE: '대중매체 비판적 시청 활동지',
+  ACTIVITY_TITLE: '미디어 팩트체크 탐정 수사본부',
   SHEET_NAME: '학생응답',
   SETTINGS_PROP_KEY: 'ACTIVITY_CUSTOM_SETTINGS',
   TEACHER_SESSION_TTL: 6 * 60 * 60, // 6시간
@@ -36,7 +36,6 @@ const HEADERS = [
 function doGet(e) {
   ensureSheet_();
   
-  // 외부 API 호출 모드 (?action=ping 등)
   if (e && e.parameter && e.parameter.action) {
     const result = dispatch(e.parameter.action, e.parameter);
     return ContentService.createTextOutput(JSON.stringify(result))
@@ -53,7 +52,7 @@ function doGet(e) {
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
-/** 외부 깃허브 웹앱 배포 시 fetch/AJAX 요청을 처리하는 엔드포인트 */
+/** 깃허브 페이지 등 외부 배포용 POST 요청 엔드포인트 */
 function doPost(e) {
   try {
     let payload = {};
@@ -77,24 +76,23 @@ function doPost(e) {
   }
 }
 
-/**
- * google.script.run 및 doPost에서 공통 호출하는 단일 라우터
- */
+/** 단일 라우터 */
 function dispatch(action, payload) {
   try {
     switch (action) {
-      case 'getPublicConfig': return { ok: true, data: handleGetPublicConfig_() };
-      case 'loadResponse':    return { ok: true, data: handleLoadResponse_(payload) };
-      case 'saveDraft':       return { ok: true, data: handleSave_(payload, 'DRAFT') };
-      case 'submit':          return { ok: true, data: handleSave_(payload, 'SUBMITTED') };
-      case 'teacherLogin':    return { ok: true, data: handleTeacherLogin_(payload) };
-      case 'teacherList':     return { ok: true, data: handleTeacherList_(payload) };
-      case 'teacherDetail':   return { ok: true, data: handleTeacherDetail_(payload) };
-      case 'teacherGrade':    return { ok: true, data: handleTeacherGrade_(payload) };
-      case 'teacherReturn':   return { ok: true, data: handleTeacherReturn_(payload) };
-      case 'teacherStats':    return { ok: true, data: handleTeacherStats_(payload) };
-      case 'saveSettings':    return { ok: true, data: handleSaveSettings_(payload) };
-      case 'loadSettings':    return { ok: true, data: handleLoadSettings_(payload) };
+      case 'getPublicConfig':        return { ok: true, data: handleGetPublicConfig_() };
+      case 'loadResponse':           return { ok: true, data: handleLoadResponse_(payload) };
+      case 'saveDraft':              return { ok: true, data: handleSave_(payload, 'DRAFT') };
+      case 'submit':                 return { ok: true, data: handleSave_(payload, 'SUBMITTED') };
+      case 'teacherLogin':           return { ok: true, data: handleTeacherLogin_(payload) };
+      case 'teacherList':            return { ok: true, data: handleTeacherList_(payload) };
+      case 'teacherDetail':          return { ok: true, data: handleTeacherDetail_(payload) };
+      case 'teacherGrade':           return { ok: true, data: handleTeacherGrade_(payload) };
+      case 'teacherReturn':          return { ok: true, data: handleTeacherReturn_(payload) };
+      case 'teacherStats':           return { ok: true, data: handleTeacherStats_(payload) };
+      case 'teacherChangePassword':  return { ok: true, data: handleChangePassword_(payload) };
+      case 'saveSettings':           return { ok: true, data: handleSaveSettings_(payload) };
+      case 'loadSettings':           return { ok: true, data: handleLoadSettings_(payload) };
       default:
         throw new Error('알 수 없는 요청입니다: ' + action);
     }
@@ -154,10 +152,10 @@ function handleSave_(payload, intendedStatus) {
       prevStatus = existing.status;
 
       if (prevStatus === 'GRADED') {
-        throw new Error('이미 채점이 완료된 활동지는 수정할 수 없습니다. 수정이 필요하면 선생님께 말씀해 주세요.');
+        throw new Error('이미 채점이 완료된 활동지는 수정할 수 없습니다.');
       }
       if (intendedStatus === 'DRAFT' && prevStatus === 'SUBMITTED') {
-        throw new Error('이미 제출된 활동지입니다. 내용을 고치려면 선생님께 반려를 요청해 주세요.');
+        throw new Error('이미 제출된 활동지입니다. 수정을 원하시면 선생님께 반려를 요청하세요.');
       }
 
       id = existing.id;
@@ -245,6 +243,18 @@ function handleTeacherLogin_(payload) {
   const token = Utilities.getUuid();
   CacheService.getScriptCache().put('teacher_' + token, 'valid', CONFIG.TEACHER_SESSION_TTL);
   return { token: token };
+}
+
+function handleChangePassword_(payload) {
+  verifyTeacherToken_(payload && payload.token);
+  if (!payload || !payload.newPassword) {
+    throw new Error('새 비밀번호를 입력해 주세요.');
+  }
+  if (payload.newPassword.length < 4) {
+    throw new Error('비밀번호는 최소 4자리 이상이어야 합니다.');
+  }
+  PropertiesService.getScriptProperties().setProperty('TEACHER_PASSWORD_HASH', sha256Hex_(payload.newPassword));
+  return { success: true };
 }
 
 function handleTeacherList_(payload) {
@@ -356,7 +366,7 @@ function handleTeacherReturn_(payload) {
 }
 
 /** ─────────────────────────────────────────
- *  4. 시청 콘텐츠 통계 및 문항 커스텀 설정
+ *  4. 시청 콘텐츠 통계 및 설정 관리
  *  ───────────────────────────────────────── */
 function handleTeacherStats_(payload) {
   verifyTeacherToken_(payload && payload.token);
@@ -392,7 +402,6 @@ function handleTeacherStats_(payload) {
       gradedCount++;
     }
 
-    // STEP2 질문 카테고리 통계
     if (Array.isArray(rec.step2)) {
       rec.step2.forEach(function (s) {
         if (s && s.category) {
@@ -402,12 +411,10 @@ function handleTeacherStats_(payload) {
     }
   }
 
-  // 채널 순위 TOP 10 정렬
   const topChannels = Object.keys(channelMap).map(function (k) {
     return { name: k, count: channelMap[k] };
   }).sort(function (a, b) { return b.count - a.count; }).slice(0, 10);
 
-  // 인기 영상 TOP 10
   const topVideos = Object.keys(videoMap).map(function (k) {
     return { title: k, count: videoMap[k] };
   }).sort(function (a, b) { return b.count - a.count; }).slice(0, 10);
@@ -450,10 +457,10 @@ function getCustomSettings_() {
     return {
       activityTitle: CONFIG.ACTIVITY_TITLE,
       stepGuides: {
-        step1: '영상을 보기 전, 썸네일과 제목만 보고 떠오른 궁금증을 질문으로 적어보세요.',
-        step2: '영상을 시청하며 이해되지 않거나 더 알아보고 싶은 점을 질문으로 남겨보세요.',
-        step3: '댓글창에서 인상 깊거나 편향된 댓글을 골라 작성자의 숨은 의도를 추론해보세요.',
-        step4: '댓글의 맥락과 미디어가 다루지 않은 실질적인 문제를 짚는 비판적 질문을 던져보세요.'
+        step1: '🔍 [단서 수집 1단계] 영상을 보기 전 썸네일과 제목을 스캔하고 호기심 질문을 던져보세요.',
+        step2: '💡 [단서 수집 2단계] 영상을 시청하며 이해되지 않거나 수상쩍은 부분을 질문 파일로 분류하세요.',
+        step3: '🕵️ [용의자 심리 수사] 댓글 작성자의 숨겨진 의도와 편향된 관점을 추론해보세요.',
+        step4: '⚖️ [최종 팩트체크 결론] 미디어가 은폐하거나 다루지 않은 실질적 한계를 비판적으로 파헤치세요.'
       },
       step2Categories: ['이해가 안 되는 부분', '궁금한 점(의문)', '다른 사람 의견이 궁금한 점', '비판적 의문', '기타']
     };
@@ -474,12 +481,6 @@ function verifyTeacherToken_(token) {
   if (valid !== 'valid') throw new Error('로그인이 만료되었습니다. 다시 로그인해 주세요.');
 }
 
-function setTeacherPassword_() {
-  const PASSWORD = '새_비밀번호_입력';
-  PropertiesService.getScriptProperties().setProperty('TEACHER_PASSWORD_HASH', sha256Hex_(PASSWORD));
-  Logger.log('교사 비밀번호가 설정되었습니다.');
-}
-
 function ensureSheet_() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   let sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
@@ -487,7 +488,7 @@ function ensureSheet_() {
     sheet = ss.insertSheet(CONFIG.SHEET_NAME);
     sheet.appendRow(HEADERS);
     sheet.getRange(1, 1, 1, HEADERS.length)
-      .setFontWeight('bold').setBackground('#1E1B4B').setFontColor('#FFFFFF');
+      .setFontWeight('bold').setBackground('#0F172A').setFontColor('#38BDF8');
     sheet.setFrozenRows(1);
     sheet.setColumnWidths(1, HEADERS.length, 130);
     sheet.setColumnWidth(HEADERS.indexOf('요약텍스트') + 1, 380);
@@ -559,22 +560,22 @@ function buildRowArray_(r) {
 
 function buildSummaryText_(p) {
   const lines = [];
-  lines.push('■ STEP1. 훑어보기 호기심 질문');
+  lines.push('■ STAGE 1. 훑어보기 호기심 질문');
   (p.step1 || []).forEach(function (r, i) {
     lines.push((i + 1) + '. Q: ' + (r.question || '') + ' / A: ' + (r.answer || ''));
   });
   lines.push('');
-  lines.push('■ STEP2. 나만의 질문 파일링');
+  lines.push('■ STAGE 2. 나만의 질문 파일링');
   (p.step2 || []).forEach(function (r, i) {
     lines.push((i + 1) + '. [' + (r.category || '미분류') + '] ' + (r.question || ''));
   });
   lines.push('');
-  lines.push('■ STEP3. 댓글 속마음 탐정');
+  lines.push('■ STAGE 3. 댓글 심리 수사');
   (p.step3 || []).forEach(function (r, i) {
     lines.push((i + 1) + '. 댓글: ' + (r.comment || '') + ' → 의도/관점: ' + (r.intent || ''));
   });
   lines.push('');
-  lines.push('■ STEP4. 미디어 팩트체커 비판적 질문');
+  lines.push('■ STAGE 4. 팩트체커 최종 비판 질문');
   (p.step4 || []).forEach(function (r, i) {
     lines.push((i + 1) + '. 인용: ' + (r.quote || ''));
     lines.push('   - 작성자 배경 추론: ' + (r.background || ''));
