@@ -2,9 +2,10 @@
  * ================================================================
  *  대중매체·개인방송 비판적 시청 활동지 — [미디어 팩트체크 탐정본부] 서버(Code.gs)
  * ----------------------------------------------------------------
- *  - 학생: 방탈출 퀘스트 단계별 진행, 스텝 전환 시 자동 임시저장, 유튜브 자동완성
- *  - 교사: 제출 현황 관리, 시청 콘텐츠 통계 분석, 문항 설정, 비밀번호 변경, 채점/피드백
- *  - 비밀번호/설정: 구글 시트의 [관리자설정] 시트에 직접 평문으로 저장/관리
+ *  - 학생: 학생 개별 비밀번호 직접 설정 및 검증, 방탈출 퀘스트, 스텝 전환 시 자동저장
+ *  - 결과조회: 학년/반/번호 + 학생 비밀번호 입력 후 독립 페이지에서 채점 결과/인증서 열람
+ *  - 교사: 제출 현황 관리, 시청 콘텐츠 통계, 문항 설정, 비밀번호 변경, 채점/피드백
+ *  - 비밀번호/설정: 구글 시트의 [관리자설정] 및 [학생응답] 시트에 직접 저장/관리
  * ================================================================
  */
 
@@ -21,10 +22,10 @@ const CONFIG = {
   MAX_TEXT_LENGTH: 2000
 };
 
-// 학생응답 시트 헤더
+// 학생응답 시트 헤더 (비밀번호 컬럼 포함)
 const HEADERS = [
   'ID', '활동명', '제출시각', '수정시각',
-  '학년', '반', '번호', '이름',
+  '학년', '반', '번호', '이름', '비밀번호',
   '채널명', '영상제목', '영상URL',
   'STEP1_JSON', 'STEP2_JSON', 'STEP3_JSON', 'STEP4_JSON',
   '요약텍스트',
@@ -83,6 +84,7 @@ function dispatch(action, payload) {
     switch (action) {
       case 'getPublicConfig':        return { ok: true, data: handleGetPublicConfig_() };
       case 'loadResponse':           return { ok: true, data: handleLoadResponse_(payload) };
+      case 'loadStudentReport':      return { ok: true, data: handleLoadStudentReport_(payload) };
       case 'saveDraft':              return { ok: true, data: handleSave_(payload, 'DRAFT') };
       case 'submit':                 return { ok: true, data: handleSave_(payload, 'SUBMITTED') };
       case 'teacherLogin':           return { ok: true, data: handleTeacherLogin_(payload) };
@@ -103,12 +105,13 @@ function dispatch(action, payload) {
 }
 
 /** ─────────────────────────────────────────
- *  2. 공용 설정 및 학생 기능
+ *  2. 공용 설정 및 학생 기능 (학생 비밀번호 체계)
  *  ───────────────────────────────────────── */
 function handleGetPublicConfig_() {
   return getCustomSettings_();
 }
 
+/** 학생 활동지 조회 (작성 중 복원용) */
 function handleLoadResponse_(payload) {
   if (!payload) throw new Error('조회할 학생 정보가 없습니다.');
   const sheet = getStudentSheet_();
@@ -122,11 +125,52 @@ function handleLoadResponse_(payload) {
   if (idx === -1) return { found: false };
 
   const rec = rowToRecord_(data[idx]);
+
+  // 비밀번호가 설정되어 있는 경우 검증
+  if (rec.password && payload.password) {
+    if (String(rec.password).trim() !== String(payload.password).trim()) {
+      throw new Error('요원 비밀번호가 일치하지 않습니다. 올바른 비밀번호를 입력해 주세요.');
+    }
+  }
+
   rec.submittedAt = formatDate_(rec.submittedAt);
   rec.updatedAt = formatDate_(rec.updatedAt);
+  rec.password = ''; // 클라이언트 전송 시 보안 마스킹
   return { found: true, record: rec };
 }
 
+/** 학생 전용 채점 결과 조회 (인적사항 + 비밀번호 검증) */
+function handleLoadStudentReport_(payload) {
+  if (!payload || !payload.grade || !payload.classNum || !payload.number) {
+    throw new Error('학년, 반, 번호를 입력해 주세요.');
+  }
+  if (!payload.password) {
+    throw new Error('비밀번호를 입력해 주세요.');
+  }
+
+  const sheet = getStudentSheet_();
+  const data = sheet.getDataRange().getValues();
+  const idx = findRowIndexByKey_(data, payload.grade, payload.classNum, payload.number);
+  
+  if (idx === -1) {
+    throw new Error('등록된 수사 일지를 찾을 수 없습니다. 학년, 반, 번호를 확인해 주세요.');
+  }
+
+  const rec = rowToRecord_(data[idx]);
+  
+  // 비밀번호 검증
+  if (rec.password && String(rec.password).trim() !== String(payload.password).trim()) {
+    throw new Error('비밀번호가 일치하지 않습니다. 활동 시작 시 직접 설정한 비밀번호를 입력해 주세요.');
+  }
+
+  rec.submittedAt = formatDate_(rec.submittedAt);
+  rec.updatedAt = formatDate_(rec.updatedAt);
+  rec.gradedAt = formatDate_(rec.gradedAt);
+  rec.password = ''; // 비밀번호 마스킹
+  return { found: true, record: rec };
+}
+
+/** 활동지 임시저장 / 최종제출 */
 function handleSave_(payload, intendedStatus) {
   validateStudentPayload_(payload);
 
@@ -141,7 +185,7 @@ function handleSave_(payload, intendedStatus) {
     if (idx === -1) idx = findRowIndexByKey_(data, payload.grade, payload.classNum, payload.number);
 
     const now = new Date();
-    let id, submittedAt, prevStatus, prevScore, prevFeedback, prevGrader, prevGradedAt;
+    let id, submittedAt, prevStatus, prevScore, prevFeedback, prevGrader, prevGradedAt, studentPw;
 
     if (idx > -1) {
       const existing = rowToRecord_(data[idx]);
@@ -154,17 +198,26 @@ function handleSave_(payload, intendedStatus) {
         throw new Error('이미 제출된 활동지입니다. 수정을 원하시면 선생님께 반려를 요청하세요.');
       }
 
+      // 비밀번호 일치 여부 확인
+      if (existing.password && payload.password) {
+        if (String(existing.password).trim() !== String(payload.password).trim()) {
+          throw new Error('요원 비밀번호가 일치하지 않습니다. 올바른 비밀번호를 입력해 주세요.');
+        }
+      }
+
       id = existing.id;
       submittedAt = existing.submittedAt;
       prevScore = existing.score;
       prevFeedback = existing.feedback;
       prevGrader = existing.graderEmail;
       prevGradedAt = existing.gradedAt;
+      studentPw = payload.password || existing.password || '';
     } else {
       id = Utilities.getUuid();
       submittedAt = '';
       prevStatus = '';
       prevScore = ''; prevFeedback = ''; prevGrader = ''; prevGradedAt = '';
+      studentPw = payload.password || '';
     }
 
     const finalStatus = (intendedStatus === 'SUBMITTED')
@@ -186,6 +239,7 @@ function handleSave_(payload, intendedStatus) {
       classNum: payload.classNum,
       number: payload.number,
       name: String(payload.name).trim(),
+      password: String(studentPw).trim(),
       channelName: payload.channelName || '',
       videoTitle: payload.videoTitle || '',
       videoUrl: payload.videoUrl || '',
@@ -451,7 +505,7 @@ function handleSaveSettings_(payload) {
 function ensureAllSheets_() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
 
-  // 1. 학생응답 시트 확인 및 생성
+  // 1. 학생응답 시트 확인 및 헤더 보정
   let studentSheet = ss.getSheetByName(CONFIG.STUDENT_SHEET_NAME);
   if (!studentSheet) {
     studentSheet = ss.insertSheet(CONFIG.STUDENT_SHEET_NAME);
@@ -461,9 +515,15 @@ function ensureAllSheets_() {
     studentSheet.setFrozenRows(1);
     studentSheet.setColumnWidths(1, HEADERS.length, 130);
     studentSheet.setColumnWidth(HEADERS.indexOf('요약텍스트') + 1, 380);
+  } else {
+    // 기존 시트에 비밀번호 컬럼이 없으면 헤더 보정
+    const currentHeaders = studentSheet.getRange(1, 1, 1, studentSheet.getLastColumn() || 1).getValues()[0];
+    if (currentHeaders.indexOf('비밀번호') === -1) {
+      studentSheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
+    }
   }
 
-  // 2. 관리자설정 시트 확인 및 생성 (평문 비밀번호 및 설정 저장)
+  // 2. 관리자설정 시트 확인 및 생성
   let settingsSheet = ss.getSheetByName(CONFIG.SETTINGS_SHEET_NAME);
   if (!settingsSheet) {
     settingsSheet = ss.insertSheet(CONFIG.SETTINGS_SHEET_NAME);
@@ -473,7 +533,6 @@ function ensureAllSheets_() {
       .setFontWeight('bold').setBackground('#1E293B').setFontColor('#38BDF8');
     settingsSheet.setFrozenRows(1);
 
-    // 기본 행 등록
     settingsSheet.appendRow(['관리자비밀번호', CONFIG.DEFAULT_PASSWORD, '교사 관리자 화면 로그인 비밀번호 (평문)']);
     settingsSheet.appendRow(['활동지설정_JSON', '', '문항 및 가이드 커스텀 설정 데이터 (JSON)']);
 
@@ -493,7 +552,7 @@ function getSettingsSheet_() {
   return ensureAllSheets_().settingsSheet;
 }
 
-/** 구글 시트에서 평문 비밀번호 읽어오기 */
+/** 구글 시트에서 평문 관리자 비밀번호 읽어오기 */
 function getTeacherPasswordFromSheet_() {
   const sheet = getSettingsSheet_();
   const data = sheet.getDataRange().getValues();
@@ -503,12 +562,11 @@ function getTeacherPasswordFromSheet_() {
       return val ? val : CONFIG.DEFAULT_PASSWORD;
     }
   }
-  // 행이 없으면 추가 후 기본값 반환
   sheet.appendRow(['관리자비밀번호', CONFIG.DEFAULT_PASSWORD, '교사 관리자 화면 로그인 비밀번호 (평문)']);
   return CONFIG.DEFAULT_PASSWORD;
 }
 
-/** 구글 시트에 평문 비밀번호 쓰기 */
+/** 구글 시트에 평문 관리자 비밀번호 쓰기 */
 function setTeacherPasswordToSheet_(newPw) {
   const sheet = getSettingsSheet_();
   const data = sheet.getDataRange().getValues();
@@ -592,6 +650,7 @@ function rowToRecord_(rowValues) {
     submittedAt: get('제출시각'),
     updatedAt: get('수정시각'),
     grade: get('학년'), classNum: get('반'), number: get('번호'), name: get('이름'),
+    password: get('비밀번호'),
     channelName: get('채널명'), videoTitle: get('영상제목'), videoUrl: get('영상URL'),
     step1: safeParse(get('STEP1_JSON')),
     step2: safeParse(get('STEP2_JSON')),
@@ -605,7 +664,8 @@ function rowToRecord_(rowValues) {
 function buildRowArray_(r) {
   return [
     r.id, r.activityTitle || CONFIG.ACTIVITY_TITLE, r.submittedAt || '', r.updatedAt || '',
-    r.grade, r.classNum, r.number, r.name, r.channelName, r.videoTitle, r.videoUrl || '',
+    r.grade, r.classNum, r.number, r.name, r.password || '',
+    r.channelName, r.videoTitle, r.videoUrl || '',
     JSON.stringify(r.step1 || []), JSON.stringify(r.step2 || []),
     JSON.stringify(r.step3 || []), JSON.stringify(r.step4 || []),
     r.summary || '', r.status,
@@ -650,6 +710,10 @@ function validateStudentPayload_(payload) {
   if (!number || number < 1 || number > 45) throw new Error('번호를 올바르게 입력해 주세요 (1~45).');
   if (!payload.name || !String(payload.name).trim()) throw new Error('이름을 입력해 주세요.');
   if (String(payload.name).length > 20) throw new Error('이름이 너무 깁니다.');
+  
+  if (!payload.password || String(payload.password).trim().length < 4) {
+    throw new Error('요원 비밀번호를 4자리 이상 설정/입력해 주세요.');
+  }
 
   validateStepArray_(payload.step1, CONFIG.MAX_ROWS.STEP1, ['question', 'answer'], 'STEP1');
   validateStepArray_(payload.step2, CONFIG.MAX_ROWS.STEP2, ['question', 'category'], 'STEP2');

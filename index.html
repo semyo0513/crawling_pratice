@@ -775,8 +775,8 @@
       <p class="mission-desc" id="dispStep0Desc">사건 일지를 기록할 요원 신원을 등록하고, 수사 대상이 될 유튜브 영상 링크를 입력하세요. 유튜브 링크를 붙여넣으면 영상 정보와 증거 플레이어가 자동 활성화됩니다.</p>
     </div>
 
-    <!-- 인적사항 -->
-    <div class="agent-profile-grid">
+    <!-- 인적사항 & 학생 비밀번호 -->
+    <div class="agent-profile-grid" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
       <div class="form-group">
         <label class="form-label" id="lblGrade" for="gradeInput">학년<span class="req">*</span></label>
         <input type="number" id="gradeInput" class="form-control" min="1" max="6" placeholder="예: 1">
@@ -789,10 +789,17 @@
         <label class="form-label" id="lblNumber" for="numberInput">번호<span class="req">*</span></label>
         <input type="number" id="numberInput" class="form-control" min="1" max="45" placeholder="예: 12">
       </div>
-      <div class="form-group agent-name-field">
+      <div class="form-group">
         <label class="form-label" id="lblName" for="nameInput">요원 이름<span class="req">*</span></label>
-        <input type="text" id="nameInput" class="form-control" maxlength="20" placeholder="학생 이름을 입력하세요">
+        <input type="text" id="nameInput" class="form-control" maxlength="20" placeholder="이름 입력">
       </div>
+      <div class="form-group">
+        <label class="form-label" for="passwordInput">요원 비밀번호<span class="req">*</span></label>
+        <input type="password" id="passwordInput" class="form-control" placeholder="비밀번호 설정 (4자리 이상)" maxlength="20">
+      </div>
+    </div>
+    <div style="font-size: 0.8rem; color: var(--cyan-neon); margin-top: -6px; margin-bottom: 16px; padding-left: 4px;">
+      💡 <strong>요원 비밀번호:</strong> 최초 설정한 비밀번호는 이후 <strong>임시저장 불러오기 및 채점 결과 조회</strong> 시 본인 확인에 사용됩니다.
     </div>
 
     <!-- ⚡ 유튜브 단서 스캐너 -->
@@ -937,41 +944,59 @@
 
 
 <!-- ============================================================ -->
-<!-- 2. 학생 평가 결과보기 전용 뷰 (Student Report View) -->
+<!-- 2. 학생 채점 결과보기 전용 독립 페이지 (Student Report View) -->
 <!-- ============================================================ -->
 <main id="studentReportView" class="main-container" style="display: none;">
   
-  <!-- 조회 검색창 -->
-  <div class="stage-card" style="margin-bottom: 20px;">
-    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
-      <h2 style="font-size: 1.25rem; font-weight: 900; color: var(--cyan-neon); display: flex; align-items: center; gap: 8px;">
-        <span>🏆</span> 내 수사 평가 결과 조회
-      </h2>
-      <button type="button" class="btn btn-prev" id="btnBackFromReport" style="padding: 6px 12px; font-size: 0.82rem;">
+  <!-- 인적사항 및 비밀번호 인증 카드 -->
+  <section class="stage-card" style="max-width: 520px; margin: 30px auto 24px;">
+    <div style="text-align: center; margin-bottom: 20px;">
+      <div style="font-size: 2.5rem; margin-bottom: 6px;">🎖️</div>
+      <h2 style="font-size: 1.35rem; font-weight: 900; color: var(--text-bright);">수사 평가 결과 & 인증서 조회</h2>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">
+        활동 시 등록했던 인적사항과 요원 비밀번호를 입력하세요.
+      </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+      <div class="form-group">
+        <label class="form-label" for="repGradeInput">학년</label>
+        <input type="number" id="repGradeInput" class="form-control" placeholder="예: 1" min="1" max="6">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="repClassInput">반</label>
+        <input type="number" id="repClassInput" class="form-control" placeholder="예: 3" min="1" max="20">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="repNumberInput">번호</label>
+        <input type="number" id="repNumberInput" class="form-control" placeholder="예: 12" min="1" max="45">
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 18px;">
+      <label class="form-label" for="repPasswordInput">요원 비밀번호 (본인 확인)</label>
+      <input type="password" id="repPasswordInput" class="form-control" placeholder="활동 시작 시 설정한 비밀번호 입력">
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+      <button type="button" class="btn btn-prev" id="btnBackFromReport" style="flex: 1;">
         ← 활동지 작성으로
       </button>
-    </div>
-    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;">
-      학년, 반, 번호를 입력하면 선생님의 채점 점수와 피드백, 수사 인증서를 확인할 수 있습니다.
-    </p>
-
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1.2fr; gap: 10px;">
-      <input type="number" id="repGradeInput" class="form-control" placeholder="학년 (예: 1)" min="1" max="6">
-      <input type="number" id="repClassInput" class="form-control" placeholder="반 (예: 3)" min="1" max="20">
-      <input type="number" id="repNumberInput" class="form-control" placeholder="번호 (예: 12)" min="1" max="45">
-      <button type="button" class="btn btn-next-step" id="btnQueryReport" style="padding: 10px 14px;">
-        결과 조회 🔍
+      <button type="button" class="btn btn-next-step" id="btnQueryReport" style="flex: 1.5;">
+        결과 & 인증서 조회 🔍
       </button>
     </div>
-  </div>
+  </section>
 
-  <!-- 결과 카드 컨테이너 -->
-  <div id="reportResultContainer">
+  <!-- 결과 리포트 출력 컨테이너 -->
+  <section id="reportResultContainer" style="max-width: 860px; margin: 0 auto;">
+    <!-- 조회 전 초기 안내 -->
     <div class="stage-card" style="text-align: center; color: var(--text-muted); padding: 40px 20px;">
       <div style="font-size: 3rem; margin-bottom: 10px;">📜</div>
-      <p style="font-size: 1rem; font-weight: 700;">학년, 반, 번호를 입력하고 [결과 조회] 버튼을 누르세요.</p>
+      <p style="font-size: 1rem; font-weight: 700; color: var(--text-bright);">본인의 인적사항과 비밀번호를 입력하고 조회를 진행하세요.</p>
+      <p style="font-size: 0.83rem; margin-top: 6px;">선생님의 채점 점수, 피드백, 수사 완료 인증서를 안전하게 확인할 수 있습니다.</p>
     </div>
-  </div>
+  </section>
 </main>
 
 
@@ -1600,7 +1625,7 @@
 
   function defaultStudent() {
     return {
-      id: '', grade: '', classNum: '', number: '', name: '',
+      id: '', grade: '', classNum: '', number: '', name: '', password: '',
       channelName: '', videoTitle: '', videoUrl: '',
       step1: [mk1(), mk1()],
       step2: [mk2(), mk2(), mk2()],
@@ -2137,11 +2162,14 @@
     $('classInput').addEventListener('input', function (e) { state.student.classNum = e.target.value; });
     $('numberInput').addEventListener('input', function (e) { state.student.number = e.target.value; });
     $('nameInput').addEventListener('input', function (e) { state.student.name = e.target.value; });
+    $('passwordInput').addEventListener('input', function (e) { state.student.password = e.target.value; });
     $('channelInput').addEventListener('input', function (e) { state.student.channelName = e.target.value; });
     $('videoInput').addEventListener('input', function (e) { state.student.videoTitle = e.target.value; });
 
-    $('numberInput').addEventListener('blur', function () {
-      if (state.student.grade && state.student.classNum && state.student.number) tryLoadExisting();
+    $('passwordInput').addEventListener('blur', function () {
+      if (state.student.grade && state.student.classNum && state.student.number && state.student.password) {
+        tryLoadExisting();
+      }
     });
 
     $('btnAutoFetchYt').onclick = function () {
@@ -2174,17 +2202,27 @@
 
   function tryLoadExisting() {
     runServer('loadResponse', {
-      id: state.student.id, grade: state.student.grade, classNum: state.student.classNum, number: state.student.number
+      id: state.student.id,
+      grade: state.student.grade,
+      classNum: state.student.classNum,
+      number: state.student.number,
+      password: state.student.password
     }).then(function (data) {
       if (data && data.found) {
         applyLoadedRecord(data.record);
-        toast('이전에 작성하던 사건 일지를 불러왔습니다! 🔍', 'ok');
+        toast('이전에 작성하던 사건 일지를 안전하게 불러왔습니다! 🔍', 'ok');
       }
-    }).catch(function (e) { console.warn(e); });
+    }).catch(function (e) {
+      if (e && e.message) toast(e.message, 'error');
+    });
   }
 
   function applyLoadedRecord(rec) {
     state.student.id = rec.id;
+    if (rec.name) {
+      state.student.name = rec.name;
+      $('nameInput').value = rec.name;
+    }
     state.student.channelName = rec.channelName || '';
     state.student.videoTitle = rec.videoTitle || '';
     state.student.videoUrl = rec.videoUrl || '';
@@ -2208,7 +2246,6 @@
 
     renderAllSteps();
     renderStatusBanner();
-    goToStep(0, false);
   }
 
   function collectPayload() {
@@ -2218,6 +2255,7 @@
       classNum: state.student.classNum,
       number: state.student.number,
       name: state.student.name,
+      password: state.student.password,
       channelName: state.student.channelName,
       videoTitle: state.student.videoTitle,
       videoUrl: state.student.videoUrl,
@@ -2231,6 +2269,10 @@
   function validateStudent(isDraft) {
     if (!state.student.grade || !state.student.classNum || !state.student.number || !state.student.name.trim()) {
       toast('학년, 반, 번호, 이름을 먼저 입력하세요.', 'error');
+      return false;
+    }
+    if (!state.student.password || state.student.password.trim().length < 4) {
+      toast('요원 비밀번호를 4자리 이상 입력/설정해 주세요.', 'error');
       return false;
     }
     if (!isDraft && !state.student.videoTitle.trim()) {
@@ -2278,23 +2320,30 @@
     $('teacherView').style.display = (mode === 'teacher') ? 'block' : 'none';
     
     $('teacherToggleBtn').textContent = (mode === 'teacher') ? '🎒 수사요원 화면' : '👩‍🏫 사령관 모드';
+    $('btnOpenReportView').style.display = (mode === 'report') ? 'none' : 'inline-block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   /* ============================================================ */
-  /* 🏆 학생 평가 결과 조회 및 렌더링 로직 */
+  /* 🏆 학생 평가 결과 조회 및 렌더링 로직 (비밀번호 인증) */
   /* ============================================================ */
   function queryStudentReport() {
     var g = $('repGradeInput').value;
     var c = $('repClassInput').value;
     var n = $('repNumberInput').value;
+    var p = $('repPasswordInput').value.trim();
+
     if (!g || !c || !n) {
       toast('학년, 반, 번호를 모두 입력해 주세요.', 'error');
       return;
     }
+    if (!p) {
+      toast('요원 비밀번호를 입력해 주세요.', 'error');
+      return;
+    }
 
     setBusy(true);
-    runServer('loadResponse', { grade: g, classNum: c, number: n })
+    runServer('loadStudentReport', { grade: g, classNum: c, number: n, password: p })
       .then(function (res) {
         if (!res || !res.found) {
           $('reportResultContainer').innerHTML = '<div class="stage-card" style="text-align:center; padding:30px 20px; color:var(--text-muted);">' +
@@ -2746,6 +2795,7 @@
     $('btnBackFromReport').onclick = function () { switchMode('student'); };
     $('btnQueryReport').onclick = queryStudentReport;
     $('repNumberInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') queryStudentReport(); });
+    $('repPasswordInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') queryStudentReport(); });
 
     $('teacherToggleBtn').onclick = function () { switchMode(state.mode === 'teacher' ? 'student' : 'teacher'); };
     $('btnBackToStudent').onclick = function () { switchMode('student'); };
