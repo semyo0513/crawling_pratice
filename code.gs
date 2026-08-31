@@ -196,13 +196,10 @@ function handleSave_(payload, intendedStatus) {
     if (idx > -1) {
       const existing = rowToRecord_(data[idx]);
       prevStatus = existing.status;
-
       if (prevStatus === 'GRADED') {
         throw new Error('이미 채점이 완료된 활동지는 수정할 수 없습니다.');
       }
-      if (intendedStatus === 'DRAFT' && prevStatus === 'SUBMITTED') {
-        throw new Error('이미 제출된 활동지입니다. 수정을 원하시면 선생님께 반려를 요청하세요.');
-      }
+      // 제출 완료(SUBMITTED) 상태라도 채점(GRADED) 전이라면 수정 및 재제출 허용
 
       // 비밀번호 일치 여부 확인
       if (existing.password && payload.password) {

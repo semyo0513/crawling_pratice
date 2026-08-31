@@ -2455,6 +2455,7 @@
     if (stepIndex === 4) {
       $('btnNextStep').style.display = 'none';
       $('btnSubmitForm').style.display = state.locked ? 'none' : 'inline-flex';
+      $('btnSubmitText').textContent = (state.loadedStatus === 'SUBMITTED') ? '🚀 수정된 사건 일지 다시 제출하기' : '🚀 최종 사건 일지 제출하기';
     } else {
       $('btnNextStep').style.display = 'inline-flex';
       $('btnSubmitForm').style.display = 'none';
@@ -2652,7 +2653,7 @@
       html = '<span>📝</span> <div><strong>임시저장된 사건 일지입니다.</strong> 단계를 완료한 후 최종 제출하세요.</div>';
     } else if (s === 'SUBMITTED') {
       el.className = 'status-banner submitted';
-      html = '<span>✅</span> <div><strong>제출 완료!</strong> 사령관(교사)의 확인 및 채점을 대기 중입니다.</div>';
+      html = '<span>✅</span> <div><strong>사건 일지 제출 완료! (사령관 채점 대기 중)</strong><br><span style="font-size:0.83rem; opacity:0.95;">💡 채점이 완료되기 전까지 언제든지 내용을 수정하여 다시 제출할 수 있습니다.</span></div>';
     } else if (s === 'RETURNED') {
       el.className = 'status-banner returned';
       html = '<span>↩️</span> <div><strong>수사 일지가 반려되었습니다.</strong> 사유를 확인하고 보완하여 다시 제출하세요.<br>' +
@@ -2660,7 +2661,7 @@
     } else if (s === 'GRADED') {
       el.className = 'status-banner graded';
       html = '<span>🏆</span> <div><strong>채점 완료!</strong> ' + (state.student.score !== '' && state.student.score != null ? '<strong>' + escAttr(state.student.score) + '점</strong>' : '') +
-        (state.student.feedback ? '<br><strong>교사 피드백:</strong> ' + escHtml(state.student.feedback) : '') + '</div>';
+        (state.student.feedback ? '<br><strong>교사 피드백:</strong> ' + escHtml(state.student.feedback) : '') + ' (최종 확정 잠금)</div>';
     }
     el.innerHTML = html;
   }
@@ -2743,7 +2744,7 @@
     state.student.feedback = rec.feedback;
     state.student.returnReason = rec.returnReason;
     state.loadedStatus = rec.status || '';
-    state.locked = (rec.status === 'SUBMITTED' || rec.status === 'GRADED');
+    state.locked = (rec.status === 'GRADED'); // 채점 완료(GRADED)일 때만 잠금!
 
     $('channelInput').value = state.student.channelName;
     $('videoInput').value = state.student.videoTitle;
@@ -2804,18 +2805,23 @@
 
   function submitForm() {
     if (!validateStudent(false)) return;
-    showConfirm('최종 사건 일지를 제출할까요? 제출 후에는 사령관 확인 전까지 수정할 수 없습니다.', '제출하기').then(function (ok) {
+    var isReSubmit = (state.loadedStatus === 'SUBMITTED');
+    var confirmMsg = isReSubmit
+      ? '수정한 사건 일지를 다시 제출하시겠습니까? (사령관 채점 전까지 계속 수정 가능)'
+      : '최종 사건 일지를 제출하시겠습니까? (사령관 채점 전까지 계속 수정 가능)';
+
+    showConfirm(confirmMsg, '제출하기').then(function (ok) {
       if (!ok) return;
       setBusy(true);
       runServer('submit', collectPayload()).then(function (data) {
         state.student.id = data.id;
         state.loadedStatus = data.status;
-        state.locked = true;
+        state.locked = false; // 채점 전까지는 계속 수정 가능 유지!
         renderAllSteps();
         renderStatusBanner();
-        $('btnSubmitForm').style.display = 'none';
+        $('btnSubmitText').textContent = '🚀 수정된 사건 일지 다시 제출하기';
         triggerConfetti();
-        toast('🎉 사건 일지가 성공적으로 최종 제출되었습니다! 수고하셨습니다!', 'ok');
+        toast('🎉 사건 일지가 성공적으로 ' + (isReSubmit ? '수정 제출' : '최종 제출') + '되었습니다! ✨', 'ok');
       }).catch(function (err) { toast(err.message, 'error'); }).finally(function () { setBusy(false); });
     });
   }
