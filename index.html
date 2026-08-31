@@ -33,18 +33,26 @@
     --radius-lg: 20px;
   }
 
-  html, body {
+  html {
+    width: 100%;
     height: 100%;
-    height: 100vh;
-    height: 100dvh;
-    overflow: hidden !important;
     margin: 0;
     padding: 0;
-    scroll-behavior: auto !important;
-    overflow-anchor: none !important;
+    overflow: hidden !important;
   }
 
   body {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden !important;
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     background-color: var(--bg-base);
     background-image: 
@@ -3897,9 +3905,11 @@
     applyFullSettings(defaultFullSettings);
     renderStatusBanner();
     goToStep(0, false);
+    forceScrollTop();
   }
 
   document.addEventListener('DOMContentLoaded', init);
+  window.addEventListener('load', forceScrollTop);
 })();
 </script>
 </body>
