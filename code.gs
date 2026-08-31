@@ -423,7 +423,7 @@ function handleTextMining_(payload) {
   const gradeFilter = payload && payload.grade ? String(payload.grade) : '';
   const classFilter = payload && payload.classNum ? String(payload.classNum) : '';
 
-  // 불용어 (조사, 어미, 특수문자, 의미 없는 일반 단어)
+  // 1. 한국어 불용어 사전
   const STOPWORDS = {
     '영상': true, '댓글': true, '내용': true, '질문': true, '작성자': true, '생각': true,
     '사람': true, '때문': true, '대한': true, '통해': true, '위해': true, '관련': true,
@@ -433,11 +433,48 @@ function handleTextMining_(payload) {
     '저것': true, '부분': true, '하나': true, '모두': true, '모든': true, '다른': true,
     '경우': true, '사실': true, '활동': true, '요원': true, '학생': true, '수사': true,
     '일지': true, '단서': true, '호기심': true, '의문': true, '비판': true, '결론': true,
-    '추론': true, '인용': true, '문제': true, '유튜브': true, '채널': true, '제목': true,
-    '있을까': true, '있는가': true, '하는가': true, '했는가': true, '되는가': true,
-    '아닌가': true, '아닐까': true, '있다고': true, '한다고': true, '보인다': true,
-    '그리고': true, '하지만': true, '그러나': true, '따라서': true, '그래서': true
+    '추론': true, '인용': true, '유튜브': true, '채널': true, '제목': true, '이야기': true,
+    '그리고': true, '하지만': true, '그러나': true, '따라서': true, '그래서': true, '또한': true
   };
+
+  // 2. 한국어 조사 및 어미 (긴 어미/조사부터 순서대로 매칭)
+  const JOSA_EOMI_LIST = [
+    '이라는것', '이라는점', '이라고는', '이라면서', '이라던가', '이었을까', '이었는지',
+    '에서도', '에서는', '에게는', '한테는', '으로부터', '이지만', '이라서', '이라고', '이라며', '이라는', '보다는',
+    '처럼은', '만큼은', '까지는', '부터는', '하다가', '하는데', '하면서', '하였고', '하도록', '하여서', '하니까',
+    '하려면', '하였을', '되었을', '됐는지', '스럽다', '스러운', '적인것', '적으로', '적이다', '스러움',
+    '에서', '으로', '에게', '한테', '와의', '과의', '에는', '에도', '처럼', '같이', '보다', '대로', '만큼',
+    '조차', '마저', '부터', '까지', '마다', '이나', '이란', '이라', '이다', '이며', '이고', '이면', '인데',
+    '해서', '했다', '한다', '했던', '하기', '하는', '하면', '할수', '된것', '있는', '있을', '없을', '없는',
+    '같다', '같은', '스러', '되고', '되며', '되면', '들의', '들을', '들에', '들이', '이나', '이라', '에는',
+    '은', '는', '이', '가', '을', '를', '의', '에', '로', '과', '와', '도', '만', '들'
+  ];
+
+  function refineKoreanMorpheme(rawWord) {
+    if (!rawWord || typeof rawWord !== 'string') return '';
+    let word = rawWord.trim();
+    if (word.length < 2) return '';
+
+    // 특수문자 및 숫자 제거
+    word = word.replace(/[^가-힣a-zA-Z]/g, '');
+    if (word.length < 2 || word.length > 15) return '';
+
+    // 조사/어미 제거 (어간 추출)
+    for (let i = 0; i < JOSA_EOMI_LIST.length; i++) {
+      const suffix = JOSA_EOMI_LIST[i];
+      if (word.length > suffix.length + 1 && word.endsWith(suffix)) {
+        const stem = word.slice(0, -suffix.length);
+        if (stem.length >= 2) {
+          word = stem;
+          break; // 가장 긴 접미사 1회 제거
+        }
+      }
+    }
+
+    if (word.length < 2) return '';
+    if (STOPWORDS[word]) return '';
+    return word;
+  }
 
   const wordCounts = {};
   const stageWords = { step1: {}, step2: {}, step3: {}, step4: {} };
@@ -447,18 +484,15 @@ function handleTextMining_(payload) {
 
   function extractWords(text, stageKey) {
     if (!text || typeof text !== 'string') return;
-    // 2글자 이상의 한글/영문 단어 추출
-    const tokens = text.replace(/[^가-힣a-zA-Z0-9\s]/g, ' ').split(/\s+/);
-    tokens.forEach(function (token) {
-      const clean = token.trim();
-      if (clean.length < 2 || clean.length > 12) return;
-      if (STOPWORDS[clean]) return;
-      if (/^\d+$/.test(clean)) return; // 순수 숫자 제외
+    const rawTokens = text.replace(/[^가-힣a-zA-Z0-9\s]/g, ' ').split(/\s+/);
+    rawTokens.forEach(function (token) {
+      const refined = refineKoreanMorpheme(token);
+      if (!refined) return;
 
       totalWordCount++;
-      wordCounts[clean] = (wordCounts[clean] || 0) + 1;
+      wordCounts[refined] = (wordCounts[refined] || 0) + 1;
       if (stageKey && stageWords[stageKey]) {
-        stageWords[stageKey][clean] = (stageWords[stageKey][clean] || 0) + 1;
+        stageWords[stageKey][refined] = (stageWords[stageKey][refined] || 0) + 1;
       }
     });
   }

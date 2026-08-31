@@ -73,51 +73,78 @@
     position: sticky;
     top: 0;
     z-index: 60;
-    background: rgba(15, 23, 42, 0.88);
+    background: rgba(15, 23, 42, 0.92);
     backdrop-filter: blur(14px);
     border-bottom: 1px solid var(--border-dark);
   }
   .hq-inner {
-    max-width: 920px;
+    max-width: 960px;
     margin: 0 auto;
-    padding: 12px 18px;
+    padding: 10px 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
   }
   .hq-brand {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     color: var(--text-bright);
     font-weight: 900;
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     letter-spacing: -0.5px;
+    cursor: pointer;
   }
   .hq-badge {
     background: linear-gradient(135deg, #06B6D4, #6366F1);
     color: white;
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 800;
-    padding: 3px 8px;
+    padding: 2px 7px;
     border-radius: 4px;
     letter-spacing: 0.5px;
     text-transform: uppercase;
     box-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
+  }
+  .header-nav-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .nav-btn {
+    height: 36px;
+    padding: 0 13px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    white-space: nowrap;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .nav-btn:hover {
+    transform: translateY(-1px);
   }
 
   /* 스테이지 위저드 맵 */
   .stage-tracker-wrap {
     background: rgba(15, 23, 42, 0.95);
     border-bottom: 1px solid var(--border-dark);
-    padding: 10px 14px;
+    padding: 8px 14px;
     overflow-x: auto;
     scrollbar-width: none;
   }
   .stage-tracker-wrap::-webkit-scrollbar { display: none; }
   
   .stage-steps-list {
-    max-width: 920px;
+    max-width: 960px;
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -127,16 +154,16 @@
   }
   .stage-step-btn {
     flex: 1;
-    min-width: 130px;
+    min-width: 120px;
     background: rgba(30, 41, 59, 0.7);
     border: 1px solid var(--border-dark);
     border-radius: var(--radius-sm);
-    padding: 8px 10px;
+    padding: 7px 9px;
     color: var(--text-muted);
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 7px;
     transition: all 0.25s ease;
     text-align: left;
   }
@@ -155,11 +182,11 @@
     color: var(--emerald-neon);
   }
   .step-num {
-    width: 22px; height: 22px;
+    width: 20px; height: 20px;
     border-radius: 50%;
     background: var(--border-dark);
     color: var(--text-muted);
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 900;
     display: flex;
     align-items: center;
@@ -175,14 +202,14 @@
     background: var(--emerald-neon);
     color: #0F172A;
   }
-  .step-label-title { font-size: 0.8rem; font-weight: 800; line-height: 1.2; white-space: nowrap; }
-  .step-label-sub { font-size: 0.68rem; color: var(--text-muted); white-space: nowrap; }
+  .step-label-title { font-size: 0.78rem; font-weight: 800; line-height: 1.2; white-space: nowrap; }
+  .step-label-sub { font-size: 0.65rem; color: var(--text-muted); white-space: nowrap; }
 
-  /* 메인 컨테이너 */
+  /* 메인 컨테이너 (상단 여백 최소화) */
   .main-container {
-    max-width: 900px;
+    max-width: 920px;
     margin: 0 auto;
-    padding: 24px 16px 110px;
+    padding: 16px 16px 100px;
   }
 
   /* 퀘스트 스테이지 카드 */
@@ -486,40 +513,42 @@
     background: rgba(15, 23, 42, 0.95);
     backdrop-filter: blur(14px);
     border-top: 1px solid var(--border-dark);
-    padding: 14px 18px;
+    padding: 10px 16px;
     z-index: 50;
   }
   .step-control-inner {
-    max-width: 900px;
+    max-width: 960px;
     margin: 0 auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
+    gap: 8px;
   }
 
-  /* 버튼들 */
+  /* 버튼 통일 규격 */
   .btn {
-    padding: 12px 20px;
+    height: 44px;
+    padding: 0 18px;
     border-radius: var(--radius-sm);
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     font-weight: 800;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     border: 1px solid transparent;
     transition: all 0.2s ease;
+    white-space: nowrap;
   }
   .btn:disabled { opacity: 0.45; cursor: not-allowed; }
-  .btn-prev { background: var(--bg-card); border-color: var(--border-dark); color: var(--text-normal); }
+  .btn-prev { background: var(--bg-card); border-color: var(--border-dark); color: var(--text-normal); flex: 0.8; min-width: 90px; }
   .btn-prev:hover { background: var(--bg-card-hover); color: var(--text-bright); }
-  .btn-save-draft { background: rgba(30, 41, 59, 0.8); border-color: var(--border-dark); color: var(--amber-neon); }
+  .btn-save-draft { background: rgba(30, 41, 59, 0.8); border-color: var(--border-dark); color: var(--amber-neon); flex: 0.9; min-width: 100px; }
   .btn-save-draft:hover { background: rgba(245, 158, 11, 0.15); border-color: var(--amber-neon); }
-  .btn-next-step { background: linear-gradient(135deg, #6366F1, #06B6D4); color: white; box-shadow: 0 0 16px rgba(99, 102, 241, 0.4); flex: 1.2; }
+  .btn-next-step { background: linear-gradient(135deg, #6366F1, #06B6D4); color: white; box-shadow: 0 0 16px rgba(99, 102, 241, 0.4); flex: 1.4; min-width: 140px; }
   .btn-next-step:hover { transform: translateY(-1px); box-shadow: 0 0 22px rgba(6, 182, 212, 0.6); }
-  .btn-submit-final { background: linear-gradient(135deg, #10B981, #06B6D4); color: #0F172A; box-shadow: 0 0 18px rgba(16, 185, 129, 0.5); flex: 1.4; }
+  .btn-submit-final { background: linear-gradient(135deg, #10B981, #06B6D4); color: #0F172A; box-shadow: 0 0 18px rgba(16, 185, 129, 0.5); flex: 1.6; min-width: 150px; }
   .btn-submit-final:hover { transform: translateY(-1px); box-shadow: 0 0 25px rgba(16, 185, 129, 0.8); }
 
   /* 상태 알림 */
@@ -1000,17 +1029,17 @@
       <span id="navAppTitle">미디어 팩트체크 탐정 수사본부</span>
       <span class="hq-badge" id="navBadge">MISSION V2.0</span>
     </div>
-    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-      <button type="button" class="btn btn-save-draft" style="padding: 7px 12px; font-size: 0.85rem; background: linear-gradient(135deg, #6366F1, #06B6D4); border-color: #06B6D4;" id="btnOpenTextMining">
+    <div class="header-nav-group">
+      <button type="button" class="nav-btn" style="background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(6,182,212,0.2)); border: 1px solid var(--cyan-neon); color: var(--cyan-neon);" id="btnOpenTextMining">
         🧠 텍스트 마이닝
       </button>
-      <button type="button" class="btn btn-save-draft" style="padding: 7px 12px; font-size: 0.85rem; background: linear-gradient(135deg, #EC4899, #8B5CF6); border-color: #EC4899;" id="btnOpenArchiveFeed">
+      <button type="button" class="nav-btn" style="background: linear-gradient(135deg, rgba(236,72,153,0.2), rgba(139,92,246,0.2)); border: 1px solid #EC4899; color: #F472B6;" id="btnOpenArchiveFeed">
         📸 수사 아카이브
       </button>
-      <button type="button" class="btn btn-save-draft" style="padding: 7px 12px; font-size: 0.85rem;" id="btnOpenReportView">
-        🏆 내 평가 결과 보기
+      <button type="button" class="nav-btn" style="background: rgba(30,41,59,0.8); border: 1px solid var(--amber-neon); color: var(--amber-neon);" id="btnOpenReportView">
+        🏆 내 평가 결과
       </button>
-      <button type="button" class="btn btn-prev" style="padding: 7px 12px; font-size: 0.85rem;" id="teacherToggleBtn">
+      <button type="button" class="nav-btn" style="background: var(--bg-card); border: 1px solid var(--border-dark); color: var(--text-normal);" id="teacherToggleBtn">
         👩‍🏫 사령관 모드
       </button>
     </div>
