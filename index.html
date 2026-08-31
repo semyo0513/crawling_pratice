@@ -2456,10 +2456,11 @@
   function goToStep(stepIndex, autoSave) {
     if (stepIndex < 0 || stepIndex > 4) return;
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
-    if (autoSave && state.currentStep > 0 && state.student.name.trim()) silentDraftSave();
 
+    var prevStep = state.currentStep;
     state.currentStep = stepIndex;
 
+    // 1. 화면 전환 최우선 즉시 렌더링
     for (var i = 0; i <= 4; i++) {
       var sec = $('stepSection' + i);
       if (sec) sec.style.display = (i === stepIndex) ? 'block' : 'none';
@@ -2485,6 +2486,15 @@
     requestAnimationFrame(forceScrollTop);
     setTimeout(forceScrollTop, 50);
     setTimeout(forceScrollTop, 150);
+
+    // 2. 자동 저장은 화면 전환 완료 후 백그라운드에서 안전하게 실행
+    if (autoSave && prevStep > 0 && state.student.name && state.student.name.trim()) {
+      try {
+        silentDraftSave();
+      } catch (err) {
+        console.warn('AutoSave trigger error:', err);
+      }
+    }
   }
 
   function silentDraftSave() {
@@ -2778,13 +2788,13 @@
   }
 
   function syncInputsToState() {
-    if ($('gradeInput')) state.student.grade = $('gradeInput').value.trim();
-    if ($('classInput')) state.student.classNum = $('classInput').value.trim();
-    if ($('numberInput')) state.student.number = $('numberInput').value.trim();
-    if ($('nameInput')) state.student.name = $('nameInput').value.trim();
-    if ($('passwordInput')) state.student.password = $('passwordInput').value.trim();
-    if ($('channelInput')) state.student.channelName = $('channelInput').value.trim();
-    if ($('videoInput')) state.student.videoTitle = $('videoInput').value.trim();
+    if ($('gradeInput') && $('gradeInput').value.trim()) state.student.grade = $('gradeInput').value.trim();
+    if ($('classInput') && $('classInput').value.trim()) state.student.classNum = $('classInput').value.trim();
+    if ($('numberInput') && $('numberInput').value.trim()) state.student.number = $('numberInput').value.trim();
+    if ($('nameInput') && $('nameInput').value.trim()) state.student.name = $('nameInput').value.trim();
+    if ($('passwordInput') && $('passwordInput').value.trim()) state.student.password = $('passwordInput').value.trim();
+    if ($('channelInput') && $('channelInput').value.trim()) state.student.channelName = $('channelInput').value.trim();
+    if ($('videoInput') && $('videoInput').value.trim()) state.student.videoTitle = $('videoInput').value.trim();
     if ($('ytUrlInput') && $('ytUrlInput').value.trim()) state.student.videoUrl = $('ytUrlInput').value.trim();
   }
 
