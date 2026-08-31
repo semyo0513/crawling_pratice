@@ -619,7 +619,70 @@
     max-width: 500px; width: 100%; padding: 24px; box-shadow: 0 0 30px rgba(6, 182, 212, 0.25);
   }
 
-  #confettiCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999999; }
+  @media print {
+    body { background: white !important; color: black !important; }
+    .hq-header, .stage-tracker-wrap, .step-control-bar, .teacher-tabs, .btn, #confettiCanvas, #toast { display: none !important; }
+    .main-container { padding: 0 !important; max-width: 100% !important; }
+    .stage-card { box-shadow: none !important; border: 1px solid #ccc !important; background: white !important; color: black !important; }
+    .mission-brief { background: #f8fafc !important; color: black !important; border: 1px solid #ddd !important; }
+    .mission-title, .mission-tag, strong { color: black !important; }
+    .clue-entry-card { background: white !important; border: 1px solid #ddd !important; color: black !important; }
+  }
+
+  /* 🎖️ 학생 평가 결과 보고서 전용 스타일 */
+  .certificate-box {
+    background: linear-gradient(135deg, #1E1B4B 0%, #0F172A 100%);
+    border: 2px solid var(--cyan-neon);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: 0 0 35px rgba(6, 182, 212, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  .cert-stamp {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    width: 90px;
+    height: 90px;
+    border: 3px dashed var(--emerald-neon);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--emerald-neon);
+    font-weight: 900;
+    font-size: 0.85rem;
+    transform: rotate(-15deg);
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 1.2;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+  }
+  .score-badge-large {
+    font-size: 3rem;
+    font-weight: 900;
+    font-family: 'Orbitron', sans-serif;
+    color: var(--cyan-neon);
+    text-shadow: 0 0 20px var(--cyan-neon);
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+  .score-unit {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+  }
+  .feedback-bubble {
+    background: rgba(99, 102, 241, 0.15);
+    border-left: 5px solid var(--primary);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    padding: 16px 20px;
+    margin: 18px 0;
+    font-size: 1rem;
+    color: var(--text-bright);
+    line-height: 1.6;
+  }
 </style>
 </head>
 <body>
@@ -630,14 +693,17 @@
 <!-- 상단 헤더 -->
 <header class="hq-header">
   <div class="hq-inner">
-    <div class="hq-brand">
+    <div class="hq-brand" style="cursor: pointer;" id="brandLogo">
       <span>🕵️‍♂️</span>
       <span id="navAppTitle">미디어 팩트체크 탐정 수사본부</span>
       <span class="hq-badge" id="navBadge">MISSION V2.0</span>
     </div>
-    <div>
-      <button type="button" class="btn btn-prev" style="padding: 7px 14px; font-size: 0.85rem;" id="teacherToggleBtn">
-        👩‍🏫 사령관(교사) 모드
+    <div style="display: flex; gap: 8px;">
+      <button type="button" class="btn btn-save-draft" style="padding: 7px 12px; font-size: 0.85rem;" id="btnOpenReportView">
+        🏆 내 평가 결과 보기
+      </button>
+      <button type="button" class="btn btn-prev" style="padding: 7px 12px; font-size: 0.85rem;" id="teacherToggleBtn">
+        👩‍🏫 사령관 모드
       </button>
     </div>
   </div>
@@ -871,7 +937,46 @@
 
 
 <!-- ============================================================ -->
-<!-- 2. 교사 사령관 관리 뷰 (Teacher Command Center) -->
+<!-- 2. 학생 평가 결과보기 전용 뷰 (Student Report View) -->
+<!-- ============================================================ -->
+<main id="studentReportView" class="main-container" style="display: none;">
+  
+  <!-- 조회 검색창 -->
+  <div class="stage-card" style="margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+      <h2 style="font-size: 1.25rem; font-weight: 900; color: var(--cyan-neon); display: flex; align-items: center; gap: 8px;">
+        <span>🏆</span> 내 수사 평가 결과 조회
+      </h2>
+      <button type="button" class="btn btn-prev" id="btnBackFromReport" style="padding: 6px 12px; font-size: 0.82rem;">
+        ← 활동지 작성으로
+      </button>
+    </div>
+    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;">
+      학년, 반, 번호를 입력하면 선생님의 채점 점수와 피드백, 수사 인증서를 확인할 수 있습니다.
+    </p>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1.2fr; gap: 10px;">
+      <input type="number" id="repGradeInput" class="form-control" placeholder="학년 (예: 1)" min="1" max="6">
+      <input type="number" id="repClassInput" class="form-control" placeholder="반 (예: 3)" min="1" max="20">
+      <input type="number" id="repNumberInput" class="form-control" placeholder="번호 (예: 12)" min="1" max="45">
+      <button type="button" class="btn btn-next-step" id="btnQueryReport" style="padding: 10px 14px;">
+        결과 조회 🔍
+      </button>
+    </div>
+  </div>
+
+  <!-- 결과 카드 컨테이너 -->
+  <div id="reportResultContainer">
+    <div class="stage-card" style="text-align: center; color: var(--text-muted); padding: 40px 20px;">
+      <div style="font-size: 3rem; margin-bottom: 10px;">📜</div>
+      <p style="font-size: 1rem; font-weight: 700;">학년, 반, 번호를 입력하고 [결과 조회] 버튼을 누르세요.</p>
+    </div>
+  </div>
+</main>
+
+
+<!-- ============================================================ -->
+<!-- 3. 교사 사령관 관리 뷰 (Teacher Command Center) -->
 <!-- ============================================================ -->
 <main id="teacherView" class="main-container" style="display: none;">
   
@@ -2164,14 +2269,121 @@
     });
   }
 
-  /* 교사 모드 */
+  /* 뷰 전환 모드 (student / report / teacher) */
   function switchMode(mode) {
     state.mode = mode;
     $('studentView').style.display = (mode === 'student') ? 'block' : 'none';
     $('studentStageTracker').style.display = (mode === 'student') ? 'block' : 'none';
+    $('studentReportView').style.display = (mode === 'report') ? 'block' : 'none';
     $('teacherView').style.display = (mode === 'teacher') ? 'block' : 'none';
-    $('teacherToggleBtn').textContent = (mode === 'teacher') ? '🎒 수사요원 화면' : '👩‍🏫 사령관(교사) 모드';
+    
+    $('teacherToggleBtn').textContent = (mode === 'teacher') ? '🎒 수사요원 화면' : '👩‍🏫 사령관 모드';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+
+  /* ============================================================ */
+  /* 🏆 학생 평가 결과 조회 및 렌더링 로직 */
+  /* ============================================================ */
+  function queryStudentReport() {
+    var g = $('repGradeInput').value;
+    var c = $('repClassInput').value;
+    var n = $('repNumberInput').value;
+    if (!g || !c || !n) {
+      toast('학년, 반, 번호를 모두 입력해 주세요.', 'error');
+      return;
+    }
+
+    setBusy(true);
+    runServer('loadResponse', { grade: g, classNum: c, number: n })
+      .then(function (res) {
+        if (!res || !res.found) {
+          $('reportResultContainer').innerHTML = '<div class="stage-card" style="text-align:center; padding:30px 20px; color:var(--text-muted);">' +
+            '<div style="font-size:2.5rem; margin-bottom:8px;">🔍</div>' +
+            '<h3 style="font-size:1.1rem; font-weight:800; color:var(--text-bright); margin-bottom:4px;">제출된 수사 일지를 찾을 수 없습니다.</h3>' +
+            '<p style="font-size:0.85rem;">학년, 반, 번호를 다시 확인해 주세요.</p></div>';
+          return;
+        }
+        renderStudentReportResult(res.record);
+      })
+      .catch(function (err) { toast(err.message, 'error'); })
+      .finally(function () { setBusy(false); });
+  }
+
+  function renderStudentReportResult(rec) {
+    var isGraded = (rec.status === 'GRADED');
+    var isReturned = (rec.status === 'RETURNED');
+    var isSubmitted = (rec.status === 'SUBMITTED');
+    var isDraft = (rec.status === 'DRAFT');
+
+    var scoreHtml = '';
+    if (isGraded && rec.score !== '' && rec.score != null) {
+      scoreHtml = '<div class="score-badge-large">' + escAttr(rec.score) + '<span class="score-unit">/ 100점</span></div>';
+    } else if (isGraded) {
+      scoreHtml = '<div style="font-size:1.5rem; font-weight:900; color:var(--violet-neon);">채점 완료 🏆</div>';
+    } else if (isReturned) {
+      scoreHtml = '<div style="font-size:1.3rem; font-weight:900; color:var(--rose-neon);">↩️ 재작성 요청 (반려)</div>';
+    } else if (isSubmitted) {
+      scoreHtml = '<div style="font-size:1.3rem; font-weight:900; color:var(--emerald-neon);">⏳ 사령관 채점 대기 중</div>';
+    } else {
+      scoreHtml = '<div style="font-size:1.2rem; font-weight:800; color:var(--amber-neon);">📝 작성 중 (임시저장)</div>';
+    }
+
+    var html = '<div class="certificate-box">' +
+      '<div class="cert-stamp">' +
+        (isGraded ? 'VERIFIED<br>FACT-CHECK' : (isReturned ? 'REVISION<br>NEEDED' : 'SUBMITTED<br>OFFICIAL')) +
+      '</div>' +
+      
+      '<div style="margin-bottom:20px;">' +
+        '<div style="font-size:0.8rem; font-weight:800; color:var(--cyan-neon); letter-spacing:1px; margin-bottom:4px;">OFFICIAL REPORT</div>' +
+        '<h2 style="font-size:1.5rem; font-weight:900; color:var(--text-bright);">' +
+          escAttr(rec.grade) + '학년 ' + escAttr(rec.classNum) + '반 ' + escAttr(rec.number) + '번 요원 [' + escAttr(rec.name) + ']</h2>' +
+        '<p style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">제출시각: ' + escAttr(rec.submittedAt || '-') + ' | 채점시각: ' + escAttr(rec.gradedAt || '-') + '</p>' +
+      '</div>' +
+
+      '<div style="background:rgba(15,23,42,0.8); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:18px; margin-bottom:18px;">' +
+        '<div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:4px;">최종 평가 결과</div>' +
+        scoreHtml +
+      '</div>';
+
+    // 선생님 피드백 또는 반려 사유
+    if (isGraded && rec.feedback) {
+      html += '<div class="feedback-bubble">' +
+        '<strong style="color:var(--cyan-neon); display:block; margin-bottom:4px;">💬 사령관(선생님) 피드백 & 칭찬:</strong>' +
+        escHtml(rec.feedback) +
+        '</div>';
+    } else if (isReturned && rec.returnReason) {
+      html += '<div style="background:rgba(244,63,94,0.15); border-left:5px solid var(--rose-neon); border-radius:0 var(--radius-md) var(--radius-md) 0; padding:16px 20px; margin:18px 0; color:#FECDD3;">' +
+        '<strong style="color:var(--rose-neon); display:block; margin-bottom:4px;">↩️ 수사 일지 반려 사유:</strong>' +
+        escHtml(rec.returnReason) +
+        '</div>';
+    }
+
+    // 시청 영상
+    html += '<div style="background:rgba(30,41,59,0.5); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:14px; margin-bottom:18px;">' +
+      '<div style="font-weight:800; font-size:0.95rem; color:var(--text-bright);">📺 수사 대상 영상: ' + escAttr(rec.videoTitle || '-') + ' (' + escAttr(rec.channelName || '-') + ')</div>' +
+      (rec.videoUrl ? '<div style="margin-top:6px;"><a href="' + escAttr(rec.videoUrl) + '" target="_blank" style="color:var(--cyan-neon); font-size:0.85rem; font-weight:700;">🔗 유튜브 영상 직접 열기</a></div>' : '') +
+      '</div>';
+
+    // 내가 작성한 사건 일지 내용
+    html += renderDetailStep('STAGE 1. 호기심 레이더 기록', rec.step1, ['question', 'answer'], ['호기심 질문', '예상 답안'], 'var(--amber-neon)');
+    html += renderDetailStep('STAGE 2. 의문점 파일링 분석', rec.step2, ['category', 'question'], ['의문 분류', '질문 내용'], 'var(--emerald-neon)');
+    html += renderDetailStep('STAGE 3. 용의자 댓글 심리 수사', rec.step3, ['comment', 'intent'], ['포착 댓글', '작성자 숨은 의도'], 'var(--rose-neon)');
+    html += renderDetailStep('STAGE 4. 팩트체커 최종 비판 결론', rec.step4, ['quote', 'background', 'limitation'], ['핵심 댓글', '작성자 배경 추론', '미디어 한계 파악'], 'var(--violet-neon)');
+
+    // 하단 액션 버튼
+    html += '<div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">' +
+      '<button type="button" class="btn btn-prev" onclick="window.print()">🖨️ 인증서 인쇄 / PDF 저장</button>' +
+      (isReturned || isDraft ? '<button type="button" class="btn btn-next-step" onclick="loadStudentForEdit(\'' + escAttr(rec.id) + '\')">✍️ 수사 일지 수정하러 가기</button>' : '') +
+      '</div></div>';
+
+    $('reportResultContainer').innerHTML = html;
+    if (isGraded) triggerConfetti();
+  }
+
+  window.loadStudentForEdit = function () {
+    switchMode('student');
+    tryLoadExisting();
+  };
 
   function teacherLogin() {
     var pw = $('teacherPwInput').value;
@@ -2528,7 +2740,14 @@
 
     bindStudentFields();
 
-    $('teacherToggleBtn').onclick = function () { switchMode(state.mode === 'student' ? 'teacher' : 'student'); };
+    // 상단 네비 및 모드 전환
+    $('brandLogo').onclick = function () { switchMode('student'); };
+    $('btnOpenReportView').onclick = function () { switchMode('report'); };
+    $('btnBackFromReport').onclick = function () { switchMode('student'); };
+    $('btnQueryReport').onclick = queryStudentReport;
+    $('repNumberInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') queryStudentReport(); });
+
+    $('teacherToggleBtn').onclick = function () { switchMode(state.mode === 'teacher' ? 'student' : 'teacher'); };
     $('btnBackToStudent').onclick = function () { switchMode('student'); };
     $('btnTeacherLogin').onclick = teacherLogin;
     $('teacherPwInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') teacherLogin(); });
