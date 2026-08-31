@@ -4,7 +4,7 @@
  * ----------------------------------------------------------------
  *  - 학생: 방탈출 퀘스트 단계별 진행, 스텝 전환 시 자동 임시저장, 유튜브 자동완성
  *  - 교사: 제출 현황 관리, 시청 콘텐츠 통계 분석, 문항 설정, 비밀번호 변경, 채점/피드백
- *  - 통신: google.script.run (GAS) + doPost JSON API (GitHub 배포 완벽 지원)
+ *  - 비밀번호/설정: 구글 시트의 [관리자설정] 시트에 직접 평문으로 저장/관리
  * ================================================================
  */
 
@@ -13,14 +13,15 @@
  *  ───────────────────────────────────────── */
 const CONFIG = {
   ACTIVITY_TITLE: '미디어 팩트체크 탐정 수사본부',
-  SHEET_NAME: '학생응답',
-  SETTINGS_PROP_KEY: 'ACTIVITY_CUSTOM_SETTINGS',
+  STUDENT_SHEET_NAME: '학생응답',
+  SETTINGS_SHEET_NAME: '관리자설정',
+  DEFAULT_PASSWORD: '1234',
   TEACHER_SESSION_TTL: 6 * 60 * 60, // 6시간
   MAX_ROWS: { STEP1: 10, STEP2: 10, STEP3: 15, STEP4: 6 },
   MAX_TEXT_LENGTH: 2000
 };
 
-// 시트 헤더 컬럼 정의
+// 학생응답 시트 헤더
 const HEADERS = [
   'ID', '활동명', '제출시각', '수정시각',
   '학년', '반', '번호', '이름',
@@ -34,7 +35,7 @@ const HEADERS = [
  *  1. 웹앱 진입점 (doGet / doPost)
  *  ───────────────────────────────────────── */
 function doGet(e) {
-  ensureSheet_();
+  ensureAllSheets_();
   
   if (e && e.parameter && e.parameter.action) {
     const result = dispatch(e.parameter.action, e.parameter);
@@ -52,7 +53,7 @@ function doGet(e) {
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
-/** 깃허브 페이지 등 외부 배포용 POST 요청 엔드포인트 */
+/** 깃허브 배포본 fetch용 엔드포인트 */
 function doPost(e) {
   try {
     let payload = {};
@@ -76,7 +77,7 @@ function doPost(e) {
   }
 }
 
-/** 단일 라우터 */
+/** 라우터 */
 function dispatch(action, payload) {
   try {
     switch (action) {
@@ -110,7 +111,7 @@ function handleGetPublicConfig_() {
 
 function handleLoadResponse_(payload) {
   if (!payload) throw new Error('조회할 학생 정보가 없습니다.');
-  const sheet = getSheet_();
+  const sheet = getStudentSheet_();
   const data = sheet.getDataRange().getValues();
 
   let idx = -1;
@@ -132,7 +133,7 @@ function handleSave_(payload, intendedStatus) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
-    const sheet = getSheet_();
+    const sheet = getStudentSheet_();
     const data = sheet.getDataRange().getValues();
 
     let idx = -1;
@@ -219,22 +220,18 @@ function handleSave_(payload, intendedStatus) {
 }
 
 /** ─────────────────────────────────────────
- *  3. 교사 관리자 기능
+ *  3. 교사 관리자 기능 (평문 비밀번호 검증)
  *  ───────────────────────────────────────── */
 function handleTeacherLogin_(payload) {
-  let storedHash = PropertiesService.getScriptProperties().getProperty('TEACHER_PASSWORD_HASH');
-  
-  if (!storedHash) {
-    storedHash = sha256Hex_('1234');
-    PropertiesService.getScriptProperties().setProperty('TEACHER_PASSWORD_HASH', storedHash);
-  }
-
   if (!payload || !payload.password) {
     throw new Error('비밀번호를 입력해 주세요.');
   }
-  if (sha256Hex_(payload.password) !== storedHash) {
-    throw new Error('비밀번호가 일치하지 않습니다.');
+
+  const storedPassword = getTeacherPasswordFromSheet_();
+  if (String(payload.password).trim() !== String(storedPassword).trim()) {
+    throw new Error('비밀번호가 일치하지 않습니다. (구글 시트 [관리자설정] 시트에서 확인 가능)');
   }
+
   const token = Utilities.getUuid();
   CacheService.getScriptCache().put('teacher_' + token, 'valid', CONFIG.TEACHER_SESSION_TTL);
   return { token: token };
@@ -245,16 +242,18 @@ function handleChangePassword_(payload) {
   if (!payload || !payload.newPassword) {
     throw new Error('새 비밀번호를 입력해 주세요.');
   }
-  if (payload.newPassword.length < 4) {
+  const newPw = String(payload.newPassword).trim();
+  if (newPw.length < 4) {
     throw new Error('비밀번호는 최소 4자리 이상이어야 합니다.');
   }
-  PropertiesService.getScriptProperties().setProperty('TEACHER_PASSWORD_HASH', sha256Hex_(payload.newPassword));
+
+  setTeacherPasswordToSheet_(newPw);
   return { success: true };
 }
 
 function handleTeacherList_(payload) {
   verifyTeacherToken_(payload && payload.token);
-  const sheet = getSheet_();
+  const sheet = getStudentSheet_();
   const data = sheet.getDataRange().getValues();
   const currentTitle = (getCustomSettings_().activityTitle) || CONFIG.ACTIVITY_TITLE;
 
@@ -282,7 +281,7 @@ function handleTeacherList_(payload) {
 function handleTeacherDetail_(payload) {
   verifyTeacherToken_(payload && payload.token);
   if (!payload || !payload.id) throw new Error('학생 정보를 찾을 수 없습니다.');
-  const sheet = getSheet_();
+  const sheet = getStudentSheet_();
   const data = sheet.getDataRange().getValues();
   const idx = findRowIndexById_(data, payload.id);
   if (idx === -1) throw new Error('해당 학생 응답을 찾을 수 없습니다.');
@@ -313,7 +312,7 @@ function handleTeacherGrade_(payload) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
-    const sheet = getSheet_();
+    const sheet = getStudentSheet_();
     const data = sheet.getDataRange().getValues();
     const idx = findRowIndexById_(data, payload.id);
     if (idx === -1) throw new Error('해당 학생 응답을 찾을 수 없습니다.');
@@ -344,7 +343,7 @@ function handleTeacherReturn_(payload) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
-    const sheet = getSheet_();
+    const sheet = getStudentSheet_();
     const data = sheet.getDataRange().getValues();
     const idx = findRowIndexById_(data, payload.id);
     if (idx === -1) throw new Error('해당 학생 응답을 찾을 수 없습니다.');
@@ -365,7 +364,7 @@ function handleTeacherReturn_(payload) {
  *  ───────────────────────────────────────── */
 function handleTeacherStats_(payload) {
   verifyTeacherToken_(payload && payload.token);
-  const sheet = getSheet_();
+  const sheet = getStudentSheet_();
   const data = sheet.getDataRange().getValues();
 
   let totalCount = 0;
@@ -438,61 +437,123 @@ function handleSaveSettings_(payload) {
   
   const current = getCustomSettings_();
   const updated = Object.assign({}, current, payload.settings);
-  PropertiesService.getScriptProperties().setProperty(CONFIG.SETTINGS_PROP_KEY, JSON.stringify(updated));
+  saveCustomSettingsToSheet_(updated);
   
   if (payload.newPassword) {
-    PropertiesService.getScriptProperties().setProperty('TEACHER_PASSWORD_HASH', sha256Hex_(payload.newPassword));
+    setTeacherPasswordToSheet_(String(payload.newPassword).trim());
   }
   return { ok: true };
 }
 
-function getCustomSettings_() {
-  const raw = PropertiesService.getScriptProperties().getProperty(CONFIG.SETTINGS_PROP_KEY);
-  if (!raw) {
-    return {
-      activityTitle: CONFIG.ACTIVITY_TITLE,
-      stepGuides: {
-        step1: '🔍 [단서 수집 1단계] 영상을 보기 전 썸네일과 제목을 스캔하고 호기심 질문을 던져보세요.',
-        step2: '💡 [단서 수집 2단계] 영상을 시청하며 이해되지 않거나 수상쩍은 부분을 질문 파일로 분류하세요.',
-        step3: '🕵️ [용의자 심리 수사] 댓글 작성자의 숨겨진 의도와 편향된 관점을 추론해보세요.',
-        step4: '⚖️ [최종 팩트체크 결론] 미디어가 은폐하거나 다루지 않은 실질적 한계를 비판적으로 파헤치세요.'
-      },
-      step2Categories: ['이해가 안 되는 부분', '궁금한 점(의문)', '다른 사람 의견이 궁금한 점', '비판적 의문', '기타']
-    };
+/** ─────────────────────────────────────────
+ *  5. 구글 시트 기반 [관리자설정] 및 [학생응답] 관리
+ *  ───────────────────────────────────────── */
+function ensureAllSheets_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  // 1. 학생응답 시트 확인 및 생성
+  let studentSheet = ss.getSheetByName(CONFIG.STUDENT_SHEET_NAME);
+  if (!studentSheet) {
+    studentSheet = ss.insertSheet(CONFIG.STUDENT_SHEET_NAME);
+    studentSheet.appendRow(HEADERS);
+    studentSheet.getRange(1, 1, 1, HEADERS.length)
+      .setFontWeight('bold').setBackground('#0F172A').setFontColor('#38BDF8');
+    studentSheet.setFrozenRows(1);
+    studentSheet.setColumnWidths(1, HEADERS.length, 130);
+    studentSheet.setColumnWidth(HEADERS.indexOf('요약텍스트') + 1, 380);
   }
-  try {
-    return JSON.parse(raw);
-  } catch (e) {
-    return { activityTitle: CONFIG.ACTIVITY_TITLE };
+
+  // 2. 관리자설정 시트 확인 및 생성 (평문 비밀번호 및 설정 저장)
+  let settingsSheet = ss.getSheetByName(CONFIG.SETTINGS_SHEET_NAME);
+  if (!settingsSheet) {
+    settingsSheet = ss.insertSheet(CONFIG.SETTINGS_SHEET_NAME);
+    const settingsHeaders = ['설정항목', '설정값', '설명'];
+    settingsSheet.appendRow(settingsHeaders);
+    settingsSheet.getRange(1, 1, 1, 3)
+      .setFontWeight('bold').setBackground('#1E293B').setFontColor('#38BDF8');
+    settingsSheet.setFrozenRows(1);
+
+    // 기본 행 등록
+    settingsSheet.appendRow(['관리자비밀번호', CONFIG.DEFAULT_PASSWORD, '교사 관리자 화면 로그인 비밀번호 (평문)']);
+    settingsSheet.appendRow(['활동지설정_JSON', '', '문항 및 가이드 커스텀 설정 데이터 (JSON)']);
+
+    settingsSheet.setColumnWidth(1, 180);
+    settingsSheet.setColumnWidth(2, 350);
+    settingsSheet.setColumnWidth(3, 300);
   }
+
+  return { studentSheet: studentSheet, settingsSheet: settingsSheet };
 }
 
-/** ─────────────────────────────────────────
- *  5. 유틸리티 함수 및 시트 관리
- *  ───────────────────────────────────────── */
+function getStudentSheet_() {
+  return ensureAllSheets_().studentSheet;
+}
+
+function getSettingsSheet_() {
+  return ensureAllSheets_().settingsSheet;
+}
+
+/** 구글 시트에서 평문 비밀번호 읽어오기 */
+function getTeacherPasswordFromSheet_() {
+  const sheet = getSettingsSheet_();
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0]).trim() === '관리자비밀번호') {
+      const val = String(data[i][1]).trim();
+      return val ? val : CONFIG.DEFAULT_PASSWORD;
+    }
+  }
+  // 행이 없으면 추가 후 기본값 반환
+  sheet.appendRow(['관리자비밀번호', CONFIG.DEFAULT_PASSWORD, '교사 관리자 화면 로그인 비밀번호 (평문)']);
+  return CONFIG.DEFAULT_PASSWORD;
+}
+
+/** 구글 시트에 평문 비밀번호 쓰기 */
+function setTeacherPasswordToSheet_(newPw) {
+  const sheet = getSettingsSheet_();
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0]).trim() === '관리자비밀번호') {
+      sheet.getRange(i + 1, 2).setValue(String(newPw));
+      return;
+    }
+  }
+  sheet.appendRow(['관리자비밀번호', String(newPw), '교사 관리자 화면 로그인 비밀번호 (평문)']);
+}
+
+/** 구글 시트에서 커스텀 설정 읽어오기 */
+function getCustomSettings_() {
+  const sheet = getSettingsSheet_();
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0]).trim() === '활동지설정_JSON') {
+      const val = data[i][1];
+      if (val) {
+        try { return JSON.parse(val); } catch (e) { }
+      }
+    }
+  }
+  return { activityTitle: CONFIG.ACTIVITY_TITLE };
+}
+
+/** 구글 시트에 커스텀 설정 쓰기 */
+function saveCustomSettingsToSheet_(settings) {
+  const sheet = getSettingsSheet_();
+  const data = sheet.getDataRange().getValues();
+  const jsonStr = JSON.stringify(settings);
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0]).trim() === '활동지설정_JSON') {
+      sheet.getRange(i + 1, 2).setValue(jsonStr);
+      return;
+    }
+  }
+  sheet.appendRow(['활동지설정_JSON', jsonStr, '문항 및 가이드 커스텀 설정 데이터 (JSON)']);
+}
+
 function verifyTeacherToken_(token) {
   if (!token) throw new Error('교사 인증이 필요합니다.');
   const valid = CacheService.getScriptCache().get('teacher_' + token);
   if (valid !== 'valid') throw new Error('로그인이 만료되었습니다. 다시 로그인해 주세요.');
-}
-
-function ensureSheet_() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
-  if (!sheet) {
-    sheet = ss.insertSheet(CONFIG.SHEET_NAME);
-    sheet.appendRow(HEADERS);
-    sheet.getRange(1, 1, 1, HEADERS.length)
-      .setFontWeight('bold').setBackground('#0F172A').setFontColor('#38BDF8');
-    sheet.setFrozenRows(1);
-    sheet.setColumnWidths(1, HEADERS.length, 130);
-    sheet.setColumnWidth(HEADERS.indexOf('요약텍스트') + 1, 380);
-  }
-  return sheet;
-}
-
-function getSheet_() {
-  return ensureSheet_();
 }
 
 function findRowIndexById_(data, id) {
@@ -608,12 +669,6 @@ function validateStepArray_(arr, maxRows, fields, label) {
       }
     });
   });
-}
-
-function sha256Hex_(text) {
-  return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, text, Utilities.Charset.UTF_8)
-    .map(function (b) { return ('0' + (b & 0xFF).toString(16)).slice(-2); })
-    .join('');
 }
 
 function formatDate_(v) {
