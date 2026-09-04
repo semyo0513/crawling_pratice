@@ -2589,13 +2589,45 @@
     }
   }
 
+  /* 로컬 스토리지 기반 0초 초고속 캐싱 헬퍼 */
+  function getStudentCacheKey() {
+    var g = (state.student.grade || ($('gradeInput') ? $('gradeInput').value : '')).trim();
+    var c = (state.student.classNum || ($('classInput') ? $('classInput').value : '')).trim();
+    var n = (state.student.number || ($('numberInput') ? $('numberInput').value : '')).trim();
+    if (!g || !c || !n) return null;
+    return 'factcheck_student_' + g + '_' + c + '_' + n;
+  }
+
+  function saveLocalCache() {
+    var key = getStudentCacheKey();
+    if (!key) return;
+    try {
+      var payload = collectPayload();
+      localStorage.setItem(key, JSON.stringify(payload));
+    } catch (e) { console.warn('LocalCache Save Error:', e); }
+  }
+
+  function loadLocalCache() {
+    var key = getStudentCacheKey();
+    if (!key) return null;
+    try {
+      var raw = localStorage.getItem(key);
+      if (raw) return JSON.parse(raw);
+    } catch (e) { console.warn('LocalCache Load Error:', e); }
+    return null;
+  }
+
   function silentDraftSave() {
+    syncInputsToState();
     if (!state.student.grade || !state.student.classNum || !state.student.number || !state.student.name.trim()) return;
+    saveLocalCache();
     runServer('saveDraft', collectPayload()).then(function (data) {
-      state.student.id = data.id;
-      state.loadedStatus = data.status;
-      renderStatusBanner();
-      toast('💾 작성 내용이 자동 임시저장되었습니다.', 'ok');
+      if (data && data.id) {
+        state.student.id = data.id;
+        state.loadedStatus = data.status;
+        saveLocalCache();
+        renderStatusBanner();
+      }
     }).catch(function (e) { console.warn('AutoSave error:', e); });
   }
 
@@ -2607,8 +2639,13 @@
   }
 
   function fetchYouTubeOEmbed(url) {
-    var videoId = extractYouTubeId(url);
-    if (!videoId) { toast('올바른 유튜브 링크를 입력해 주세요.', 'error'); return Promise.reject(new Error('Invalid URL')); }
+    if (!url || !url.trim()) return Promise.resolve();
+    var cleanUrl = url.trim();
+    var videoId = extractYouTubeId(cleanUrl);
+    if (!videoId) {
+      toast('올바른 유튜브 영상 링크를 입력해 주세요.', 'error');
+      return Promise.reject(new Error('Invalid URL'));
+    }
 
     setBusy(true);
     var oembedUrl = 'https://www.youtube.com/oembed?url=' + encodeURIComponent('https://www.youtube.com/watch?v=' + videoId) + '&format=json';
@@ -2616,23 +2653,39 @@
     return fetch(oembedUrl)
       .then(function (res) { if (!res.ok) throw new Error('fetch failed'); return res.json(); })
       .then(function (data) {
-        var title = data.title || '';
-        var author = data.author_name || '';
+        var title = (data && data.title) ? data.title.trim() : ('수사 타깃 영상 (' + videoId + ')');
+        var author = (data && data.author_name) ? data.author_name.trim() : '유튜브 채널';
         var thumb = 'https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg';
 
-        $('videoInput').value = title;
-        $('channelInput').value = author;
+        if ($('videoInput')) $('videoInput').value = title;
+        if ($('channelInput')) $('channelInput').value = author;
+        if ($('ytUrlInput')) $('ytUrlInput').value = cleanUrl;
         state.student.videoTitle = title;
         state.student.channelName = author;
-        state.student.videoUrl = url;
+        state.student.videoUrl = cleanUrl;
 
         showYouTubeMonitor(videoId, title, author, thumb);
+        saveLocalCache();
         toast('🎯 영상 단서가 성공적으로 추출되었습니다! ✨', 'ok');
       })
       .catch(function () {
+        // oEmbed가 실패하더라도 기본 영상 제목과 채널명을 안전하게 채워서 제출이 누락되지 않도록 방어
+        var curTitle = ($('videoInput') && $('videoInput').value.trim()) ? $('videoInput').value.trim() : '';
+        var curAuthor = ($('channelInput') && $('channelInput').value.trim()) ? $('channelInput').value.trim() : '';
+        var fallbackTitle = curTitle || ('수사 타깃 영상 (' + videoId + ')');
+        var fallbackAuthor = curAuthor || '유튜브 채널';
         var thumb = 'https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg';
-        showYouTubeMonitor(videoId, '유튜브 영상', '유튜브 채널', thumb);
-        toast('영상을 연동했습니다.', 'ok');
+
+        if ($('videoInput')) $('videoInput').value = fallbackTitle;
+        if ($('channelInput')) $('channelInput').value = fallbackAuthor;
+        if ($('ytUrlInput')) $('ytUrlInput').value = cleanUrl;
+        state.student.videoTitle = fallbackTitle;
+        state.student.channelName = fallbackAuthor;
+        state.student.videoUrl = cleanUrl;
+
+        showYouTubeMonitor(videoId, fallbackTitle, fallbackAuthor, thumb);
+        saveLocalCache();
+        toast('영상 링크가 안전하게 연동되었습니다! 🎬', 'ok');
       })
       .finally(function () { setBusy(false); });
   }
@@ -2697,6 +2750,7 @@
           return;
         }
         state.student[stepKey].splice(index, 1);
+        saveLocalCache();
         renderStepList(stepKey);
       };
       wrap.appendChild(delBtn);
@@ -2716,7 +2770,10 @@
     ta.placeholder = placeholder;
     ta.value = val || '';
     ta.disabled = state.locked;
-    ta.addEventListener('input', function (e) { state.student[stepKey][index][key] = e.target.value; });
+    ta.addEventListener('input', function (e) {
+      state.student[stepKey][index][key] = e.target.value;
+      saveLocalCache();
+    });
     div.appendChild(lbl);
     div.appendChild(ta);
     return div;
@@ -2740,7 +2797,10 @@
       sel.appendChild(o);
     });
     sel.value = val || '';
-    sel.addEventListener('change', function (e) { state.student[stepKey][index][key] = e.target.value; });
+    sel.addEventListener('change', function (e) {
+      state.student[stepKey][index][key] = e.target.value;
+      saveLocalCache();
+    });
     div.appendChild(lbl);
     div.appendChild(sel);
     return div;
@@ -2764,6 +2824,7 @@
       return;
     }
     state.student[stepKey].push(maker());
+    saveLocalCache();
     renderStepList(stepKey);
   }
 
@@ -2793,18 +2854,24 @@
 
   /* 학생 데이터 로드/저장/제출 */
   function bindStudentFields() {
-    $('gradeInput').addEventListener('input', function (e) { state.student.grade = e.target.value; });
-    $('classInput').addEventListener('input', function (e) { state.student.classNum = e.target.value; });
-    $('numberInput').addEventListener('input', function (e) { state.student.number = e.target.value; });
-    $('nameInput').addEventListener('input', function (e) { state.student.name = e.target.value; });
-    $('passwordInput').addEventListener('input', function (e) { state.student.password = e.target.value; });
-    $('channelInput').addEventListener('input', function (e) { state.student.channelName = e.target.value; });
-    $('videoInput').addEventListener('input', function (e) { state.student.videoTitle = e.target.value; });
+    var inputs = ['gradeInput', 'classInput', 'numberInput', 'nameInput', 'passwordInput', 'channelInput', 'videoInput', 'ytUrlInput'];
+    inputs.forEach(function (id) {
+      var el = $(id);
+      if (!el) return;
+      el.addEventListener('input', function () {
+        syncInputsToState();
+        saveLocalCache();
+      });
+      el.addEventListener('change', function () {
+        syncInputsToState();
+        saveLocalCache();
+      });
+    });
 
     $('passwordInput').addEventListener('blur', function () {
       syncInputsToState();
       if (state.student.grade && state.student.classNum && state.student.number && state.student.password && state.student.password.length >= 4) {
-        tryLoadExisting();
+        tryLoadExisting(false);
       }
     });
 
@@ -2817,15 +2884,23 @@
     }
 
     $('btnAutoFetchYt').onclick = function () {
-      var url = $('ytUrlInput').value;
+      var url = $('ytUrlInput') ? $('ytUrlInput').value : '';
       if (!url) { toast('유튜브 영상 링크를 입력하세요.', 'error'); return; }
       fetchYouTubeOEmbed(url);
     };
+
     $('ytUrlInput').addEventListener('paste', function () {
       setTimeout(function () {
         var url = $('ytUrlInput').value;
         if (url) fetchYouTubeOEmbed(url);
       }, 100);
+    });
+
+    $('ytUrlInput').addEventListener('blur', function () {
+      var url = $('ytUrlInput') ? $('ytUrlInput').value.trim() : '';
+      if (url && !state.student.videoTitle) {
+        fetchYouTubeOEmbed(url);
+      }
     });
 
     Array.prototype.forEach.call(document.querySelectorAll('.stage-step-btn'), function (btn) {
@@ -2857,6 +2932,21 @@
     syncInputsToState();
     if (!validateStudent(true)) return;
 
+    // 만약 영상 URL이 있는데 아직 제목이 안 채워져 있다면 oEmbed 자동 추출
+    if (state.student.videoUrl && !state.student.videoTitle) {
+      fetchYouTubeOEmbed(state.student.videoUrl);
+    }
+
+    // 1. 로컬 캐시가 있으면 0.01초 즉시 복원하여 딜레이 없이 즉각 전환!
+    var localData = loadLocalCache();
+    var hasLocalContent = localData && (localData.name || (localData.step1 && localData.step1.length) || localData.videoUrl);
+    if (hasLocalContent) {
+      applyLoadedRecord(localData);
+      goToStep(targetStep, false);
+      toast('⚡ 저장된 사건 일지를 즉시 불러왔습니다!', 'ok');
+    }
+
+    // 2. 서버와 백그라운드 동기화 (최신 데이터 수신)
     setBusy(true);
     runServer('loadResponse', {
       id: state.student.id,
@@ -2867,13 +2957,18 @@
     }).then(function (data) {
       if (data && data.found) {
         applyLoadedRecord(data.record);
-        toast('🎉 이전에 작성하던 사건 일지를 자동으로 불러왔습니다!', 'ok');
-      } else {
+        saveLocalCache();
+        if (!hasLocalContent) {
+          toast('🎉 이전에 작성하던 사건 일지를 불러왔습니다!', 'ok');
+        }
+      } else if (!hasLocalContent) {
         toast('새로운 사건 일지 작성을 시작합니다! 🚀', 'ok');
       }
       goToStep(targetStep, false);
     }).catch(function (err) {
-      toast(err.message, 'error');
+      if (!hasLocalContent) {
+        toast(err.message, 'error');
+      }
     }).finally(function () {
       setBusy(false);
     });
@@ -2892,6 +2987,14 @@
 
   function tryLoadExisting(showNotice) {
     syncInputsToState();
+    
+    // 로컬 캐시 선 복원
+    var localData = loadLocalCache();
+    if (localData && (localData.name || localData.videoUrl)) {
+      applyLoadedRecord(localData);
+      toast('⚡ 최근 작성 기록을 로컬에서 즉시 복원했습니다.', 'ok');
+    }
+
     setBusy(true);
     runServer('loadResponse', {
       id: state.student.id,
@@ -2902,42 +3005,48 @@
     }).then(function (data) {
       if (data && data.found) {
         applyLoadedRecord(data.record);
-        toast('🎉 이전에 작성하던 사건 일지를 안전하게 불러왔습니다!', 'ok');
-      } else if (showNotice) {
+        saveLocalCache();
+        toast('🎉 구글 시트의 최신 사건 일지를 안전하게 불러왔습니다!', 'ok');
+      } else if (showNotice && !localData) {
         toast('해당 인적사항으로 저장된 이전 사건 일지가 없습니다.', 'ok');
       }
     }).catch(function (e) {
-      if (e && e.message) toast(e.message, 'error');
+      if (e && e.message && !localData) toast(e.message, 'error');
     }).finally(function () {
       setBusy(false);
     });
   }
 
   function applyLoadedRecord(rec) {
-    state.student.id = rec.id;
+    if (!rec) return;
+    state.student.id = rec.id || state.student.id;
     if (rec.name) {
       state.student.name = rec.name;
-      $('nameInput').value = rec.name;
+      if ($('nameInput')) $('nameInput').value = rec.name;
     }
-    state.student.channelName = rec.channelName || '';
-    state.student.videoTitle = rec.videoTitle || '';
-    state.student.videoUrl = rec.videoUrl || '';
-    state.student.step1 = (rec.step1 && rec.step1.length) ? rec.step1 : [mk1(), mk1()];
-    state.student.step2 = (rec.step2 && rec.step2.length) ? rec.step2 : [mk2(), mk2(), mk2()];
-    state.student.step3 = (rec.step3 && rec.step3.length) ? rec.step3 : [mk3()];
-    state.student.step4 = (rec.step4 && rec.step4.length) ? rec.step4 : [mk4()];
+    state.student.channelName = rec.channelName || state.student.channelName || '';
+    state.student.videoTitle = rec.videoTitle || state.student.videoTitle || '';
+    state.student.videoUrl = rec.videoUrl || state.student.videoUrl || '';
+    
+    if (rec.step1 && rec.step1.length) state.student.step1 = rec.step1;
+    if (rec.step2 && rec.step2.length) state.student.step2 = rec.step2;
+    if (rec.step3 && rec.step3.length) state.student.step3 = rec.step3;
+    if (rec.step4 && rec.step4.length) state.student.step4 = rec.step4;
+
     state.student.score = rec.score;
     state.student.feedback = rec.feedback;
     state.student.returnReason = rec.returnReason;
-    state.loadedStatus = rec.status || '';
-    state.locked = (rec.status === 'GRADED'); // 채점 완료(GRADED)일 때만 잠금!
+    state.loadedStatus = rec.status || state.loadedStatus || '';
+    state.locked = (rec.status === 'GRADED'); // 채점 완료(GRADED)일 때만 잠금
 
-    $('channelInput').value = state.student.channelName;
-    $('videoInput').value = state.student.videoTitle;
-    if (state.student.videoUrl) {
+    if ($('channelInput')) $('channelInput').value = state.student.channelName;
+    if ($('videoInput')) $('videoInput').value = state.student.videoTitle;
+    if (state.student.videoUrl && $('ytUrlInput')) {
       $('ytUrlInput').value = state.student.videoUrl;
       var vid = extractYouTubeId(state.student.videoUrl);
-      if (vid) showYouTubeMonitor(vid, state.student.videoTitle, state.student.channelName, 'https://img.youtube.com/vi/' + vid + '/hqdefault.jpg');
+      if (vid) {
+        showYouTubeMonitor(vid, state.student.videoTitle || '유튜브 수사 영상', state.student.channelName || '유튜브 채널', 'https://img.youtube.com/vi/' + vid + '/hqdefault.jpg');
+      }
     }
 
     renderAllSteps();
@@ -2966,33 +3075,63 @@
   function validateStudent(isDraft) {
     syncInputsToState();
     if (!state.student.grade || !state.student.classNum || !state.student.number || !state.student.name) {
-      toast('학년, 반, 번호, 이름을 먼저 빠짐없이 입력하세요.', 'error');
+      toast('학년, 반, 번호, 이름을 먼저 빠짐없이 입력하세요. (STAGE 0으로 이동)', 'error');
+      goToStep(0, false);
+      if ($('nameInput') && !state.student.name) $('nameInput').focus();
       return false;
     }
     if (!state.student.password || state.student.password.length < 4) {
-      toast('요원 비밀번호를 4자리 이상 입력/설정해 주세요.', 'error');
+      toast('요원 비밀번호를 4자리 이상 입력/설정해 주세요. (STAGE 0으로 이동)', 'error');
+      goToStep(0, false);
+      if ($('passwordInput')) $('passwordInput').focus();
       return false;
     }
-    if (!isDraft && !state.student.videoTitle) {
-      toast('수사 대상 영상 정보를 입력하거나 링크를 넣어주세요.', 'error');
-      return false;
+
+    // 최종 제출 검증
+    if (!isDraft) {
+      // 영상 URL은 입력했으나 제목/채널명이 비어있는 경우 자동 채움 보정
+      if (state.student.videoUrl && !state.student.videoTitle) {
+        var vid = extractYouTubeId(state.student.videoUrl);
+        var autoTitle = vid ? ('수사 타깃 유튜브 영상 (' + vid + ')') : '수사 타깃 유튜브 영상';
+        var autoAuthor = state.student.channelName || '유튜브 채널';
+        state.student.videoTitle = autoTitle;
+        state.student.channelName = autoAuthor;
+        if ($('videoInput')) $('videoInput').value = autoTitle;
+        if ($('channelInput')) $('channelInput').value = autoAuthor;
+      }
+
+      // 영상 정보가 아예 누락된 경우 STAGE 0으로 이동시키고 포커스
+      if (!state.student.videoTitle && !state.student.videoUrl) {
+        toast('수사 대상 유튜브 영상 링크를 먼저 입력하고 단서를 추출해 주세요. (STAGE 0으로 이동)', 'error');
+        goToStep(0, false);
+        if ($('ytUrlInput')) {
+          $('ytUrlInput').focus();
+          $('ytUrlInput').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return false;
+      }
     }
     return true;
   }
 
   function saveDraft() {
     if (!validateStudent(true)) return;
+    saveLocalCache();
     setBusy(true);
     runServer('saveDraft', collectPayload()).then(function (data) {
-      state.student.id = data.id;
-      state.loadedStatus = data.status;
-      renderStatusBanner();
-      toast('사건 일지가 임시저장되었습니다.', 'ok');
+      if (data && data.id) {
+        state.student.id = data.id;
+        state.loadedStatus = data.status;
+        saveLocalCache();
+        renderStatusBanner();
+        toast('💾 사건 일지가 안전하게 임시저장되었습니다.', 'ok');
+      }
     }).catch(function (err) { toast(err.message, 'error'); }).finally(function () { setBusy(false); });
   }
 
   function submitForm() {
     if (!validateStudent(false)) return;
+    saveLocalCache();
     var isReSubmit = (state.loadedStatus === 'SUBMITTED');
     var confirmMsg = isReSubmit
       ? '수정한 사건 일지를 다시 제출하시겠습니까? (사령관 채점 전까지 계속 수정 가능)'
@@ -3005,6 +3144,7 @@
         state.student.id = data.id;
         state.loadedStatus = data.status;
         state.locked = false; // 채점 전까지는 계속 수정 가능 유지!
+        saveLocalCache();
         renderAllSteps();
         renderStatusBanner();
         $('btnSubmitText').textContent = '🚀 수정된 사건 일지 다시 제출하기';
