@@ -1368,6 +1368,9 @@
           <option value="1">1학년</option>
           <option value="2">2학년</option>
           <option value="3">3학년</option>
+          <option value="4">4학년</option>
+          <option value="5">5학년</option>
+          <option value="6">6학년</option>
         </select>
         <select id="feedFilterClass" class="form-control" style="flex: 1; min-width: 90px; padding: 6px 10px; font-size: 0.82rem;">
           <option value="">반 전체</option>
@@ -1377,10 +1380,20 @@
           <option value="4">4반</option>
           <option value="5">5반</option>
           <option value="6">6반</option>
-          <option value="6">7반</option>
-          <option value="6">8반</option>
-          <option value="6">9반</option>
-
+          <option value="7">7반</option>
+          <option value="8">8반</option>
+          <option value="9">9반</option>
+          <option value="10">10반</option>
+          <option value="11">11반</option>
+          <option value="12">12반</option>
+          <option value="13">13반</option>
+          <option value="14">14반</option>
+          <option value="15">15반</option>
+          <option value="16">16반</option>
+          <option value="17">17반</option>
+          <option value="18">18반</option>
+          <option value="19">19반</option>
+          <option value="20">20반</option>
         </select>
         <select id="feedSortBy" class="form-control" style="flex: 1.2; min-width: 100px; padding: 6px 10px; font-size: 0.82rem;">
           <option value="recent">⏱️ 최신 제출순</option>
@@ -1438,6 +1451,9 @@
           <option value="1">1학년</option>
           <option value="2">2학년</option>
           <option value="3">3학년</option>
+          <option value="4">4학년</option>
+          <option value="5">5학년</option>
+          <option value="6">6학년</option>
         </select>
         <select id="miningFilterClass" class="form-control" style="flex: 1; min-width: 110px;">
           <option value="">반 전체</option>
@@ -1447,6 +1463,20 @@
           <option value="4">4반</option>
           <option value="5">5반</option>
           <option value="6">6반</option>
+          <option value="7">7반</option>
+          <option value="8">8반</option>
+          <option value="9">9반</option>
+          <option value="10">10반</option>
+          <option value="11">11반</option>
+          <option value="12">12반</option>
+          <option value="13">13반</option>
+          <option value="14">14반</option>
+          <option value="15">15반</option>
+          <option value="16">16반</option>
+          <option value="17">17반</option>
+          <option value="18">18반</option>
+          <option value="19">19반</option>
+          <option value="20">20반</option>
         </select>
         <button type="button" class="btn btn-next-step" id="btnRunMining" style="padding: 8px 18px; font-size: 0.88rem;">
           마이닝 분석 실행 🔍
@@ -3013,6 +3043,27 @@
     }
   }
 
+  /* 드롭다운 옵션 동적 갱신 유틸 (실제 데이터에 존재하는 학년/반 목록 자동 반영) */
+  function updateDropdownOptions(selectEl, availableList, allLabel, suffix) {
+    if (!selectEl) return;
+    var currentVal = selectEl.value;
+    var html = '<option value="">' + (allLabel || '전체') + '</option>';
+    if (availableList && availableList.length) {
+      availableList.forEach(function (num) {
+        html += '<option value="' + num + '">' + num + (suffix || '') + '</option>';
+      });
+    } else {
+      var max = (suffix === '학년') ? 6 : 20;
+      for (var i = 1; i <= max; i++) {
+        html += '<option value="' + i + '">' + i + (suffix || '') + '</option>';
+      }
+    }
+    selectEl.innerHTML = html;
+    if (currentVal && Array.prototype.some.call(selectEl.options, function (o) { return o.value === String(currentVal); })) {
+      selectEl.value = currentVal;
+    }
+  }
+
   /* ============================================================ */
   /* 🧠 텍스트 마이닝 & 키워드 분석 로직 */
   /* ============================================================ */
@@ -3023,6 +3074,14 @@
     setBusy(true);
     runServer('getTextMiningData', { grade: g, classNum: c })
       .then(function (data) {
+        if (data) {
+          if (data.availableGrades && data.availableGrades.length) {
+            updateDropdownOptions($('miningFilterGrade'), data.availableGrades, '학년 전체', '학년');
+          }
+          if (data.availableClasses && data.availableClasses.length) {
+            updateDropdownOptions($('miningFilterClass'), data.availableClasses, '반 전체', '반');
+          }
+        }
         renderTextMiningView(data);
       })
       .catch(function (err) { toast(err.message, 'error'); })
@@ -3138,6 +3197,14 @@
     runServer('getArchiveFeed', { grade: g, classNum: c, sortBy: sort, keyword: kw })
       .then(function (data) {
         var feed = (data && data.feed) ? data.feed : [];
+        if (data) {
+          if (data.availableGrades && data.availableGrades.length) {
+            updateDropdownOptions($('feedFilterGrade'), data.availableGrades, '학년 전체', '학년');
+          }
+          if (data.availableClasses && data.availableClasses.length) {
+            updateDropdownOptions($('feedFilterClass'), data.availableClasses, '반 전체', '반');
+          }
+        }
         renderArchiveFeed(feed);
       })
       .catch(function (err) {

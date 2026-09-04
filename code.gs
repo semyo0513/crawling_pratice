@@ -309,6 +309,8 @@ function handleGetArchiveFeed_(payload) {
   const sheet = getStudentSheet_();
   const data = sheet.getDataRange().getValues();
   const list = [];
+  const allGrades = {};
+  const allClasses = {};
 
   const gradeFilter = payload && payload.grade ? String(payload.grade) : '';
   const classFilter = payload && payload.classNum ? String(payload.classNum) : '';
@@ -318,6 +320,9 @@ function handleGetArchiveFeed_(payload) {
     const rec = rowToRecord_(data[i]);
     // 제출 완료(SUBMITTED) 또는 채점 완료(GRADED)된 게시물만 아카이빙에 노출
     if (rec.status !== 'SUBMITTED' && rec.status !== 'GRADED') continue;
+
+    if (rec.grade) allGrades[rec.grade] = true;
+    if (rec.classNum) allClasses[rec.classNum] = true;
 
     if (gradeFilter && String(rec.grade) !== gradeFilter) continue;
     if (classFilter && String(rec.classNum) !== classFilter) continue;
@@ -365,7 +370,10 @@ function handleGetArchiveFeed_(payload) {
     });
   }
 
-  return { feed: list };
+  const sortedGrades = Object.keys(allGrades).map(Number).filter(function (n) { return !isNaN(n) && n > 0; }).sort(function (a, b) { return a - b; });
+  const sortedClasses = Object.keys(allClasses).map(Number).filter(function (n) { return !isNaN(n) && n > 0; }).sort(function (a, b) { return a - b; });
+
+  return { feed: list, availableGrades: sortedGrades, availableClasses: sortedClasses };
 }
 
 /** 좋아요 토글 / 1 증가 */
@@ -515,9 +523,16 @@ function handleTextMining_(payload) {
     });
   }
 
+  const allGrades = {};
+  const allClasses = {};
+
   for (let i = 1; i < data.length; i++) {
     const rec = rowToRecord_(data[i]);
     if (rec.status !== 'SUBMITTED' && rec.status !== 'GRADED') continue;
+
+    if (rec.grade) allGrades[rec.grade] = true;
+    if (rec.classNum) allClasses[rec.classNum] = true;
+
     if (gradeFilter && String(rec.grade) !== gradeFilter) continue;
     if (classFilter && String(rec.classNum) !== classFilter) continue;
 
@@ -577,6 +592,9 @@ function handleTextMining_(payload) {
     ? '총 ' + totalStudentCount + '명의 요원이 작성한 ' + totalCluesCount + '건의 수사 단서에서 ' + totalWordCount + '개의 유의미한 키워드를 추출했습니다. 핵심 관심 키워드는 ' + (top3WordList || '분석 중') + ' 순으로 집중되었습니다.'
     : '분석 대상 활동지가 아직 없습니다.';
 
+  const sortedGrades = Object.keys(allGrades).map(Number).filter(function (n) { return !isNaN(n) && n > 0; }).sort(function (a, b) { return a - b; });
+  const sortedClasses = Object.keys(allClasses).map(Number).filter(function (n) { return !isNaN(n) && n > 0; }).sort(function (a, b) { return a - b; });
+
   return {
     stats: {
       totalStudents: totalStudentCount,
@@ -586,7 +604,9 @@ function handleTextMining_(payload) {
     },
     topKeywords: topKeywords,
     stageKeywords: stageTop,
-    summaryInsight: summaryInsight
+    summaryInsight: summaryInsight,
+    availableGrades: sortedGrades,
+    availableClasses: sortedClasses
   };
 }
 
